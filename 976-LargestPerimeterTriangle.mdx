@@ -1,0 +1,114 @@
+---
+title: LeetCode Challenge Day 13 — 976. Largest Perimeter Triangle  
+summary: Day 13 of my LeetCode challenge! Today’s problem is "Largest Perimeter Triangle". I explain how to check triangle inequality efficiently, describe the greedy + sorting approach, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/largest-perimeter-triangle/solutions/7230781/976-largest-perimeter-triangle-by-nitina-bd3z
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-28  
+tags: ["LeetCode Challenge", "Day 13", "Greedy", "JavaScript", "Sorting", "Easy", "Portfolio"]
+---
+---
+## Hey folks
+
+This is **Day 13** of my LeetCode streak 🚀.  
+Today’s problem is **976. Largest Perimeter Triangle** — we’re given an array of integers representing side lengths, and we need to figure out the largest perimeter of any valid triangle that can be formed.  
+
+At first, it feels like brute force could work, but there’s a greedy trick here that makes it super efficient.
+
+---
+
+## 📌 Problem Statement
+
+Given an integer array `nums`, return the largest perimeter of a triangle with a non-zero area, formed from three of these lengths. If it is impossible to form any triangle of a non-zero area, return `0`.
+
+### Examples
+
+- Input: `[2,1,2]`  
+  Output: `5`  
+  Explanation: A triangle with sides `1, 2, 2` has perimeter `5`.  
+
+- Input: `[1,2,1,10]`  
+  Output: `0`  
+  Explanation: No three lengths can form a valid triangle.  
+
+### Constraints
+
+- `3 <= nums.length <= 10⁴`  
+- `1 <= nums[i] <= 10⁶`  
+
+---
+
+## 💡 Intuition
+
+For three sides `(a, b, c)` to form a valid triangle (where `a ≤ b ≤ c`), the triangle inequality requires:
+
+\[
+a + b > c
+\]
+
+So, to maximize the perimeter, we want the **largest sides possible**. Sorting the array helps us quickly check from the biggest downwards.
+
+---
+
+## 🔑 Approach
+
+1. Sort `nums` in ascending order.  
+2. Start from the largest index `i = n-1` down to `2`.  
+3. For each triple `(nums[i-2], nums[i-1], nums[i])`:  
+   - Check if `nums[i-2] + nums[i-1] > nums[i]`.  
+   - If yes, return their sum as the perimeter (this will be the maximum possible).  
+4. If no valid triple exists, return `0`.  
+
+This greedy strategy works because the first valid triangle found from the largest side down guarantees the largest perimeter.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** O(n log n) — for sorting. The single scan is O(n).  
+- **Space complexity:** O(1) — only variables used.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var largestPerimeter = function(nums) {
+  nums.sort((a, b) => a - b);           // O(n log n)
+  for (let i = nums.length - 1; i >= 2; i--) {
+    const a = nums[i - 2], b = nums[i - 1], c = nums[i];
+    if (a + b > c) return a + b + c;    // first valid from top is max
+  }
+  return 0;
+};
+
+// ✅ Quick tests
+console.log(largestPerimeter([2,1,2])); // 5
+console.log(largestPerimeter([1,2,1,10])); // 0
+```
+
+## 🧪 Edge Cases
+
+- **All sides too small** → return `0`.
+    
+- **Large numbers** → sorting still works fine.
+    
+- **Multiple valid triangles** → greedy ensures we return the one with max perimeter.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem shows how a **simple greedy observation** can drastically reduce complexity compared to brute force.
+
+By sorting and checking from the largest side downward, we avoid unnecessary checks and guarantee the maximum perimeter.
+
+That’s it for **Day 13** of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

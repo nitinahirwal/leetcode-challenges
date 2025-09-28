@@ -1,0 +1,136 @@
+---
+title: LeetCode Challenge Day 12 — 812. Largest Triangle Area  
+summary: Day 12 of my LeetCode challenge! Today’s problem is "Largest Triangle Area". I explain how to use the shoelace formula to compute triangle areas from 3 points, describe the brute-force O(n³) approach that works given small input size, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/largest-triangle-area/solutions/7227886/812-largest-triangle-area-by-nitinahirwa-sykt 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-27  
+tags: ["LeetCode Challenge", "Day 12", "Geometry", "JavaScript", "Shoelace Formula", "Easy", "Portfolio"]
+---
+
+---
+## Hey folks
+
+This is **Day 12** of my LeetCode streak 🚀.  
+Today’s problem is **812. Largest Triangle Area** — we’re given a list of points on a 2D plane, and we need to figure out the largest possible area of any triangle that can be formed using 3 of those points.  
+
+At first, it sounds like a geometry puzzle, but with the right formula and some brute force, it becomes very straightforward.
+
+---
+
+## 📌 Problem Statement
+
+You are given an array `points` where each element is `[xi, yi]` representing a coordinate on the XY-plane.  
+Return the maximum area of a triangle that can be formed from any 3 different points.  
+
+### Examples
+
+- Input: `[[0,0],[0,1],[1,0],[0,2],[2,0]]`  
+  Output: `2.00000`  
+  Explanation: The triangle formed by `[0,2], [2,0], [0,0]` has the largest area = 2.  
+
+- Input: `[[1,0],[0,0],[0,1]]`  
+  Output: `0.50000`  
+  Explanation: These three points form a right triangle with area = 0.5.  
+
+### Constraints
+
+- `3 <= points.length <= 50`  
+- `-50 <= xi, yi <= 50`  
+- All the given points are unique.  
+
+---
+
+## 💡 Intuition
+
+To find the area of a triangle given 3 vertices, the **shoelace formula** (also called the surveyor’s formula) is the perfect tool.  
+
+For 3 points `(x1, y1), (x2, y2), (x3, y3)`, the area is:
+
+\[ Area = \frac{|x1(y2 - y3) + x2(y3 - y1) + x3(y1 - y2)|}{2} \]
+
+Since the constraints are small (`n <= 50`), we can afford to simply try **all possible triplets** of points and compute their area, keeping track of the maximum.  
+
+---
+
+## 🔑 Approach
+
+1. Define a helper function `triArea(p1, p2, p3)` that uses the shoelace formula to compute the area of the triangle from 3 points.  
+2. Loop through all combinations of 3 points `(i, j, k)` from the array.  
+3. For each triplet, calculate the area and update the maximum if it’s larger.  
+4. Return the maximum area at the end.  
+
+The brute-force approach works perfectly here because:  
+- With at most 50 points, the number of triplets is \(\binom{50}{3} = 19600\), which is very manageable.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** O(n³) — we check all triplets. With `n = 50`, this is totally fine.  
+- **Space complexity:** O(1) — only a few variables are used.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[][]} points
+ * @return {number}
+ */
+var largestTriangleArea = function(points) {
+    const n = points.length;
+    let maxArea = 0;
+
+    // Helper: compute triangle area using shoelace formula
+    const triArea = (a, b, c) => {
+        const [x1, y1] = a;
+        const [x2, y2] = b;
+        const [x3, y3] = c;
+        return Math.abs(
+            x1 * (y2 - y3) +
+            x2 * (y3 - y1) +
+            x3 * (y1 - y2)
+        ) / 2;
+    };
+
+    // Try all triplets
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            for (let k = j + 1; k < n; k++) {
+                maxArea = Math.max(maxArea, triArea(points[i], points[j], points[k]));
+            }
+        }
+    }
+    return maxArea;
+};
+
+// ✅ Quick tests
+console.log(largestTriangleArea([[0,0],[0,1],[1,0],[0,2],[2,0]])); // 2
+console.log(largestTriangleArea([[1,0],[0,0],[0,1]])); // 0.5
+```
+
+
+## 🧪 Edge Cases
+
+- **All points in a line** → largest area = `0`.
+    
+- **Small right triangles** (like `[0,0], [1,0], [0,1]`) → should return proper fractional value.
+    
+- **Negative coordinates** → formula still works, since it uses absolute values.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a neat reminder that sometimes **brute force + the right math formula** is all you need.  
+No fancy algorithms, just good old geometry applied efficiently.
+
+It also reinforced the importance of knowing handy formulas (like shoelace), because they instantly simplify geometry problems.
+
+That’s it for **Day 12** of my LeetCode journey!  
+Excited for what Day 13 brings 🔥
+
+Happy Coding 👨‍💻

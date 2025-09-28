@@ -1,0 +1,143 @@
+---
+title: LeetCode Challenge Day 7 — 3005. Count Elements With Maximum Frequency
+summary: Day 7 of my LeetCode challenge! Today’s problem is "Count Elements With Maximum Frequency". I explain the intuition behind the problem, how to approach it step by step, and walk through my JavaScript solution using a frequency map to count occurrences, finding the maximum frequency, and summing up all elements that share that maximum efficiently.
+solution: https://leetcode.com/problems/count-elements-with-maximum-frequency/solutions/7213335/3005-count-elements-with-maximum-frequen-4iy0
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-22  
+tags: ["LeetCode Challenge", "Day 7", "Algorithms", "JavaScript", "Frequency", "Map", "Hash Map", "Easy", "Portfolio"]
+---
+
+## Hey folks
+
+This is **Day 7** of my LeetCode streak.  
+Even though it’s Monday and things are already busy, I promised myself I’d keep this streak alive for **199 days straight** — so here’s today’s grind 💪.
+
+Today’s problem is **3005. Count Elements With Maximum Frequency** — a neat little frequency-counting puzzle. It’s not about system design like yesterday’s beast, but rather about practicing clean hash-map logic and keeping things simple.
+
+
+---
+
+## 📌 Problem Statement
+
+You’re given an array `nums` consisting of positive integers.
+
+- The **frequency** of an element is the number of times it appears.
+    
+- First, find the **maximum frequency** among all numbers.
+    
+- Then return the **total number of elements** in the array that have this maximum frequency.
+    
+
+Examples:
+
+- Input: `[1,2,2,3,1,4]`  
+    Output: `4`  
+    Explanation: 1 and 2 appear twice each → total = 2 + 2 = 4.
+    
+- Input: `[1,2,3,4,5]`  
+    Output: `5`  
+    Explanation: All numbers appear once (max frequency = 1) → total = 5.
+    
+
+Constraints:
+
+- `1 <= nums.length <= 100`
+    
+- `1 <= nums[i] <= 100`
+
+## 💡 Intuition
+
+This is a **frequency map problem**.  
+We need to:
+
+1. Count how many times each number appears.
+    
+2. Find the largest count.
+    
+3. Add up the counts of all numbers that match this largest count.
+    
+
+It’s just **Count → Find Max → Sum**.
+
+## 🔑 Approach
+
+1. Use a **Map** (hash table) to store the frequency of each number.
+    
+2. Loop through the map to find the **maximum frequency**.
+    
+3. Loop again and sum all counts equal to that maximum.
+    
+4. Return the sum.
+    
+
+That’s it — no tricks needed here.
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n)` (one pass to count + small passes over the map).
+    
+- **Space complexity:** `O(k)` (k = number of unique elements, at most 100).
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxFrequencyElements = function(nums) {
+    // Step 1: Count frequencies
+    const freq = new Map();
+    for (const x of nums) {
+        freq.set(x, (freq.get(x) || 0) + 1);
+    }
+
+    // Step 2: Find the maximum frequency
+    let maxCount = 0;
+    for (const count of freq.values()) {
+        if (count > maxCount) maxCount = count;
+    }
+
+    // Step 3: Add up all counts that match the max frequency
+    let total = 0;
+    for (const count of freq.values()) {
+        if (count === maxCount) total += count;
+    }
+
+    return total;
+};
+
+// ✅ Quick tests
+console.log(maxFrequencyElements([1,2,2,3,1,4])); // 4
+console.log(maxFrequencyElements([1,2,3,4,5]));   // 5
+console.log(maxFrequencyElements([7,7,7]));       // 3
+console.log(maxFrequencyElements([1]));           // 1
+```
+
+## 🧪 Edge Cases
+
+- Array length = 1 → just return 1.
+    
+- All numbers unique → max frequency = 1 → return nums.length.
+    
+- All numbers same → max frequency = n → return n.
+
+---
+## 🎥 Video walkthrough
+
+I recorded a short walkthrough explaining the idea and a step-by-step run of the example. Watch it here (or the embedded player below):
+
+**YouTube**: [[https://youtu.be/qyptT7sp_gg](https://youtu.be/qyptT7sp_gg)]
+
+<iframe width="720" height="405" src="https://www.youtube.com/embed/qyptT7sp_gg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+## 🎥 Reflections
+
+After yesterday’s heavy **system design** style problem, today felt like a quick breather. It reminded me why simple hash map questions are so important — they train your fundamentals and force you to keep solutions clean and efficient.
+
+That’s it for **Day 7** of my LeetCode journey!  
+See you tomorrow for **Day 8** 🚀.
+
+Happy Coding 👨‍💻

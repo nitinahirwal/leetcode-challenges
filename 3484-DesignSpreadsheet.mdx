@@ -1,0 +1,128 @@
+---
+title:  LeetCode Challenge Day 4 — 3484. Design Spreadsheet
+summary: Day 4 of my LeetCode challenge! Today’s problem is "Design Spreadsheet". I restate the problem, explain how to approach it, give a step-by-step solution, include my JavaScript implementation, analyze complexity, list edge-cases, testing strategies, and embed a responsive walkthrough video. 
+solution: https://leetcode.com/problems/design-spreadsheet/solutions/7205009/3484-design-spreadsheet-by-nitinahirwal_-my3y/ 
+image:
+author: Nitin Ahirwal
+publishedAt: 2025-09-19
+tags: ["LeetCode Challenge", "Day 4", "Algorithms", "JavaScript", "HashMap", "Data Structures", "Parsing", "Portfolio"]
+---
+
+
+## Hey folks 
+
+This is **Day 4** of my LeetCode streak. Today’s problem is **3484. Design Spreadsheet** — a parsing + state-management problem where you must support setting and resetting cells and evaluating simple `=X+Y` formulas where `X` and `Y` may be either integers or cell references like `A1`. 
+
+Below I restate the problem, describe a clean, robust approach, give a step-by-step solution and the full JavaScript implementation I used, analyze time & space complexity, list edge-cases and testing ideas, and finally embed a responsive (mobile-friendly) video walkthrough.
+
+
+
+---
+
+## 📌 Problem Statement
+
+We are asked to implement a **Spreadsheet class** with the following features:
+
+1. **Initialization**  
+    A spreadsheet has 26 columns (A–Z) and `rows` number of rows. Initially, all cells hold the value `0`.
+    
+2. **Set a cell**  
+    `setCell(cell, value)` → Sets the value of the given cell.  
+    Example: `A1 = 10`.
+    
+3. **Reset a cell**  
+    `resetCell(cell)` → Resets a cell back to `0`.
+    
+4. **Evaluate a formula**  
+    `getValue(formula)` → Evaluates a formula of the form `=X+Y`, where X and Y can be either:
+    
+    - A cell reference (like `A1`, `B2`)
+        
+    - A non-negative integer
+        
+    
+    If a cell hasn’t been set yet, it is treated as `0`.
+    
+
+---
+
+## 🧩 Example
+
+`Input: ["Spreadsheet", "getValue", "setCell", "getValue", "setCell", "getValue", "resetCell", "getValue"] [[3], ["=5+7"], ["A1", 10], ["=A1+6"], ["B2", 15], ["=A1+B2"], ["A1"], ["=A1+B2"]]  Output: [null, 12, null, 16, null, 25, null, 15]`
+
+👉 Explanation:
+
+- `=5+7` → 12
+    
+- `A1=10` then `=A1+6` → 16
+    
+- `B2=15` then `=A1+B2` → 25
+    
+- Reset `A1=0` → `=A1+B2` → 15
+    
+
+---
+
+## 🎯 How to Approach
+
+When solving this problem, the key idea is to **simulate cell operations** in a simple way:
+
+1. **Storage**  
+    Use a map/dictionary to store cell values.  
+    Example: `{ "A1": 10, "B2": 15 }`
+    
+2. **Setting a cell**  
+    Just update the map with the new value.
+    
+3. **Resetting a cell**  
+    Remove it from the map so that it’s treated as `0`.
+    
+4. **Evaluating a formula**
+    
+    - Strip `=` sign and split by `+`.
+        
+    - Each part can be either:
+        
+        - A number → convert to integer.
+            
+        - A cell reference → fetch from the map (or `0` if not set).
+            
+    - Return the sum.
+        
+
+This approach ensures **O(1)** operations for set/reset/get.
+
+---
+
+
+
+
+## ⚡ Key Takeaways
+
+- Real-world problems often boil down to **simple data structures** (like maps).
+    
+- Understanding **input parsing** (e.g., `"=A1+5"`) is crucial in simulation problems.
+    
+- Don’t overcomplicate — keep it simple and efficient.
+    
+
+---
+
+## Video walkthrough
+
+I recorded a short walkthrough explaining the idea and a step-by-step run of the example. Watch it here (or the embedded player below):
+
+**YouTube**: https://youtu.be/GeAiJABwRNs
+
+<iframe width="720" height="405" src="https://youtu.be/GeAiJABwRNs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+---
+
+
+
+## Closing notes
+
+- This problem is a great mix of data-structure design and practical engineering trade-offs: "fast access" vs "fast arbitrary updates" — the `Map` + `Heap` pattern with lazy deletion is a pragmatic middle ground in JS.
+
+
+Happy coding! 📚💻

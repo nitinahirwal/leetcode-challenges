@@ -1,0 +1,170 @@
+---
+title: LeetCode Challenge Day 9 — 166. Fraction to Recurring Decimal  
+summary: Day 9 of my LeetCode challenge! Today’s problem is "Fraction to Recurring Decimal". I explain how repeating decimals are formed, how to detect cycles using a hashmap, and share my JavaScript solution that simulates long division while tracking remainders to insert parentheses at the right spot.  
+solution: https://leetcode.com/problems/fraction-to-recurring-decimal/solutions/7219772/166-fraction-to-recurring-decimal-by-nit-wysh
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-24  
+tags: ["LeetCode Challenge", "Day 9", "Algorithms", "JavaScript", "HashMap", "Division", "Medium", "Portfolio"]
+---
+
+## Hey folks
+
+This is **Day 9** of my LeetCode streak.  
+Not the smoothest day — I’m actually working from a **café instead of my desk** ☕, so no video walkthrough today. Still, the streak must go on 💪.
+
+Today’s problem is **166. Fraction to Recurring Decimal** — it’s about dividing two integers and returning the result in string form. The twist? If the fractional part repeats, we must wrap it in parentheses.
+
+## 📌 Problem Statement
+
+You are given two integers: `numerator` and `denominator`.
+
+Return their division as a **string**:
+
+- If the decimal terminates, just return it normally.
+    
+- If the decimal repeats, enclose the repeating digits in parentheses.
+    
+
+### Examples
+
+- Input: `1, 2` → Output: `"0.5"`
+    
+- Input: `2, 1` → Output: `"2"`
+    
+- Input: `4, 333` → Output: `"0.(012)"`
+    
+
+### Constraints
+
+- `-2^31 <= numerator, denominator <= 2^31 - 1`
+    
+- `denominator != 0`
+
+
+
+---
+
+## 💡 Intuition
+
+When doing long division, if a **remainder repeats**, the digits from that point forward will start repeating forever.
+
+So the key observation is:
+
+- Track remainders in a map.
+    
+- As soon as the same remainder shows up again, we know the fractional digits are repeating.
+    
+
+This allows us to insert `"("` where the cycle started and `")"` at the end.
+
+## 🔑 Approach
+
+1. Handle sign: If numerator and denominator have opposite signs, prepend `-`.
+    
+2. Compute the integer part with floor division.
+    
+3. Compute the remainder. If remainder is `0`, return the integer part as the final answer.
+    
+4. Otherwise, start building fractional digits:
+    
+    - Multiply remainder by 10.
+        
+    - Divide to get the next digit.
+        
+    - Update remainder.
+        
+    - If the remainder is already in the map, wrap the repeating section with parentheses and stop.
+        
+5. Return the joined string.
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(d)` where `d` is the denominator, because there can be at most `d` unique remainders before repetition.
+    
+- **Space complexity:** `O(d)` for storing the remainders in the hashmap.
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number} numerator
+ * @param {number} denominator
+ * @return {string}
+ */
+var fractionToDecimal = function(numerator, denominator) {
+    if (numerator === 0) return "0";
+
+    let res = [];
+
+    // Handle sign
+    if ((numerator < 0) ^ (denominator < 0)) {
+        res.push("-");
+    }
+
+    // Use absolute values
+    let n = Math.abs(numerator);
+    let d = Math.abs(denominator);
+
+    // Integer part
+    let integerPart = Math.floor(n / d);
+    res.push(integerPart.toString());
+
+    let remainder = n % d;
+    if (remainder === 0) {
+        return res.join(""); // no fractional part
+    }
+
+    res.push(".");
+
+    // Map remainder -> index in fractional part
+    let map = new Map();
+    let fractional = [];
+
+    while (remainder !== 0) {
+        if (map.has(remainder)) {
+            // Found repeating cycle
+            let idx = map.get(remainder);
+            fractional.splice(idx, 0, "(");
+            fractional.push(")");
+            break;
+        }
+
+        map.set(remainder, fractional.length);
+
+        remainder *= 10;
+        let digit = Math.floor(remainder / d);
+        fractional.push(digit.toString());
+        remainder %= d;
+    }
+
+    res.push(fractional.join(""));
+    return res.join("");
+};
+
+// ✅ Quick tests
+console.log(fractionToDecimal(1, 2));   // "0.5"
+console.log(fractionToDecimal(2, 1));   // "2"
+console.log(fractionToDecimal(4, 333)); // "0.(012)"
+console.log(fractionToDecimal(1, 6));   // "0.1(6)"
+```
+
+## 🧪 Edge Cases
+
+- `numerator = 0` → result `"0"`
+    
+- Exact division (e.g., `10 / 5`) → no fractional part.
+    
+- Negative results (e.g., `-50 / 8` → `"-6.25"`).
+    
+- Small repeating fractions like `1/6` → `"0.1(6)"`.
+
+## 🎥 Reflections
+
+No video today since I was working from a café, but I still wanted to get this written up. This problem is a mix of **math intuition** and **implementation detail**.  
+The trick of mapping remainders to their string index is the heart of the solution. Once you realize that, the rest is just clean code.
+
+That’s it for **Day 9** of my LeetCode journey!  
+See you tomorrow for **Day 10** 🚀
+
+Happy Coding 👨‍💻

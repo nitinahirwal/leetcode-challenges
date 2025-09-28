@@ -1,0 +1,116 @@
+---
+title: LeetCode Challenge Day 10 — 120. Triangle  
+summary: Day 10 of my LeetCode challenge! Today’s problem is "Triangle". I go over how to find the minimum path sum from top to bottom, explain the bottom-up dynamic programming approach, and share my JavaScript solution that optimizes space by reusing a single array.  
+solution: https://leetcode.com/problems/triangle/solutions/7222650/120-triangle-by-nitinahirwal_in-xzzr
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-25  
+tags: ["LeetCode Challenge", "Day 10", "Dynamic Programming", "JavaScript", "DP", "Triangle", "Medium", "Portfolio"]
+---
+## Hey folks
+
+This is **Day 10** of my LeetCode streak.  
+
+Today’s problem is **120. Triangle** — we’re asked to find the minimum path sum from top to bottom in a triangle of numbers. From each element, you can move to either the same index or the next index in the row below.
+
+## 📌 Problem Statement
+
+You are given a triangle array.
+
+Return the **minimum path sum** from top to bottom.
+
+At each step, you may move to adjacent numbers in the row below.
+
+### Examples
+
+- Input: `[[2],[3,4],[6,5,7],[4,1,8,3]]` → Output: `11`
+    
+- Input: `[[-10]]` → Output: `-10`
+    
+
+### Constraints
+
+- `1 <= triangle.length <= 200`
+    
+- `triangle[0].length == 1`
+    
+- `triangle[i].length == triangle[i - 1].length + 1`
+    
+- `-10^4 <= triangle[i][j] <= 10^4`
+
+## 💡 Intuition
+
+If you think top-down, each path depends on choices below it. Instead of branching recursively, it’s smarter to go **bottom-up**:
+
+- At the bottom row, the minimum path sum is just the value itself.
+    
+- Moving upward, each element adds its value to the **minimum of its two children** below.
+    
+- By the time we reach the top, we’ve accumulated the minimum path sum.
+
+## 🔑 Approach
+
+1. Initialize a DP array with the last row of the triangle.
+    
+2. Iterate from the second-last row up to the first row.
+    
+3. For each element in the row:
+    
+    - Update it as `triangle[row][i] + min(dp[i], dp[i+1])`.
+        
+4. Continue until the top is processed.
+    
+5. The answer is in `dp[0]`.
+    
+
+This reuses one array, achieving **O(n)** space where `n` is the number of rows.
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(N)` where `N` is the total number of elements in the triangle.
+    
+- **Space complexity:** `O(r)` where `r` is the number of rows (for the DP array).
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[][]} triangle
+ * @return {number}
+ */
+var minimumTotal = function(triangle) {
+    if (!triangle || triangle.length === 0) return 0;
+    if (triangle.length === 1) return triangle[0][0];
+
+    const n = triangle.length;
+    const dp = triangle[n - 1].slice(); 
+
+    for (let row = n - 2; row >= 0; row--) {
+        for (let i = 0; i <= row; i++) {
+            dp[i] = triangle[row][i] + Math.min(dp[i], dp[i + 1]);
+        }
+    }
+    return dp[0];
+};
+
+// ✅ Quick tests
+console.log(minimumTotal([[2],[3,4],[6,5,7],[4,1,8,3]])); // 11
+console.log(minimumTotal([[-10]])); // -10
+```
+
+## 🧪 Edge Cases
+
+- Single row triangle like `[[-10]]`.
+    
+- All negative numbers.
+    
+- Large triangles up to 200 rows.
+
+## 🎥 Reflections
+
+This problem really showcases how **bottom-up DP** can simplify things — no recursion, no memoization, just smart reuse of space.
+
+That’s it for **Day 10** of my LeetCode journey!  
+See you tomorrow for **Day 11** 🚀
+
+Happy Coding 👨‍💻

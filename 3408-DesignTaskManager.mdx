@@ -1,0 +1,171 @@
+---
+title:  LeetCode Challenge Day 3 — 3408. Design Task Manager
+summary: Day 3 of my LeetCode challenge! Today’s problem is "Design Task Manager". I explain the problem, how to approach it, and walk through my JavaScript solution using a max-heap + hashmap with lazy deletion. 
+solution: https://leetcode.com/problems/design-task-manager/solutions/7202353/design-task-manager-by-nitinahirwal_in-dzy7 
+image:
+author: Nitin Ahirwal
+publishedAt: 2025-09-18
+tags: ["LeetCode Challenge", "Day 3", "Algorithms", "JavaScript", "Heap", "Data Structures", "Portfolio"]
+---
+
+
+## Hey folks
+
+This is Day 3 of my LeetCode streak. Today’s problem is **Design Task Manager** — a system-design + data-structures problem that asks you to support adding, editing, removing and executing tasks across users, where execution always picks the currently highest-priority task (ties broken by higher `taskId`). Below I restate the problem, walk through the constraints, explain how the system should be approached, describe my chosen solution in detail (no code dump), walk a worked example, analyze complexity, and finish with testing and improvements. A recorded walkthrough of the implementation is embedded at the end.
+
+---
+
+## Problem (short restatement)
+
+You must implement a `TaskManager` supporting:
+
+- **Constructor**: initialize with a list of tasks, each `[userId, taskId, priority]`.
+- `add(userId, taskId, priority)`: add a new task (taskId is unique).
+- `edit(taskId, newPriority)`: update the priority for an existing task.
+- `rmv(taskId)`: remove a task.
+- `execTop()`: find & remove the task with the highest priority across all users; if multiple tasks share the top priority, pick the task with the largest `taskId`. Return the `userId` of the executed task, or `-1` if no tasks remain.
+
+**Important constraints**:
+- Up to ~2×10⁵ total operations.
+- `priority` up to 1e9.
+- `taskId` and `userId` up to 1e5.
+- Operations must be efficient — ideally O(log n) amortized where possible.
+
+---
+
+## What matters and how to think about it
+
+The two tricky requirements are:
+1. **Global top retrieval** — you must quickly get the task with highest priority across *all users*.
+2. **Efficient updates / deletes** — you must support edits and removals for arbitrary `taskId`s.
+
+A naive approach (scan every time) is O(n) per `execTop` and is too slow for the constraints. A data structure that gives *fast top access* and *logarithmic updates/removals* is required.
+
+Two canonical families of solutions:
+
+- **Ordered set / balanced BST keyed by (priority, taskId)**: you can insert, delete, and get max in O(log n). This is ideal if your language gives an ordered structure (C++ `set`, Java `TreeSet`). In JavaScript, there is no built-in balanced tree, so this is less practical.
+
+- **Heap (priority queue) + auxiliary map**: heaps give O(1) peek and O(log n) push/pop. But arbitrary removals/edits are not supported. We can combine a heap with a hash map that stores authoritative current state and use *lazy deletion* to handle edits/removals. This is the approach I used.
+
+---
+
+## My chosen approach (high-level, no code)
+
+**Core idea** — use two structures:
+
+1. **An authoritative map** (call it `taskMap`) keyed by `taskId` that stores the current `(userId, priority)` for every active task. This map is the single source of truth: if a task is removed or edited, the map reflects that immediately.
+
+2. **A max-heap** (priority queue) of candidate entries keyed by `(priority, taskId)` so that the heap's top is the best candidate (highest `priority`, tie → highest `taskId`). The heap is only used to find candidates quickly — it may contain *stale* entries (old priorities, or taskIds that have been removed).
+
+**Lazy deletion / validation at pop time**:
+
+- When you `add` a task: put it into `taskMap` and push `(priority, taskId)` into the heap.
+- When you `edit` a task: update the `taskMap` with the new priority and push the new `(priority, taskId)` into the heap (the old heap entry becomes stale).
+- When you `rmv` a task: remove it from `taskMap`. Its entries remain in the heap as stale.
+- When you `execTop`: repeatedly peek at heap top; for the top entry check `taskMap`:
+  - If `taskId` is missing from `taskMap` (removed) or the stored priority in `taskMap` doesn't match the heap entry's priority (stale due to an edit), then pop the heap and continue.
+  - Otherwise, the heap top matches authoritative state — pop it, remove the `taskId` from `taskMap`, and return the `userId`.
+
+This way, the expensive work of discarding stale entries happens only when necessary, and each stale heap entry is popped at most once overall — giving an **amortized** cost that meets the constraints.
+
+**Comparator detail**: when pushing into the heap use a comparator that orders by `priority` descending, then by `taskId` descending. That guarantees the required tie-breaker.
+
+---
+
+## Walkthrough with the example
+
+Initial tasks: `[[1,101,10], [2,102,20], [3,103,15]]`
+
+- Startup: `taskMap` contains 101→(1,10), 102→(2,20), 103→(3,15). Heap holds candidates (20,102), (15,103), (10,101) (internal order may vary, but top is (20,102)).
+
+Operations:
+
+1. `add(4, 104, 5)`  
+   - `taskMap[104] = (4,5)`; heap push (5,104).
+
+2. `edit(102, 8)`  
+   - Update `taskMap[102].priority = 8`. Push (8,102) into heap. Note: old (20,102) in heap is now stale.
+
+3. `execTop()`  
+   - Heap top might show (20,102) (stale). Peek checks `taskMap[102]` → priority is 8, mismatch → pop stale. Next candidate is (15,103) — `taskMap[103]` matches → valid. Pop it and remove `103` from `taskMap`. Return `userId` 3.
+
+4. `rmv(101)`  
+   - Delete `101` from `taskMap`. (10,101) remains stale in heap.
+
+5. `add(5, 105, 15)`  
+   - `taskMap[105] = (5,15)`; heap push (15,105).
+
+6. `execTop()`  
+   - Heap top might be a stale entry (10,101) or other stale nodes. Pop until you find (15,105) whose `taskMap` entry matches → valid. Pop it, remove `105` from `taskMap`, return `userId` 5.
+
+This demonstrates lazy deletion: stale items are tolerated in the heap and filtered when they surface at top.
+
+---
+
+## Complexity (analysis)
+
+Let `n` be the number of distinct tasks currently active (and `m` the number of operations).
+
+- `add`: O(log H) where H is heap size (push). Heap size can grow because of stale entries, but amortized over all operations this remains efficient.
+- `edit`: O(log H) (we push a new entry; we update the map in O(1)).
+- `rmv`: O(1) (delete from map).
+- `execTop`: amortized O(log H) per executed task. In the worst single call you may pop several stale elements, but each stale element is popped at most once overall — hence amortized cost is O(log H).
+
+Space: heap may temporarily contain a number of stale entries equal to number of edits; in the worst case O(n + edits). If edits are frequent, you may rebuild the heap periodically to reclaim memory.
+
+**Why this meets constraints**: each operation is log-time for the heap actions, and the lazy deletion ensures we don't pay O(n) repeatedly. Given ≤ 2×10⁵ operations, this is within acceptable limits in practice.
+
+---
+
+## Edge-cases & robustness
+
+- **Many edits on the same taskId**: repeated edits create stale entries. To avoid unbounded heap growth, trigger a heap rebuild when `heap.size()` becomes, say, > 2× `taskMap.size()` (or some tuned threshold).
+- **Concurrent operations**: if this were multi-threaded, you'd need synchronization around `taskMap` and heap operations. The single-threaded LeetCode setting avoids that.
+- **Ties**: ensure comparator uses `taskId` as the tie-breaker (highest `taskId` wins).
+- **Empty `execTop()`**: must return `-1`.
+- **Input guarantees**: LeetCode promises taskId validity for edit/rmv; in a production system you'd validate and surface errors for invalid IDs.
+
+---
+
+## Practical improvements I considered
+
+- **Index map / heap index**: maintain `taskId -> heapIndex` to support direct O(log n) deletions/updates in the heap (more bookkeeping but removes lazy-deletion overhead). This is more complex to maintain and error-prone in some languages.
+- **Periodic heap rebuild**: if the stale-to-active ratio grows, rebuild the heap from `taskMap` entries (O(n)) and reset stale counts.
+- **Use language-native ordered set**: if available, use a BST keyed by `(priority, taskId)` for exact O(log n) deletes and updates (C++/Java).
+- **Memory vs simplicity tradeoff**: lazy deletion is simple and reliable; index-map approach optimizes memory but increases complexity.
+
+---
+
+## How I tested it locally
+
+- **Sanity tests**: run the sample sequence and assert expected outputs (including `-1` on empty).
+- **Edge tests**: single-task workflows, immediate edits before exec, remove after edit, multiple tasks with same priorities and varying `taskId`s.
+- **Stress test / randomized**: generate a random sequence of `add`, `edit`, `rmv`, `execTop` while maintaining a reference brute-force implementation (e.g., a sorted list or priority scan) and compare outputs step-by-step.
+- **Stale-heavy scenario**: perform many edits on the same `taskId` and observe heap growth; validate rebuild logic if implemented.
+
+---
+
+## Why I picked this approach (short rationale)
+
+- JavaScript lacks a built-in balanced ordered set, so using a heap + map is pragmatic.
+- The pattern (map + heap + lazy deletion) is idiomatic for languages where arbitrary heap deletion is expensive to implement.
+- It keeps the implementation simple and readable while meeting time/space constraints in practice for the given input scale.
+
+---
+
+## Video walkthrough
+
+I recorded a short walkthrough explaining the idea and a step-by-step run of the example. Watch it here (or the embedded player below):
+
+**YouTube**: https://www.youtube.com/watch?v=niURSbsEJIM&list=PLIZ4OIdcU2ZwgGSu0ukM2_m_T4DP6_TTd
+
+<iframe width="720" height="405" src="https://www.youtube.com/embed/niURSbsEJIM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+---
+
+## Closing notes
+
+- This problem is a great mix of data-structure design and practical engineering trade-offs: "fast access" vs "fast arbitrary updates" — the `Map` + `Heap` pattern with lazy deletion is a pragmatic middle ground in JS.
+
+
+Happy coding! 📚💻

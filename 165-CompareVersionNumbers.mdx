@@ -1,0 +1,157 @@
+---
+title: LeetCode Challenge Day 8 — 165. Compare Version Numbers
+summary: Day 8 of my LeetCode challenge! Today’s problem is "Compare Version Numbers". I break down the intuition, explain how to handle version strings with different lengths and leading zeros, and share my JavaScript solution that splits versions, compares revisions as integers, and handles missing revisions as zeros.
+solution: https://leetcode.com/problems/compare-version-numbers/solutions/7216772/165-compare-version-numbers-by-nitinahir-xmrc
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-23  
+tags: ["LeetCode Challenge", "Day 8", "Algorithms", "JavaScript", "String", "Parsing", "Medium", "Portfolio"]
+---
+## Hey folks
+
+This is **Day 8** of my LeetCode streak.  
+Not the most productive day overall — lots of distractions, a bit of Twitter doomscrolling 😅 — but I promised myself I’d keep this streak alive for **199 days straight**, so here’s today’s grind 💪.
+
+Today’s problem is **165. Compare Version Numbers** — a string parsing and comparison puzzle. It’s less about data structures and more about careful step-by-step handling of edge cases like leading zeros and missing revisions.
+
+## 📌 Problem Statement
+
+You’re given two version strings, `version1` and `version2`.  
+Each version string consists of revisions separated by dots `"."`.  
+Each revision is an integer (ignoring leading zeros).
+
+We need to compare them:
+
+- If `version1 < version2`, return `-1`.
+    
+- If `version1 > version2`, return `1`.
+    
+- Otherwise, return `0`.
+    
+
+Rules:
+
+- If one version string has fewer revisions, treat the missing parts as `"0"`.
+    
+- Leading zeros should be ignored (`"01"` and `"001"` are just `1`).
+    
+
+### Examples
+
+- Input: `"1.2"`, `"1.10"`  
+    Output: `-1`  
+    Explanation: compare second revisions → 2 < 10.
+    
+- Input: `"1.01"`, `"1.001"`  
+    Output: `0`  
+    Explanation: both resolve to the same revisions `[1, 1]`.
+    
+- Input: `"1.0"`, `"1.0.0.0"`  
+    Output: `0`  
+    Explanation: missing revisions count as zeros.
+    
+
+### Constraints
+
+- `1 <= version1.length, version2.length <= 500`
+    
+- Both strings contain only digits and `"."`.
+    
+- Revisions fit in a 32-bit integer.
+
+## 💡 Intuition
+
+The key is that version numbers are **sequences of integers separated by dots**.  
+So instead of comparing raw strings, we should:
+
+1. Split the versions into arrays.
+    
+2. Compare revision by revision as integers.
+    
+3. If one runs out of revisions, treat the missing ones as `0`.
+    
+
+This way, leading zeros don’t mess us up, and we can handle versions of different lengths smoothly.
+
+## 🔑 Approach
+
+1. Split both `version1` and `version2` by `"."` into arrays.
+    
+2. Find the maximum length of the two arrays → ensures we compare all revisions.
+    
+3. For each index `i`:
+    
+    - Parse the revision to an integer, or use `0` if the revision doesn’t exist.
+        
+    - Compare `num1` and `num2`.
+        
+    - If one is smaller, return `-1`; if larger, return `1`.
+        
+4. If no differences are found after the loop, return `0`.
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n)` where `n` is the maximum number of revisions in the two version strings.
+    
+- **Space complexity:** `O(n)` to hold the split arrays.
+
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {string} version1
+ * @param {string} version2
+ * @return {number}
+ */
+var compareVersion = function(version1, version2) {
+    let v1 = version1.split(".");
+    let v2 = version2.split(".");
+    
+    let n = Math.max(v1.length, v2.length);
+    
+    for (let i = 0; i < n; i++) {
+        let num1 = i < v1.length ? parseInt(v1[i]) : 0;
+        let num2 = i < v2.length ? parseInt(v2[i]) : 0;
+        
+        if (num1 < num2) return -1;
+        if (num1 > num2) return 1;
+    }
+    
+    return 0;
+};
+
+// ✅ Quick tests
+console.log(compareVersion("1.2", "1.10"));   // -1
+console.log(compareVersion("1.01", "1.001")); // 0
+console.log(compareVersion("1.0", "1.0.0.0"));// 0
+console.log(compareVersion("2.5", "2.3"));    // 1
+```
+
+## 🧪 Edge Cases
+
+- `"1.0"` vs `"1.0.0"` → should be equal.
+    
+- `"1.01"` vs `"1.001"` → leading zeros ignored.
+    
+- Versions with completely different lengths (`"1"` vs `"1.0.0.0.0"`) should still be equal.
+
+## 🎥 Video walkthrough
+
+I recorded a short walkthrough explaining the idea and a step-by-step run of the example. Watch it here (or the embedded player below):
+
+**YouTube**: [[https://youtu.be/ABkYiYq2Knc](https://youtu.be/ABkYiYq2Knc)]
+
+<iframe width="720" height="405" src="https://www.youtube.com/embed/ABkYiYq2Knc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+## 🎥 Reflections
+
+This problem is all about **clean parsing and careful comparison**.  
+It reminded me that even simple-looking problems can hide tricky details like leading zeros and uneven array lengths. Handling them systematically is the key.
+
+That’s it for **Day 8** of my LeetCode journey!  
+See you tomorrow for **Day 9** 🚀.
+
+Happy Coding 👨‍💻

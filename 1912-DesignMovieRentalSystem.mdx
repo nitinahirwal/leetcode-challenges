@@ -1,0 +1,294 @@
+---
+title: LeetCode Challenge Day 6 — 1912. Design Movie Renting System  
+summary: Day 6 of my LeetCode challenge! Today’s problem is "Design Movie Renting System". I explain the system-design style challenge, how to approach it, and walk through my JavaScript solution using heaps for ordering, maps for lookups, and lazy deletion to handle stale entries efficiently.  
+solution: https://leetcode.com/problems/design-movie-rental-system/solutions/7210082/1912-design-movie-rental-system-by-nitin-eu9n
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-21  
+tags: ["LeetCode Challenge", "Day 6", "Algorithms", "JavaScript", "Heap", "Map", "System Design", "Priority Queue", "Portfolio"]
+---
+
+## Hey folks
+
+This is **Day 6** of my LeetCode streak.  
+It’s Sunday, and I usually don’t even come to my workspace on Sundays — but I’ve committed to this challenge for at least **199 days straight**, so here I am 💪.
+
+Today’s problem is **1912. Design Movie Renting System** — a simulation of a movie rental company where we must support efficient search, rent, drop, and report operations. It feels like a real-world mini system design problem!
+
+## 📌 Problem Statement
+
+We’re building a `MovieRentingSystem` with `n` shops, each shop carrying some movies at certain prices.
+
+It must support:
+
+1. **Initialization**: `MovieRentingSystem(n, entries)`
+    
+    - Each entry is `[shop, movie, price]`.
+        
+    - Each shop carries at most one copy of a movie.
+        
+2. **search(movie)**
+    
+    - Return the **cheapest 5 shops** that have this movie unrented.
+        
+    - Sort by price, then shop ID.
+        
+3. **rent(shop, movie)**
+    
+    - Rent a copy of the movie from this shop.
+        
+4. **drop(shop, movie)**
+    
+    - Return a previously rented movie to this shop.
+        
+5. **report()**
+    
+    - Return the **cheapest 5 rented movies** system-wide as `[shop, movie]`.
+        
+    - Sort by price, then shop, then movie ID.
+        
+
+Constraints:
+
+- Up to `3*10^5` shops.
+    
+- Up to `10^5` entries and operations.
+    
+- Guaranteed valid rent/drop calls.
+
+
+## 💡 Intuition
+
+At first glance, this feels like a database query problem. But since operations need to be **fast** (up to 100k calls), brute force search would time out.
+
+We need two things:
+
+1. Efficiently retrieve the cheapest available shops for a given movie.
+    
+2. Efficiently retrieve the cheapest rented movies globally.
+    
+
+Both scream **priority queues (heaps)**.
+
+The tricky part is **keeping heaps clean** after rent/drop, since heaps don’t support deletion efficiently. We solve this with **lazy deletion**:
+
+- Leave stale entries in the heap.
+    
+- When popped, check if they’re still valid. If not, skip.
+    
+
+## 🔑 Approach
+
+1. **Data Structures**
+    
+    - `priceMap`: `(shop, movie)` → price.
+        
+    - `rented`: `(shop, movie)` → rented flag (true/false).
+        
+    - `available`: `movie → min-heap([price, shop])`. For `search()`.
+        
+    - `rentedHeap`: global min-heap([price, shop, movie]). For `report()`.
+        
+2. **search(movie)**
+    
+    - Pop from `available[movie]` until 5 valid results are found.
+        
+    - Use a temporary buffer to restore valid entries after checking.
+        
+3. **rent(shop, movie)**
+    
+    - Mark as rented.
+        
+    - Insert into `rentedHeap`.
+        
+4. **drop(shop, movie)**
+    
+    - Mark as not rented.
+        
+    - Push back into the available heap for that movie.
+        
+5. **report()**
+    
+    - Similar to search, but from `rentedHeap`.
+        
+    - Collect up to 5 valid rented movies.
+        
+6. **Lazy Deletion**
+    
+    - Instead of removing items immediately, let invalid ones sit in the heap.
+        
+    - When they rise to the top, we check validity (`rented` + price match).
+        
+    - Skip stale ones.
+
+
+## ⏱️ Complexity Analysis
+
+- **search**: Up to 5 pops and pushes → `O(log n)`
+    
+- **rent**: Single push → `O(log n)`
+    
+- **drop**: Single push → `O(log n)`
+    
+- **report**: Up to 5 pops and pushes → `O(log n)`
+    
+- Overall each operation runs in **logarithmic time**.
+    
+- **Space complexity**: `O(n)` for maps + heaps (with some duplicates due to lazy deletion).
+
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+
+class MyHeap {
+    constructor(compare) {
+        this.data = [];
+        this.compare = compare;
+    }
+    size() { return this.data.length; }
+    peek() { return this.data.length ? this.data[0] : null; }
+    push(val) {
+        this.data.push(val);
+        this._siftUp(this.data.length - 1);
+    }
+    pop() {
+        if (!this.data.length) return null;
+        const top = this.data[0];
+        const last = this.data.pop();
+        if (this.data.length) {
+            this.data[0] = last;
+            this._siftDown(0);
+        }
+        return top;
+    }
+    _siftUp(i) {
+        while (i > 0) {
+            const p = (i - 1) >> 1;
+            if (this.compare(this.data[i], this.data[p]) < 0) {
+                [this.data[i], this.data[p]] = [this.data[p], this.data[i]];
+                i = p;
+            } else break;
+        }
+    }
+    _siftDown(i) {
+        const n = this.data.length;
+        while (true) {
+            let smallest = i, l = 2*i+1, r = 2*i+2;
+            if (l < n && this.compare(this.data[l], this.data[smallest]) < 0) smallest = l;
+            if (r < n && this.compare(this.data[r], this.data[smallest]) < 0) smallest = r;
+            if (smallest !== i) {
+                [this.data[i], this.data[smallest]] = [this.data[smallest], this.data[i]];
+                i = smallest;
+            } else break;
+        }
+    }
+}
+
+var MovieRentingSystem = function(n, entries) {
+    this._key = (s,m) => s + '|' + m;
+    this.priceMap = new Map();
+    this.rented = new Map();
+    this.available = new Map();
+    this.rentedHeap = new MyHeap((a,b) => a[0]-b[0] || a[1]-b[1] || a[2]-b[2]);
+
+    for (let [shop,movie,price] of entries) {
+        const k = this._key(shop,movie);
+        this.priceMap.set(k, price);
+        this.rented.set(k, false);
+        if (!this.available.has(movie)) {
+            this.available.set(movie, new MyHeap((a,b) => a[0]-b[0] || a[1]-b[1]));
+        }
+        this.available.get(movie).push([price, shop]);
+    }
+};
+
+MovieRentingSystem.prototype.search = function(movie) {
+    const res = [], temp = [], heap = this.available.get(movie);
+    if (!heap) return res;
+    while (res.length < 5 && heap.size()) {
+        const [price,shop] = heap.pop();
+        const k = this._key(shop,movie);
+        if (!this.rented.get(k) && this.priceMap.get(k) === price) {
+            res.push(shop);
+            temp.push([price,shop]);
+        }
+    }
+    for (let item of temp) heap.push(item);
+    return res;
+};
+
+MovieRentingSystem.prototype.rent = function(shop,movie) {
+    const k = this._key(shop,movie);
+    this.rented.set(k,true);
+    const price = this.priceMap.get(k);
+    this.rentedHeap.push([price,shop,movie]);
+};
+
+MovieRentingSystem.prototype.drop = function(shop,movie) {
+    const k = this._key(shop,movie);
+    this.rented.set(k,false);
+    const price = this.priceMap.get(k);
+    this.available.get(movie).push([price,shop]);
+};
+
+MovieRentingSystem.prototype.report = function() {
+    const res = [], temp = [];
+    while (res.length < 5 && this.rentedHeap.size()) {
+        const [price,shop,movie] = this.rentedHeap.pop();
+        const k = this._key(shop,movie);
+        if (this.rented.get(k) && this.priceMap.get(k) === price) {
+            res.push([shop,movie]);
+            temp.push([price,shop,movie]);
+        }
+    }
+    for (let item of temp) this.rentedHeap.push(item);
+    return res;
+};
+
+```
+
+
+✅ Example Walkthrough
+
+```js
+let sys = new MovieRentingSystem(3, [[0,1,5],[0,2,6],[0,3,7],[1,1,4],[1,2,7],[2,1,5]]);
+sys.search(1);   // [1,0,2]
+sys.rent(0,1);
+sys.rent(1,2);
+sys.report();    // [[0,1],[1,2]]
+sys.drop(1,2);
+sys.search(2);   // [0,1]
+```
+
+## 🧪 Edge Cases
+
+- Movie not found → return empty array.
+    
+- Renting twice from same shop not possible (guaranteed).
+    
+- Dropping only after renting (guaranteed).
+    
+- Multiple movies with same price → sorted by shop ID.
+    
+- Report ties → sorted by price → shop → movie.
+
+## 🎥 Video walkthrough
+
+I recorded a short walkthrough explaining the idea and a step-by-step run of the example. Watch it here (or the embedded player below):
+
+**YouTube**: [https://youtu.be/__1n2Fyvw0I]
+
+<iframe width="720" height="405" src="https://www.youtube.com/embed/__1n2Fyvw0I" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+## 🎥 Reflections
+
+This problem took me **over 2 hours** to solve.  
+I had to carefully implement my own `Heap` class in JavaScript, handle stale entries with **lazy deletion**, and debug tricky test cases where duplicates showed up in the report.
+
+I even took a little help from **Claude** to refine my thinking when I got stuck. But in the end, I’m happy with the solution — it’s clean, efficient, and system-design flavored 🚀.
+
+That’s it for **Day 6** of my LeetCode journey!  
+See you tomorrow for Day 7.
+
+Happy Coding 👨‍💻

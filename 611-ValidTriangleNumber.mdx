@@ -1,0 +1,117 @@
+---
+title: LeetCode Challenge Day 11 — 611. Valid Triangle Number 
+summary: Day 11 of my LeetCode challenge! Today’s problem is "Valid Triangle Number". I explain the triangle inequality condition, walk through the two-pointer approach after sorting, and share my JavaScript solution with O(n²) time complexity.   
+solution: https://leetcode.com/problems/valid-triangle-number/solutions/7225457/611-valid-triangle-number-by-nitinahirwa-taef
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-26  
+tags: ["LeetCode Challenge", "Day 11", "Two Pointers", "Sorting", "JavaScript", "Arrays", "Medium", "Portfolio"]
+---
+
+## Hey folks
+
+This is **Day 11** of my LeetCode streak 🚀.  
+Today’s problem is **611. Valid Triangle Number** — given an array of integers, we need to count how many triplets can form valid triangles if taken as side lengths.
+
+## 📌 Problem Statement
+
+You are given an integer array `nums`.  
+Return the number of triplets `(i, j, k)` such that `nums[i]`, `nums[j]`, `nums[k]` can form a triangle.
+
+### Examples
+
+- Input: `[2,2,3,4]` → Output: `3`  
+  Valid: `(2,3,4), (2,3,4), (2,2,3)`
+
+- Input: `[4,2,3,4]` → Output: `4`  
+  Valid: `(2,3,4), (2,3,4), (3,4,4), (2,4,4)`
+
+### Constraints
+
+- `1 <= nums.length <= 1000`  
+- `0 <= nums[i] <= 1000`
+
+---
+
+## 💡 Intuition
+
+For a triangle with sides `a ≤ b ≤ c`, the **triangle inequality** says:  
+`a + b > c`.  
+
+So the main idea is:  
+- Sort the array.  
+- Fix the largest side `c`.  
+- Count how many pairs `(a, b)` satisfy the condition.
+
+---
+
+## 🔑 Approach
+
+1. **Sort the array** to simplify comparisons.  
+2. Loop `k` from the last index down to 2 (fixing the largest side).  
+3. Use **two pointers** (`l = 0`, `r = k - 1`):  
+   - If `nums[l] + nums[r] > nums[k]`, then every index between `l` and `r-1` also works → add `(r - l)` and move `r--`.  
+   - Otherwise, move `l++`.  
+4. Keep track of the count and return it.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** Sorting `O(n log n)` + Two-pointer `O(n²)` → **O(n²)**.  
+- **Space complexity:** Only a few variables used → **O(1)**.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var triangleNumber = function(nums) {
+    nums.sort((a, b) => a - b);  // sort array
+    let n = nums.length;
+    let count = 0;
+    
+    for (let k = n - 1; k >= 2; k--) {
+        let l = 0, r = k - 1;
+        while (l < r) {
+            if (nums[l] + nums[r] > nums[k]) {
+                count += (r - l);   // all pairs between l and r are valid
+                r--;
+            } else {
+                l++;
+            }
+        }
+    }
+    return count;
+};
+
+// ✅ Quick tests
+console.log(triangleNumber([2,2,3,4])); // 3
+console.log(triangleNumber([4,2,3,4])); // 4
+```
+
+## 🧪 Edge Cases
+
+- Arrays with fewer than 3 elements → `0`
+    
+- Any side with `0` → can’t form a valid triangle
+    
+- Duplicates are fine → each valid triplet is counted separately
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a great example of **sorting + two-pointer technique**.  
+Instead of brute-forcing all `O(n³)` triplets, we cut it down to **O(n²)** cleanly.  
+Once you realize that if one pair `(l, r)` works then all between them work, the counting trick makes it elegant.
+
+That’s it for **Day 11** of my LeetCode journey!  
+See you tomorrow for **Day 12** 🔥
+
+Happy Coding 👨‍💻

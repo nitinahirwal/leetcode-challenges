@@ -1,0 +1,282 @@
+---
+title:  LeetCode Challenge Day 5 — 3508. Implement Router
+summary: Day 5 of my LeetCode challenge! Today’s problem is "Implement Router". I explain the problem, how to approach it, and walk through my JavaScript solution using a queue for FIFO, a set for duplicate detection, and a map of timestamps with binary search for efficient counting.
+solution: https://leetcode.com/problems/implement-router/solutions/7207355/3508-implement-router-by-nitinahirwal_in-me4z
+image:
+author: Nitin Ahirwal
+publishedAt: 2025-09-20
+tags: ["LeetCode Challenge", "Day 5", "Algorithms", "JavaScript", "Queue", "HashMap", "Binary Search", "Data Structures", "Portfolio"]
+---
+
+## Hey folks  
+
+This is **Day 5** of my LeetCode streak.  
+Today’s problem is **3508. Implement Router** — a system-design style problem where you must simulate a network router that stores packets in FIFO order with memory limits, supports duplicate detection, and allows time-window queries per destination.  
+
+Below I restate the problem, describe a clean, robust approach, give a step-by-step solution and the full JavaScript implementation I used, analyze time & space complexity, list edge-cases and testing ideas, and finally wrap up with some reflections.  
+
+---
+
+## 📌 Problem Statement  
+
+We need to design a `Router` data structure that manages data packets with constraints on memory and operations. Each **packet** contains:  
+
+- `source`: unique identifier of sender  
+- `destination`: unique identifier of receiver  
+- `timestamp`: when the packet arrived  
+
+The router must support:  
+
+1. **Initialization**: `Router(memoryLimit)`  
+   - Maximum number of packets the router can store.  
+   - If adding exceeds limit, evict the oldest (FIFO).  
+
+2. **Adding a packet**: `addPacket(source, destination, timestamp)`  
+   - Reject duplicate packets (`same source, destination, timestamp`).  
+   - Return `true` if successfully added, else `false`.  
+
+3. **Forwarding a packet**: `forwardPacket()`  
+   - Return oldest packet `[source, destination, timestamp]` in FIFO order.  
+   - Remove it from storage.  
+   - If none left, return `[]`.  
+
+4. **Counting packets**: `getCount(destination, startTime, endTime)`  
+   - Count how many packets (not yet forwarded) match a `destination` and fall in the inclusive range `[startTime, endTime]`.  
+
+Constraints:  
+- `2 <= memoryLimit <= 1e5`  
+- At most `1e5` operations total  
+- `addPacket` calls always have non-decreasing timestamps  
+
+---
+
+## 💡 Intuition  
+
+We’re basically simulating a **network router** with:  
+
+- FIFO storage (queue behavior).  
+- Duplicate prevention.  
+- Efficient queries for packets within a **time window**.  
+
+Key challenges:  
+- Evicting oldest efficiently.  
+- Checking duplicates quickly.  
+- Handling range queries fast (logarithmic ideally).  
+
+---
+
+## 🔑 Approach  
+
+### 1. **Queue Simulation with Head Pointer**  
+- Use an array `q` and a head index `qHead` instead of shifting.  
+- Push new packets at the end, and move the head when forwarding/evicting.  
+- Gives `O(1)` amortized for enqueue/dequeue.  
+
+### 2. **Duplicate Check**  
+- Maintain a `Set` of packet keys (`source#destination#timestamp`).  
+- Before inserting, check existence.  
+
+### 3. **Per-Destination Storage for Range Queries**  
+- Maintain a `Map` of `destination → [timestamps...]`.  
+- Since `addPacket` is called in non-decreasing order of timestamps, arrays remain sorted.  
+- Track a head index per destination (`perDestHead`) so we can skip evicted packets logically.  
+
+### 4. **Eviction Policy (when memory exceeds)**  
+- Evict the oldest packet (from `qHead`).  
+- Update `seen` set and per-destination timestamp head.  
+
+### 5. **Range Query with Binary Search**  
+- Use binary search (`bisectLeft`, `bisectRight`) to find valid timestamps between `[startTime, endTime]`.  
+- Complexity: `O(log n)` for query.  
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Add packet**: `O(1)` amortized  
+- **Forward packet**: `O(1)`  
+- **Get count**: `O(log n)` due to binary search  
+- **Space**: `O(memoryLimit)`  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+var Router = function(memoryLimit) {
+    this.memoryLimit = memoryLimit;
+    this.q = [];
+    this.qHead = 0;
+    this.seen = new Set();
+    this.perDestTs = new Map();
+    this.perDestHead = new Map();
+};
+
+function makeKey(s, d, t) {
+    return s + '#' + d + '#' + t;
+}
+
+function bisectLeft(arr, target, lo = 0) {
+    let hi = arr.length;
+    while (lo < hi) {
+        const mid = (lo + hi) >>> 1;
+        if (arr[mid] < target) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+
+function bisectRight(arr, target, lo = 0) {
+    let hi = arr.length;
+    while (lo < hi) {
+        const mid = (lo + hi) >>> 1;
+        if (arr[mid] <= target) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+
+Router.prototype._queueSize = function() {
+    return this.q.length - this.qHead;
+};
+
+Router.prototype._evictOne = function() {
+    if (this._queueSize() === 0) return;
+    const [src, dest, ts] = this.q[this.qHead];
+    this.qHead++;
+    this.seen.delete(makeKey(src, dest, ts));
+
+    const arr = this.perDestTs.get(dest);
+    if (arr) {
+        const head = (this.perDestHead.get(dest) || 0) + 1;
+        if (head >= arr.length) {
+            this.perDestTs.set(dest, []);
+            this.perDestHead.set(dest, 0);
+        } else {
+            this.perDestHead.set(dest, head);
+        }
+    }
+
+    if (this.qHead > 1000 && this.qHead * 2 > this.q.length) {
+        this.q = this.q.slice(this.qHead);
+        this.qHead = 0;
+    }
+};
+
+Router.prototype.addPacket = function(source, destination, timestamp) {
+    const key = makeKey(source, destination, timestamp);
+    if (this.seen.has(key)) return false;
+
+    this.q.push([source, destination, timestamp]);
+    this.seen.add(key);
+
+    if (!this.perDestTs.has(destination)) {
+        this.perDestTs.set(destination, []);
+        this.perDestHead.set(destination, 0);
+    }
+    this.perDestTs.get(destination).push(timestamp);
+
+    while (this._queueSize() > this.memoryLimit) {
+        this._evictOne();
+    }
+    return true;
+};
+
+Router.prototype.forwardPacket = function() {
+    if (this._queueSize() === 0) return [];
+
+    const [src, dest, ts] = this.q[this.qHead];
+    this.qHead++;
+    this.seen.delete(makeKey(src, dest, ts));
+
+    const arr = this.perDestTs.get(dest);
+    if (arr) {
+        const head = (this.perDestHead.get(dest) || 0) + 1;
+        if (head >= arr.length) {
+            this.perDestTs.set(dest, []);
+            this.perDestHead.set(dest, 0);
+        } else {
+            this.perDestHead.set(dest, head);
+        }
+    }
+
+    if (this.qHead > 1000 && this.qHead * 2 > this.q.length) {
+        this.q = this.q.slice(this.qHead);
+        this.qHead = 0;
+    }
+
+    return [src, dest, ts];
+};
+
+Router.prototype.getCount = function(destination, startTime, endTime) {
+    const arr = this.perDestTs.get(destination) || [];
+    const head = this.perDestHead.get(destination) || 0;
+    if (head >= arr.length) return 0;
+
+    const left = bisectLeft(arr, startTime, head);
+    const right = bisectRight(arr, endTime, head);
+    return right - left;
+};
+```
+
+✅ Example Walkthrough
+
+```js
+Router router = new Router(3);
+router.addPacket(1, 4, 90);   // true
+router.addPacket(2, 5, 90);   // true
+router.addPacket(1, 4, 90);   // false (duplicate)
+router.addPacket(3, 5, 95);   // true
+router.addPacket(4, 5, 105);  // true, evicts [1,4,90]
+router.forwardPacket();       // [2,5,90]
+router.addPacket(5, 2, 110);  // true
+router.getCount(5, 100, 110); // 1
+
+```
+
+⏱️ Complexity
+
+```
+addPacket: O(1) amortized
+
+forwardPacket: O(1)
+
+getCount: O(log n) per query
+
+Space: O(memoryLimit)
+
+```
+
+🧪 Edge Cases & Testing
+
+```
+Duplicate packets → rejected correctly.
+
+Memory overflow → oldest evicted.
+
+Forwarding from empty queue → returns [].
+
+Range query with no matches → returns 0.
+
+Multiple destinations co-existing.
+
+```
+
+## 🎥 Video walkthrough
+
+I recorded a short walkthrough explaining the idea and a step-by-step run of the example. Watch it here (or the embedded player below):
+
+**YouTube**: https://youtu.be/LCFxbzLNUwc
+
+<iframe width="720" height="405" src="https://www.youtube.com/embed/LCFxbzLNUwc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+🏁 Conclusion
+
+This problem was a nice blend of data structure design (queue + set + map) and algorithmic thinking (binary search for range queries).
+It reminded me of how real-world systems like network routers balance performance with constraints.
+
+That’s it for Day 5!
+See you tomorrow for Day 6 🚀
+
+Happy Coding! 👨‍💻

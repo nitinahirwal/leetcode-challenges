@@ -1,0 +1,125 @@
+---
+title: LeetCode Challenge Day 15 — 2221. Find Triangular Sum of an Array  
+summary: Day 15 of my LeetCode challenge! Today’s problem is "Find Triangular Sum of an Array". I walk through the intuition, explain the simulation approach, discuss time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/find-triangular-sum-of-an-array/solutions/7236461/2221-find-triangular-sum-of-an-array-by-2cxpu 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-09-30  
+tags: ["LeetCode Challenge", "Day 15", "Simulation", "JavaScript", "Array", "Medium", "Portfolio"]
+---
+## Hey folks
+
+This is **Day 15** of my LeetCode streak 🚀.  
+Today’s problem is **2221. Find Triangular Sum of an Array** — we’re given an array of digits, and we need to keep reducing it by replacing each pair of adjacent elements with their sum modulo 10, until only one element remains.
+
+It looks like a simple array reduction, and simulating the process works perfectly here ✨.
+
+---
+
+## 📌 Problem Statement
+
+You are given a 0-indexed integer array `nums`, where each element is between 0 and 9.
+
+At each step, form a new array of length `n-1` where `newNums[i] = (nums[i] + nums[i+1]) % 10`.  
+Replace `nums` with `newNums` and continue until only one element remains.
+
+Return the **last remaining element**.
+
+### Example
+
+- Input: `nums = [1,2,3,4,5]`  
+    Output: `8`
+    
+
+Explanation:
+
+```
+[1,2,3,4,5]  
+ → [3,5,7,9]  
+ → [8,2,6]  
+ → [0,8]  
+ → [8]
+
+```
+
+### Constraints
+
+- `1 <= nums.length <= 1000`
+    
+- `0 <= nums[i] <= 9`
+    
+
+---
+
+## 💡 Intuition
+
+Each step reduces the size of the array by one until only one element remains.
+
+This process is similar to Pascal’s Triangle and binomial coefficients, but since `n <= 1000`, we don’t need heavy math — **direct simulation is good enough**.
+
+---
+
+## 🔑 Approach
+
+1. While the array length is greater than 1:
+    
+    - Create a new array `newNums`.
+        
+    - For each `i`, compute `(nums[i] + nums[i+1]) % 10`.
+        
+    - Replace `nums` with `newNums`.
+        
+2. Return the last remaining number.
+    
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** O(n²) — in each step the array size decreases by 1, so the total work is about n + (n-1) + ... + 1.
+    
+- **Space complexity:** O(n) — we store one extra array of size `n-1` at most.
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var triangularSum = function(nums) {
+    while (nums.length > 1) {
+        let newNums = [];
+        for (let i = 0; i < nums.length - 1; i++) {
+            newNums.push((nums[i] + nums[i + 1]) % 10);
+        }
+        nums = newNums;
+    }
+    return nums[0];
+};
+
+// ✅ Quick tests
+console.log(triangularSum([1,2,3,4,5])); // 8
+console.log(triangularSum([5]));         // 5
+```
+
+## 🧪 Edge Cases
+
+- Single element array → return the element itself.
+    
+- All zeros → always reduces to 0.
+    
+- Max length (1000) → still fine within O(n²).
+    
+
+---
+
+## 🎥 Reflections
+
+This problem looks tricky at first, but it’s basically **simulation with mod 10**.  
+It’s also a neat reminder of how Pascal’s triangle and binomial coefficients appear in such reduction problems — though brute-force is totally fine here.
+
+We also completed **Day 15** ✅ — a small win, but consistent progress matters.  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

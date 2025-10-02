@@ -1,0 +1,142 @@
+---
+title: LeetCode Challenge Day 17 — 3100. Water Bottles II  
+summary: Day 17 of my LeetCode challenge! Today’s problem is "Water Bottles II". I explain the greedy intuition, walk through the simulation approach, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/water-bottles-ii/solutions/7242638/3100-water-bottles-ii-by-nitinahirwal_in-ze1m
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-02  
+tags: ["LeetCode Challenge", "Day 17", "Greedy", "Simulation", "JavaScript", "Medium", "Portfolio"]
+---
+## Hey folks
+
+This is **Day 17** of my LeetCode streak 🚀.  
+Today’s problem is **3100. Water Bottles II** — an extension of the classic water bottle exchange problem, but with a twist: after every exchange, the required number of empty bottles increases by 1.
+
+It’s a greedy + simulation problem with careful tracking of empties and the growing exchange cost.
+
+## 📌 Problem Statement
+
+You are given two integers:
+
+- `numBottles` → the number of full water bottles you initially have.
+    
+- `numExchange` → the initial number of empty bottles required to exchange for one new full bottle.
+    
+
+Rules:
+
+1. You can drink any number of full bottles (they turn into empty bottles).
+    
+2. You may exchange exactly `numExchange` empties for **1 full bottle**.
+    
+3. After every exchange, `numExchange` increases by `1`.
+    
+4. You cannot perform multiple exchanges at the same exchange cost.
+    
+
+Return the maximum number of water bottles you can drink.
+
+### Examples
+
+- Input: `numBottles = 13, numExchange = 6`  
+    Output: `15`
+    
+- Input: `numBottles = 10, numExchange = 3`  
+    Output: `13`
+    
+
+### Constraints
+
+- `1 <= numBottles <= 100`
+    
+- `1 <= numExchange <= 100`
+    
+
+---
+
+## 💡 Intuition
+
+Unlike the original problem, the "price" of exchange keeps increasing.  
+This means the optimal strategy is to **exchange as soon as possible**, because waiting will only make the requirement stricter.
+
+So we simulate:
+
+- Drink all initial bottles.
+    
+- While you can still exchange empties for a full bottle, do it immediately.
+    
+- Update the exchange cost by +1 after each trade.
+    
+
+---
+
+## 🔑 Approach
+
+1. Initialize `drunk = numBottles` (all initial bottles drunk).
+    
+2. Track `empty = numBottles`.
+    
+3. While `empty >= numExchange`:
+    
+    - Perform one exchange (spend `numExchange` empties).
+        
+    - Increase `numExchange` by 1.
+        
+    - Drink the new full bottle → add 1 to `drunk` and 1 to `empty`.
+        
+4. When you can’t exchange anymore, return `drunk`.
+    
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(numBottles)` in worst case (but bounded by ≤100 due to constraints).
+    
+- **Space complexity:** `O(1)` — only a few counters.
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number} numBottles
+ * @param {number} numExchange
+ * @return {number}
+ */
+var maxBottlesDrunk = function(numBottles, numExchange) {
+  let drunk = numBottles;   // drink all initial bottles
+  let empty = numBottles;   // now all are empty
+
+  while (empty >= numExchange) {
+    empty -= numExchange;   // spend empties
+    numExchange += 1;       // next exchange costs more
+
+    drunk += 1;             // drink new full bottle
+    empty += 1;             // that bottle becomes empty
+  }
+
+  return drunk;
+};
+
+// ✅ Quick tests
+console.log(maxBottlesDrunk(13, 6)); // 15
+console.log(maxBottlesDrunk(10, 3)); // 13
+```
+
+
+🧪 Edge Cases
+numBottles < numExchange → no exchanges possible, result = numBottles.
+
+numExchange = 1 → you can keep exchanging forever, but since numExchange increases each time, the loop naturally ends.
+
+Small inputs (1,1) → still works fine.
+
+## 🎥 Reflections
+
+This variation shows how **a small twist in constraints (dynamic cost)** changes the solution from a simple math-based approach to a greedy simulation.  
+Key insight: **exchange immediately, never wait**.
+
+That’s it for **Day 17** of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

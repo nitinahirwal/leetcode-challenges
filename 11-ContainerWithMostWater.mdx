@@ -1,0 +1,124 @@
+---
+title: LeetCode Challenge Day 19 — 11. Container With Most Water  
+summary: Day 19 of my LeetCode challenge! Today’s problem is "Container With Most Water". I explain the two-pointer intuition, walk through the step-by-step shrinking window approach, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/container-with-most-water/solutions/7248214/11-container-with-most-water-by-nitinahi-bh2p
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-04  
+tags: ["LeetCode Challenge", "Day 19", "Two Pointers", "Greedy", "Array", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 19** of my LeetCode streak 🚀.  
+Today’s problem is **11. Container With Most Water** — a classic two-pointer challenge.  
+We need to find two vertical lines that, together with the x-axis, form a container that can store the most water.  
+
+---
+
+## 📌 Problem Statement
+
+You are given an integer array `height` of length `n`.  
+There are `n` vertical lines drawn such that the two endpoints of the i-th line are `(i, 0)` and `(i, height[i])`.  
+
+Find two lines that together with the x-axis form a container, such that the container contains the most water.  
+Return the maximum amount of water a container can store.
+
+### Examples
+
+- Input: `height = [1,8,6,2,5,4,8,3,7]`  
+  Output: `49`  
+
+- Input: `height = [1,1]`  
+  Output: `1`  
+
+### Constraints
+
+- `n == height.length`  
+- `2 <= n <= 10^5`  
+- `0 <= height[i] <= 10^4`  
+
+---
+
+## 💡 Intuition
+
+The water trapped between two lines is determined by:  
+- The **shorter line’s height** (since water overflows past it).  
+- The **distance between the lines** (width).  
+
+To maximize area:  
+- Start with the widest container (`left = 0`, `right = n-1`).  
+- Compute the area, update max if larger.  
+- Move the pointer pointing to the **shorter line** inward — only this gives a chance for a taller minimum height.  
+
+---
+
+## 🔑 Approach
+
+1. Initialize two pointers `left` at the start and `right` at the end.  
+2. While `left < right`:  
+   - Compute area = `min(height[left], height[right]) * (right - left)`.  
+   - Update maximum area if larger.  
+   - Move the pointer with the smaller height inward.  
+3. Continue until both pointers meet.  
+4. Return the maximum area found.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n)`  
+  Each pointer moves at most once per iteration.  
+
+- **Space complexity:** `O(1)`  
+  Only a few variables are used.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} height
+ * @return {number}
+ */
+var maxArea = function(height) {
+  let left = 0, right = height.length - 1;
+  let best = 0;
+
+  while (left < right) {
+    const h = Math.min(height[left], height[right]);
+    const area = h * (right - left);
+    if (area > best) best = area;
+
+    // Move the pointer at the shorter line inward
+    if (height[left] < height[right]) {
+      left++;
+    } else {
+      right--;
+    }
+  }
+  return best;
+};
+```
+
+## 🧪 Edge Cases
+
+- Heights with all equal values → area = `height * (n - 1)`.
+    
+- Very small arrays (size = 2) → only one possible container.
+    
+- Large `n` with alternating small/large heights → handled smoothly by two-pointer approach.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a beautiful demonstration of the two-pointer technique — simple, elegant, and efficient.  
+Instead of brute force O(n²), we solve it in linear time.
+
+That’s it for Day 19 of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

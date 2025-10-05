@@ -1,0 +1,157 @@
+---
+title: LeetCode Challenge Day 20 — 417. Pacific Atlantic Water Flow  
+summary: Day 20 of my LeetCode challenge! Today’s problem is "Pacific Atlantic Water Flow". I explain the reverse-flow intuition, walk through the BFS approach from both oceans, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/pacific-atlantic-water-flow/solutions/7250856/417-pacific-atlantic-water-flow-by-nitin-ejny
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-05  
+tags: ["LeetCode Challenge", "Day 20", "BFS", "DFS", "Matrix", "Graph", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 20** of my LeetCode streak 🚀.  
+Today’s problem is **417. Pacific Atlantic Water Flow** — a classic matrix traversal problem.  
+We need to find all cells from which water can flow to **both the Pacific and Atlantic oceans**.  
+
+---
+
+## 📌 Problem Statement
+
+You are given an `m x n` integer matrix `heights` where `heights[r][c]` represents the height above sea level of the cell at coordinate `(r, c)`.  
+
+Water can flow from a cell to its **north, south, east, and west** neighbor if the neighbor's height is **less than or equal** to the current cell's height.  
+
+The Pacific Ocean touches the island's **top and left** edges, and the Atlantic Ocean touches the island's **bottom and right** edges.  
+
+Return a 2D list of grid coordinates where rain water can flow to both the Pacific and Atlantic oceans.  
+
+### Examples
+
+- Input:  
+  `[[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]`  
+  Output:  
+  `[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]`  
+
+- Input:  
+  `[[1]]`  
+  Output:  
+  `[[0,0]]`  
+
+### Constraints
+
+- `m == heights.length`  
+- `n == heights[r].length`  
+- `1 <= m, n <= 200`  
+- `0 <= heights[r][c] <= 10^5`  
+
+---
+
+## 💡 Intuition
+
+Instead of simulating water flow from each cell to the oceans (which is expensive),  
+we can **reverse the flow**: start from each ocean and move inward.  
+
+From the Pacific edges, mark all cells that can flow into the Pacific.  
+From the Atlantic edges, mark all cells that can flow into the Atlantic.  
+
+Any cell visited by both searches can flow to both oceans.  
+
+---
+
+## 🔑 Approach
+
+1. Create two `m x n` grids to track reachability from Pacific and Atlantic.  
+2. Initialize two queues with border cells touching each ocean.  
+3. Run BFS from Pacific’s queue and from Atlantic’s queue.  
+   - Only move to neighbors with **greater or equal height**.  
+   - Mark them reachable.  
+4. Collect all cells that are reachable from **both oceans**.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(m * n)`  
+  Each cell is processed at most twice (once per ocean).  
+
+- **Space complexity:** `O(m * n)`  
+  Extra space for visited matrices and queues.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[][]} heights
+ * @return {number[][]}
+ */
+var pacificAtlantic = function(heights) {
+  const m = heights.length, n = heights[0].length;
+  const pac = Array.from({ length: m }, () => Array(n).fill(false));
+  const atl = Array.from({ length: m }, () => Array(n).fill(false));
+
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+
+  const bfs = (queue, seen) => {
+    let head = 0;
+    while (head < queue.length) {
+      const [r, c] = queue[head++];
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr, nc = c + dc;
+        if (
+          nr >= 0 && nr < m && nc >= 0 && nc < n &&
+          !seen[nr][nc] &&
+          heights[nr][nc] >= heights[r][c]
+        ) {
+          seen[nr][nc] = true;
+          queue.push([nr, nc]);
+        }
+      }
+    }
+  };
+
+  const qPac = [], qAtl = [];
+  for (let r = 0; r < m; r++) {
+    pac[r][0] = true; qPac.push([r, 0]);         // Pacific (left)
+    atl[r][n - 1] = true; qAtl.push([r, n - 1]); // Atlantic (right)
+  }
+  for (let c = 0; c < n; c++) {
+    pac[0][c] = true; qPac.push([0, c]);         // Pacific (top)
+    atl[m - 1][c] = true; qAtl.push([m - 1, c]); // Atlantic (bottom)
+  }
+
+  bfs(qPac, pac);
+  bfs(qAtl, atl);
+
+  const res = [];
+  for (let r = 0; r < m; r++) {
+    for (let c = 0; c < n; c++) {
+      if (pac[r][c] && atl[r][c]) res.push([r, c]);
+    }
+  }
+  return res;
+};
+```
+
+## 🧪 Edge Cases
+
+- Single cell matrix → trivially flows to both oceans.
+    
+- Strictly increasing or decreasing rows/columns.
+    
+- Large grid with uniform heights → all cells flow to both oceans.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a great showcase of **reverse thinking**.  
+Instead of checking every cell outward, we reduce complexity by starting from the oceans inward.
+
+That’s it for Day 20 of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

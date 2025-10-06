@@ -1,0 +1,165 @@
+---
+title: LeetCode Challenge Day 21 — 778. Swim in Rising Water  
+summary: Day 21 of my LeetCode challenge! Today’s problem is "Swim in Rising Water". I share the minimax path intuition, explain the Dijkstra (min-heap) approach, analyze time and space complexity, and provide my JavaScript solution.  
+solution: https://leetcode.com/problems/swim-in-rising-water/solutions/7253605/778-swim-in-rising-water-by-nitinahirwal-gns6
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-06  
+tags: ["LeetCode Challenge", "Day 21", "Dijkstra", "Heap", "Graph", "Matrix", "JavaScript", "Hard", "Portfolio"]  
+---
+## Hey folks
+
+This is **Day 21** of my LeetCode streak 🚀.  
+Today’s problem is **778. Swim in Rising Water** — a hard graph + matrix problem.  
+We need to find the minimum time required to swim from the **top-left** to the **bottom-right** corner as water level rises.
+
+---
+
+## 📌 Problem Statement
+
+You are given an `n x n` integer matrix `grid` where each value `grid[i][j]` represents the elevation at that point `(i, j)`.  
+
+At time `t`, the water level is `t`. You can swim from one square to another **4-directionally adjacent** square if both elevations are `≤ t`.  
+
+Return the **minimum time** until you can reach `(n-1, n-1)` from `(0,0)`.
+
+### Examples
+
+- Input:  
+  `[[0,2],[1,3]]`  
+  Output:  
+  `3`  
+
+- Input:  
+  `[[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]`  
+  Output:  
+  `16`  
+
+### Constraints
+
+- `n == grid.length == grid[i].length`  
+- `1 <= n <= 50`  
+- `0 <= grid[i][j] < n^2`  
+- All values are unique  
+
+---
+
+## 💡 Intuition
+
+For any path from start to end, the **time needed** is the **maximum elevation** along that path.  
+So the problem becomes:  
+➡️ Find a path from `(0,0)` to `(n-1,n-1)` that minimizes the **maximum elevation encountered**.  
+
+This is a classic **minimax path** problem.
+
+---
+
+## 🔑 Approach
+
+We can solve this using **Dijkstra’s algorithm** with a min-heap:
+
+1. Treat each cell as a node.  
+2. The “cost” of reaching a cell is the **max elevation** along the path so far.  
+3. Start from `(0,0)` with cost `grid[0][0]`.  
+4. Use a min-heap to always expand the path with the **lowest current cost**.  
+5. For each neighbor `(nr,nc)`, push `max(currentCost, grid[nr][nc])` into the heap.  
+6. When we pop `(n-1,n-1)`, the cost is the answer.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n^2 log n)`  
+  Each of the `n^2` cells may enter the heap, and each heap op costs `log(n^2)`.  
+
+- **Space complexity:** `O(n^2)`  
+  For visited set and the heap.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[][]} grid
+ * @return {number}
+ */
+var swimInWater = function(grid) {
+  const n = grid.length;
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+
+  class MinHeap {
+    constructor() { this.a = []; }
+    size() { return this.a.length; }
+    push(x) {
+      this.a.push(x);
+      this._up(this.a.length - 1);
+    }
+    pop() {
+      const a = this.a;
+      const top = a[0];
+      const last = a.pop();
+      if (a.length) { a[0] = last; this._down(0); }
+      return top;
+    }
+    _up(i) {
+      const a = this.a;
+      while (i > 0) {
+        const p = (i - 1) >> 1;
+        if (a[p][0] <= a[i][0]) break;
+        [a[p], a[i]] = [a[i], a[p]];
+        i = p;
+      }
+    }
+    _down(i) {
+      const a = this.a, n = a.length;
+      while (true) {
+        let l = i*2+1, r = l+1, m = i;
+        if (l < n && a[l][0] < a[m][0]) m = l;
+        if (r < n && a[r][0] < a[m][0]) m = r;
+        if (m === i) break;
+        [a[m], a[i]] = [a[i], a[m]];
+        i = m;
+      }
+    }
+  }
+
+  const seen = Array.from({ length: n }, () => Array(n).fill(false));
+  const pq = new MinHeap();
+  pq.push([grid[0][0], 0, 0]);
+
+  while (pq.size()) {
+    const [t, r, c] = pq.pop();
+    if (seen[r][c]) continue;
+    seen[r][c] = true;
+    if (r === n-1 && c === n-1) return t;
+    for (const [dr, dc] of dirs) {
+      const nr = r+dr, nc = c+dc;
+      if (nr < 0 || nc < 0 || nr >= n || nc >= n || seen[nr][nc]) continue;
+      pq.push([Math.max(t, grid[nr][nc]), nr, nc]);
+    }
+  }
+  return -1;
+};
+```
+
+## 🧪 Edge Cases
+
+- `n = 1` → already at destination, answer is `grid[0][0]`.
+    
+- Increasing elevations in a straight line path.
+    
+- Large `n = 50` → still efficient with heap-based approach.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a solid application of **Dijkstra’s shortest path** idea but adapted for a **minimax path**.  
+It teaches how classic graph techniques can be re-purposed for problems that at first look unrelated.
+
+That’s it for Day 21 of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

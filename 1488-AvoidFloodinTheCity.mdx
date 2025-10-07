@@ -1,0 +1,136 @@
+---
+title: LeetCode Challenge Day 22 — 1488. Avoid Flood in The City  
+summary: Day 22 of my LeetCode challenge! Today’s problem is "Avoid Flood in The City". I share the greedy “dry just in time” intuition, explain the ordered-set + map approach (binary search over dry days), analyze time and space complexity, and provide my JavaScript solution.  
+solution: https://leetcode.com/problems/avoid-flood-in-the-city/solutions/7255965/1488-avoid-flood-in-the-city-by-nitinahi-jptp 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-07  
+tags: ["LeetCode Challenge", "Day 22", "Greedy", "Binary Search", "Ordered Set", "HashMap", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 22** of my LeetCode streak 🚀.  
+Today’s problem is **1488. Avoid Flood in The City** — a greedy + data-structures problem.
+
+---
+
+## Intuition
+We need to prevent floods in lakes when it rains multiple times on the same lake.  
+A lake floods only if it rains on it while it's already full.  
+To avoid this, we can use the **dry days (`0`s)** to empty lakes before they are rained on again.  
+
+The challenge is deciding **which lake to dry** on each available dry day.  
+
+Key intuition:  
+- When a lake gets rain for the second time, we must have already dried it on some day **between the last rain and today**.  
+- So, we should always use the **earliest available dry day after the last rain** to dry that lake.  
+
+This is a greedy approach: always dry just in time before a flood happens.
+
+---
+
+## Approach
+1. Use an array `ans` for the output:
+   - Fill `-1` for rainy days.
+   - Fill the lake number for chosen drying days.
+   - Default all `0`s with `1` (arbitrary dry choice if unused).
+2. Maintain a `Map (lake -> last rain day)` to remember when each lake was last filled.
+3. Maintain a sorted list `dryDays` (indices of `0`s).
+4. For each day:
+   - If `rains[i] > 0`:  
+     - If the lake is already full (exists in `lakeMap`):
+       - Use binary search on `dryDays` to find the **earliest dry day after last rain day**.  
+       - Assign that dry day to dry this lake.  
+       - If no valid dry day exists → return `[]` (impossible).
+     - Update `lakeMap` with the current day for this lake.
+   - If `rains[i] == 0`:  
+     - Just store the index in `dryDays` for later assignment.
+5. Return the `ans` array.
+
+---
+
+## Complexity
+- **Time complexity:**  
+  - Each rain day lookup/update in map: `O(1)`  
+  - Each dry day assignment uses binary search: `O(log n)`  
+  - Removing from `dryDays` (array splice) costs `O(n)` worst case.  
+  - So worst case: **O(n²)** in JavaScript due to array splice.  
+  - With a balanced tree / ordered set (like TreeSet in Java), this can be improved to **O(n log n)**.
+  
+- **Space complexity:**  
+  - `O(n)` for storing `ans`, `lakeMap`, and `dryDays`.
+
+---
+
+## Code (JavaScript)
+```javascript
+/**
+ * @param {number[]} rains
+ * @return {number[]}
+ */
+var avoidFlood = function(rains) {
+    const n = rains.length;
+    const ans = new Array(n).fill(1);  // default fill with 1 (for drying days)
+    const lakeMap = new Map();         // lake -> last day it rained
+    const dryDays = [];                // indices of dry days (0's)
+
+    for (let i = 0; i < n; i++) {
+        if (rains[i] === 0) {
+            // no rain -> we can dry some lake later
+            dryDays.push(i);
+        } else {
+            let lake = rains[i];
+            ans[i] = -1;  // raining days are always -1
+
+            if (lakeMap.has(lake)) {
+                // This lake is already full -> need to dry it before today
+                const lastDay = lakeMap.get(lake);
+
+                // find the first dry day > lastDay
+                let idx = binarySearch(dryDays, lastDay);
+                if (idx === -1) return []; // no dry day available -> impossible
+
+                let dryIndex = dryDays[idx];
+                ans[dryIndex] = lake;  // dry this lake on that day
+                dryDays.splice(idx, 1); // remove that dry day from available
+            }
+            lakeMap.set(lake, i);  // update last rain day
+        }
+    }
+    return ans;
+};
+
+// binary search helper: find smallest dryDay > lastDay
+function binarySearch(dryDays, lastDay) {
+    let left = 0, right = dryDays.length - 1, res = -1;
+    while (left <= right) {
+        let mid = Math.floor((left + right) / 2);
+        if (dryDays[mid] > lastDay) {
+            res = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return res;
+}
+```
+
+## 🎥 Reflections
+
+This one is a beautiful **just-in-time greedy** puzzle. The “aha” is to treat every repeat rain as a deadline and match it with the **earliest dry day that comes after its last rain**. Once you model dry days as a searchable set and lakes → last-rained indices in a map, the problem turns into **interval scheduling with constraints**.
+
+It’s a great reminder that many scheduling-ish problems boil down to:
+
+- track state with a hash map,
+    
+- keep future choices in an **ordered set**,
+    
+- and make the **earliest feasible** choice greedily.
+    
+
+That’s it for **Day 22** of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

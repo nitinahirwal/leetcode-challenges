@@ -1,0 +1,136 @@
+---
+title: LeetCode Challenge Day 23 — 2300. Successful Pairs of Spells and Potions  
+summary: Day 23 of my LeetCode challenge! Today’s problem is "Successful Pairs of Spells and Potions". I explain the binary search intuition, walk through the sort + lower bound approach, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/successful-pairs-of-spells-and-potions/solutions/7258639/2300-successful-pairs-of-spells-and-poti-y0wk
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-08  
+tags: ["LeetCode Challenge", "Day 23", "Binary Search", "Sorting", "Greedy", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 23** of my LeetCode streak 🚀.  
+Today’s problem is **2300. Successful Pairs of Spells and Potions** — a classic binary search + sorting problem.  
+We need to count, for each spell, how many potions form a successful pair such that `spell * potion >= success`.  
+
+---
+
+## 📌 Problem Statement
+
+You are given two positive integer arrays `spells` and `potions`, where:  
+- `spells[i]` is the strength of the *i-th* spell.  
+- `potions[j]` is the strength of the *j-th* potion.  
+
+Also given an integer `success`.  
+A pair `(spell, potion)` is **successful** if `spell * potion >= success`.  
+
+Return an array where the *i-th* element is the number of potions that form a successful pair with `spells[i]`.  
+
+### Examples
+
+- Input:  
+  `spells = [5,1,3], potions = [1,2,3,4,5], success = 7`  
+  Output:  
+  `[4,0,3]`  
+
+- Input:  
+  `spells = [3,1,2], potions = [8,5,8], success = 16`  
+  Output:  
+  `[2,0,2]`  
+
+### Constraints
+
+- `1 <= n, m <= 10^5`  
+- `1 <= spells[i], potions[i] <= 10^5`  
+- `1 <= success <= 10^10`  
+
+---
+
+## 💡 Intuition
+
+Naively, we could compare every spell with every potion, but that’s **O(n × m)** which is too slow.  
+
+The key observation:  
+- For a spell of strength `s`, the minimum potion needed is `ceil(success / s)`.  
+- If we sort the potions, then we can binary search the first potion ≥ this threshold.  
+- Everything to the right is automatically valid.  
+
+---
+
+## 🔑 Approach
+
+1. Sort the `potions` array.  
+2. For each spell:  
+   - Compute the threshold potion value: `need = ceil(success / spell)`.  
+   - Use **binary search** to find the first index where `potions[idx] >= need`.  
+   - The number of valid potions is `m - idx`.  
+3. Collect results in an array and return it.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  - Sorting potions: `O(m log m)`  
+  - Each spell uses binary search: `O(log m)`  
+  - Total = `O(m log m + n log m)`  
+
+- **Space complexity:**  
+  - `O(1)` extra (excluding the output array).  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} spells
+ * @param {number[]} potions
+ * @param {number} success
+ * @return {number[]}
+ */
+var successfulPairs = function (spells, potions, success) {
+  potions.sort((a, b) => a - b);
+  const m = potions.length;
+
+  const lowerBound = (arr, target) => {
+    let l = 0, r = arr.length;
+    while (l < r) {
+      const mid = (l + r) >> 1;
+      if (arr[mid] < target) l = mid + 1;
+      else r = mid;
+    }
+    return l;
+  };
+
+  const res = new Array(spells.length);
+  for (let i = 0; i < spells.length; i++) {
+    const need = Math.ceil(success / spells[i]);
+    const idx = lowerBound(potions, need);
+    res[i] = m - idx;
+  }
+  return res;
+};
+```
+
+## 🧪 Edge Cases
+
+- Very small spells → may result in `0` valid potions.
+    
+- Very strong spells → almost all potions valid.
+    
+- Large inputs (`10^5` each) → solution must avoid brute force.
+    
+
+---
+
+## 🎥 Reflections
+
+This is a perfect example of how **binary search turns a brute force O(n × m) into O(n log m)**.  
+The trick is realizing each spell defines a **minimum threshold** for potions. Once potions are sorted, it’s just about finding where that threshold fits.
+
+That’s it for Day 23 of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

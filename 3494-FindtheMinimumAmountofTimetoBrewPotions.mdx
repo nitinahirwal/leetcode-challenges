@@ -1,0 +1,139 @@
+---
+title: LeetCode Challenge Day 24 — 3494. Find the Minimum Amount of Time to Brew Potions  
+summary: Day 24 of my LeetCode challenge! Today’s problem is "Find the Minimum Amount of Time to Brew Potions". I explain the prefix sum intuition, walk through the gap calculation approach, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/find-the-minimum-amount-of-time-to-brew-potions/solutions/7261375/3494-find-the-minimum-amount-of-time-to-emvvl
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-09  
+tags: ["LeetCode Challenge", "Day 24", "Prefix Sum", "Scheduling", "Simulation", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 24** of my LeetCode streak 🚀.  
+Today’s problem is **3494. Find the Minimum Amount of Time to Brew Potions** — a scheduling and simulation style problem where multiple wizards brew potions in order under a **no-wait** rule.  
+
+---
+
+## 📌 Problem Statement
+
+You are given two arrays:  
+- `skill[i]` is the brewing rate factor of the *i-th* wizard.  
+- `mana[j]` is the mana capacity of the *j-th* potion.  
+
+Each potion must pass through all wizards sequentially. The time taken by wizard `i` on potion `j` is:  
+
+`time[i][j] = skill[i] * mana[j]`  
+
+Rules:  
+- Potions must be brewed in the given order.  
+- A potion must immediately move to the next wizard when the current wizard finishes.  
+
+Return the minimum amount of time required to brew all potions.  
+
+### Examples
+
+- Input:  
+  `skill = [1,5,2,4], mana = [5,1,4,2]`  
+  Output:  
+  `110`  
+
+- Input:  
+  `skill = [1,1,1], mana = [1,1,1]`  
+  Output:  
+  `5`  
+
+---
+
+## 💡 Intuition
+
+Think of this as a **conveyor belt**.  
+Each potion goes through all wizards. Since every wizard can only handle one potion at a time, potion `j+1` must wait long enough so it does not collide with potion `j`.  
+
+The challenge becomes calculating the **minimum safe gap** between consecutive potions.  
+
+---
+
+## 🔑 Approach
+
+1. Compute prefix sums of skills:  
+   `A[i] = skill[0] + skill[1] + ... + skill[i-1]`  
+   This gives the total brewing weight up to wizard `i`.  
+
+2. The last potion always needs:  
+   `A[n] * mana[m-1]` time.  
+
+3. For each consecutive potion pair `(mana[j], mana[j+1])`, compute the required gap:  
+
+   `gap(x, y) = max over i in [1..n] of (x * A[i] - y * A[i-1])`  
+
+   This ensures potion `j+1` will not overtake potion `j`.  
+
+4. Total time = sum of all gaps + brewing time of the last potion.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n * m)` since for each potion pair we scan all wizards. With `n, m <= 5000`, that is ~25 million operations.  
+- **Space complexity:** `O(n)` for the prefix sums.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} skill
+ * @param {number[]} mana
+ * @return {number}
+ */
+var minTime = function (skill, mana) {
+  const n = skill.length, m = mana.length;
+
+  // Step 1: prefix sums of skill
+  const A = new Array(n + 1).fill(0);
+  for (let i = 0; i < n; i++) A[i + 1] = A[i] + skill[i];
+
+  // Step 2: brewing time of last potion
+  let total = A[n] * mana[m - 1];
+
+  // Step 3: add gaps between consecutive potions
+  for (let j = 0; j < m - 1; j++) {
+    const x = mana[j], y = mana[j + 1];
+    let best = -Infinity;
+    for (let i = 1; i <= n; i++) {
+      const val = x * A[i] - y * A[i - 1];
+      if (val > best) best = val;
+    }
+    total += best;
+  }
+
+  return total;
+};
+```
+
+## 🧪 Edge Cases
+
+- Only one potion → answer = sum of skills × potion mana.
+    
+- All skills = 1 → potions line up like a pipeline, staggered by 1 unit.
+    
+- Large mana values → safe within JavaScript’s number range given constraints.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem shows how a complex brewing simulation can be reduced to clean math.
+
+- Prefix sums make time calculation easy.
+    
+- The gap formula ensures potions do not overlap.
+    
+
+That’s it for Day 24 of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

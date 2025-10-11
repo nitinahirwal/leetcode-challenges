@@ -1,0 +1,135 @@
+---
+title: LeetCode Challenge Day 25 — 3147. Taking Maximum Energy From the Mystic Dungeon  
+summary: Day 25 of my LeetCode challenge! Today’s problem is "Taking Maximum Energy From the Mystic Dungeon". I explain the dynamic programming intuition, walk through the subsequence partitioning approach, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/taking-maximum-energy-from-the-mystic-dungeon/solutions/7264560/3147-taking-maximum-energy-from-the-myst-5p8g
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-10  
+tags: ["LeetCode Challenge", "Day 25", "Dynamic Programming", "Array", "Greedy", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 25** of my LeetCode streak 🚀.  
+Today’s problem is **3147. Taking Maximum Energy From the Mystic Dungeon** — a dynamic programming style problem where magicians can either give or take away energy, and you jump in fixed steps of `k`.
+
+---
+
+## 📌 Problem Statement
+
+You are given:
+
+- `energy[i]` → the energy value of the _i-th_ magician (can be positive or negative).
+    
+- An integer `k`.
+    
+
+Rules:
+
+- Start from any magician.
+    
+- After absorbing their energy, you are instantly transported to magician `(i + k)`.
+    
+- This continues until you jump out of bounds.
+    
+
+Return the **maximum possible energy** you can gain.
+
+### Examples
+
+- Input:  
+    `energy = [5,2,-10,-5,1], k = 3`  
+    Output:  
+    `3`
+    
+- Input:  
+    `energy = [-2,-3,-1], k = 2`  
+    Output:  
+    `-1`
+    
+
+---
+
+## 💡 Intuition
+
+The magicians can be partitioned into **k independent subsequences**.  
+From any starting index `i`, the path is fixed:
+
+`i → i+k → i+2k → ...` until going out of bounds.
+
+Thus, the problem reduces to calculating the sum for each possible subsequence and picking the maximum.
+
+---
+
+## 🔑 Approach
+
+- Define `dp[i]` as the maximum energy we can collect starting at magician `i`.
+    
+- Transition:
+    
+    `dp[i] = energy[i] + (dp[i+k] if i+k < n else 0)`
+    
+- Process magicians in reverse (from `n-1` to `0`) to ensure future states are already computed.
+    
+- Track the maximum of all `dp[i]` values as the final answer.
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n)` — each magician is processed once.
+    
+- **Space complexity:** `O(n)` — for the DP array (can be optimized to O(1), but O(n) works fine here).
+    
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} energy
+ * @param {number} k
+ * @return {number}
+ */
+var maximumEnergy = function(energy, k) {
+    let n = energy.length;
+    let dp = Array(n).fill(0);
+    let maxEnergy = -Infinity;
+
+    for (let i = n - 1; i >= 0; i--) {
+        dp[i] = energy[i];
+        if (i + k < n) {
+            dp[i] += dp[i + k];
+        }
+        maxEnergy = Math.max(maxEnergy, dp[i]);
+    }
+
+    return maxEnergy;
+};
+
+```
+
+
+## 🧪 Edge Cases
+
+- All energies negative → best choice is the _least negative_ magician.
+    
+- `k = 1` → must absorb all energies in order.
+    
+- `k = n-1` → can only choose between at most two starting magicians.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a neat example of reducing a teleporting/jump simulation into a **DP formulation**.
+
+- Breaking the problem into subsequences makes it easy.
+    
+- The bottom-up DP ensures efficiency.
+    
+
+That’s it for Day 25 of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

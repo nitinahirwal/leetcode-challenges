@@ -1,0 +1,183 @@
+---
+title: LeetCode Challenge Day 27 — 3539. Find Sum of Array Product of Magical Sequences  
+summary: Day 27 of my LeetCode challenge! Today’s problem is "Find Sum of Array Product of Magical Sequences". I explain the combinatorial DP intuition, walk through binary carry simulation, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/find-sum-of-array-product-of-magical-sequences/solutions/7269086/3539-find-sum-of-array-product-of-magica-486q
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-12  
+tags: ["LeetCode Challenge", "Day 27", "Dynamic Programming", "Combinatorics", "JavaScript", "Hard", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 27** of my LeetCode streak 🚀.  
+Today’s problem is **3539. Find Sum of Array Product of Magical Sequences** — a **dynamic programming + combinatorics** problem with an interesting binary constraint.
+
+---
+
+## 📌 Problem Statement
+
+We want to count the sum of products of all sequences of length `m` formed from a given array `nums`, under the condition:
+
+- If we compute `Σ 2^seq[i]` for all chosen indices, the binary representation of the sum must have **exactly `k` set bits**.
+
+Return the total sum modulo `1e9+7`.
+
+---
+
+## 💡 Intuition
+
+- Generating all sequences is exponential → not feasible.  
+- Instead, we only care about **how many times each index is chosen** (`c[i]`).  
+- The binary condition can be handled by simulating **binary addition with carry**.  
+
+So the problem reduces to **DP over (remaining slots, carry, ones counted so far)**.
+
+---
+
+## 🔑 Approach
+
+1. **Combinatorial Distribution**  
+   - At index `j`, pick `c` occurrences among remaining `R` slots.  
+   - Ways = `C(R, c)`.  
+   - Contribution = `nums[j]^c`.  
+
+2. **Binary Simulation**  
+   - Current carry + chosen count `c` →  
+     - Output bit = `(carry + c) & 1`  
+     - New carry = `(carry + c) >> 1`  
+   - Add bit to ones count.  
+
+3. **DP State**  
+   - `(R, carry, ones)` → number of ways and product contribution.  
+
+4. **Final Step**  
+   - After processing all indices, add remaining carry popcount.  
+   - Accept only if `ones + popcount(carry) == k`.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:** `O(n * m³ * k)` (efficient since `m ≤ 30, n ≤ 50, k ≤ 30`).  
+- **Space complexity:** `O(m² * k)` using rolling DP.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number} m
+ * @param {number} k
+ * @param {number[]} nums
+ * @return {number}
+ */
+var magicalSum = function(m, k, nums) {
+  const MOD = 1_000_000_007n;
+  const n = nums.length;
+
+  // Precompute nCr
+  const C = Array.from({ length: m + 1 }, () => Array(m + 1).fill(0n));
+  for (let i = 0; i <= m; i++) {
+    C[i][0] = 1n;
+    for (let j = 1; j <= i; j++) {
+      C[i][j] = (C[i - 1][j - 1] + C[i - 1][j]) % MOD;
+    }
+  }
+
+  // Precompute powers
+  const powTbl = Array.from({ length: n }, () => Array(m + 1).fill(0n));
+  for (let j = 0; j < n; j++) {
+    powTbl[j][0] = 1n;
+    let p = 1n, x = BigInt(nums[j]);
+    for (let c = 1; c <= m; c++) {
+      p = (p * x) % MOD;
+      powTbl[j][c] = p;
+    }
+  }
+
+  const RMAX = m, CMAX = m, BMAX = k;
+  const SIZE = (RMAX + 1) * (CMAX + 1) * (BMAX + 1);
+  const idx = (R, carry, ones) => ((R * (CMAX + 1) + carry) * (BMAX + 1) + ones);
+
+  let dp = new Array(SIZE).fill(0n);
+  let ndp = new Array(SIZE).fill(0n);
+
+  dp[idx(m, 0, 0)] = 1n; // start state
+
+  for (let j = 0; j < n; j++) {
+    ndp.fill(0n);
+    for (let R = 0; R <= RMAX; R++) {
+      for (let carry = 0; carry <= CMAX; carry++) {
+        for (let ones = 0; ones <= BMAX; ones++) {
+          const cur = dp[idx(R, carry, ones)];
+          if (cur === 0n) continue;
+
+          for (let c = 0; c <= R; c++) {
+            const newR = R - c;
+            const sum = carry + c;
+            const bit = sum & 1;
+            const newCarry = sum >> 1;
+            const newOnes = ones + bit;
+            if (newOnes > BMAX) continue;
+
+            const ways = C[R][c];
+            const val = (cur * ways) % MOD;
+            const mul = powTbl[j][c];
+            const add = (val * mul) % MOD;
+
+            ndp[idx(newR, newCarry, newOnes)] =
+              (ndp[idx(newR, newCarry, newOnes)] + add) % MOD;
+          }
+        }
+      }
+    }
+    [dp, ndp] = [ndp, dp];
+  }
+
+  const popcount = (x) => {
+    let cnt = 0;
+    while (x) { x &= x - 1; cnt++; }
+    return cnt;
+  };
+
+  let ans = 0n;
+  for (let carry = 0; carry <= CMAX; carry++) {
+    const pc = popcount(carry);
+    for (let ones = 0; ones <= BMAX; ones++) {
+      if (ones + pc === k) {
+        ans = (ans + dp[idx(0, carry, ones)]) % MOD;
+      }
+    }
+  }
+  return Number(ans);
+};
+```
+
+## 🧪 Edge Cases
+
+- `m = 0` → only empty sequence, check if `k = 0`.
+    
+- `k = 0` → only valid if sum = 0.
+    
+- Single-element nums → behaves like simple power count.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem felt like a **marriage of combinatorics and DP**:
+
+- Binomial coefficients handle sequence placement.
+    
+- DP simulates binary addition with carry.
+    
+- At the end, a neat popcount check finalizes the solution.
+    
+
+That’s it for **Day 27** of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

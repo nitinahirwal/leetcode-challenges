@@ -1,0 +1,108 @@
+---
+title: LeetCode Challenge Day 28 — 2273. Find Resultant Array After Removing Anagrams  
+summary: Day 28 of my LeetCode challenge! Today’s problem is "Find Resultant Array After Removing Anagrams". I explain the intuition of consecutive anagram removal, show how to use frequency signatures, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/find-resultant-array-after-removing-anagrams/solutions/7271398/2273-find-resultant-array-after-removing-wvce 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-13  
+tags: ["LeetCode Challenge", "Day 28", "Hashing", "String", "JavaScript", "Easy", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 28** of my LeetCode streak 🚀.  
+Today’s problem is **2273. Find Resultant Array After Removing Anagrams** — an **easy string hashing** problem where we eliminate consecutive anagrams.
+
+---
+
+## 📌 Problem Statement
+
+You are given an array of words.  
+- If two adjacent words are **anagrams**, remove the later one.  
+- Keep repeating until no such consecutive pair exists.  
+
+Return the resulting array.
+
+---
+
+## 💡 Intuition
+
+- Two words are anagrams if their character counts are identical.  
+- So instead of checking by sorting each time, we generate a **frequency signature**.  
+- Whenever two consecutive words share the same signature, we drop the later one.  
+- Greedy works because order of removals doesn’t matter (all lead to the same result).  
+
+---
+
+## 🔑 Approach
+
+1. Create a helper `sig(word)` → returns a frequency array of size 26, joined into a string.  
+2. Iterate over words:
+   - For each word, compute its signature.  
+   - Compare with the last kept word’s signature.  
+   - If same → skip it.  
+   - If different → add it to the result.  
+3. Return the result list.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  For each word of length `L`, we compute a 26-char frequency. With `n` words, complexity is **O(n · L)**.  
+
+- **Space complexity:**  
+  Only a fixed 26-length array for counting, so extra space is **O(1)** (ignoring output).  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {string[]} words
+ * @return {string[]}
+ */
+var removeAnagrams = function(words) {
+  const res = [];
+  let prevSig = null;
+
+  const sig = (w) => {
+    const cnt = new Array(26).fill(0);
+    for (let i = 0; i < w.length; i++) cnt[w.charCodeAt(i) - 97]++;
+    return cnt.join('#'); // delimiter avoids ambiguity
+  };
+
+  for (const w of words) {
+    const curSig = sig(w);
+    if (curSig !== prevSig) {
+      res.push(w);
+      prevSig = curSig;
+    }
+    // else skip → it's an anagram of previous word
+  }
+
+  return res;
+};
+```
+
+## 🧪 Edge Cases
+
+- Single word → always returned as is.
+    
+- All words distinct → nothing removed.
+    
+- All words anagrams → only the first one remains.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem is a nice **string hashing warm-up**.  
+Key lesson: when removing duplicates with structural equivalence (like anagrams), signatures simplify comparisons efficiently.
+
+That’s it for **Day 28** of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

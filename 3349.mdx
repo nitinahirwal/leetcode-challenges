@@ -1,0 +1,109 @@
+---
+title: LeetCode Challenge Day 29 — 3349. Adjacent Increasing Subarrays Detection I  
+summary: Day 29 of my LeetCode challenge! Today’s problem is "Adjacent Increasing Subarrays Detection I". I walk through the intuition of increasing runs, show how to precompute with DP, analyze time and space complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/adjacent-increasing-subarrays-detection-i/solutions/7274650/3349-adjacent-increasing-subarrays-detec-6g26
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-14  
+tags: ["LeetCode Challenge", "Day 29", "Arrays", "DP", "JavaScript", "Easy", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 29** of my LeetCode streak 🚀.  
+Today’s problem is **3349. Adjacent Increasing Subarrays Detection I** — an **easy array + DP problem** where we check if two adjacent subarrays of length `k` are strictly increasing.
+
+---
+
+## 📌 Problem Statement
+
+You are given an array `nums` and an integer `k`.  
+- We need to check if there exist **two adjacent subarrays of length `k`** such that:  
+  - Both are strictly increasing.  
+  - They are back-to-back (second starts immediately after the first).  
+
+Return `true` if such subarrays exist, otherwise `false`.
+
+---
+
+## 💡 Intuition
+
+- A subarray is strictly increasing if every element is greater than the previous.  
+- Instead of checking each subarray separately, we can **track the length of increasing runs**.  
+- If the run ending at position `i` has length ≥ `k`, then `[i-k+1 .. i]` is strictly increasing.  
+- So we just need to check two consecutive windows `[a..a+k-1]` and `[a+k..a+2k-1]`.  
+
+---
+
+## 🔑 Approach
+
+1. Build an array `inc` where `inc[i]` = length of the increasing sequence ending at index `i`.  
+   - If `nums[i] > nums[i-1]`, extend the run.  
+   - Otherwise reset to `1`.  
+
+2. For each starting index `a`:
+   - First subarray ends at `a+k-1`.  
+   - Second subarray ends at `a+2k-1`.  
+   - If both `inc[a+k-1] ≥ k` and `inc[a+2k-1] ≥ k`, return `true`.  
+
+3. If no valid pair found, return `false`.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  We compute `inc` in **O(n)** and scan for valid subarrays in another **O(n)**.  
+  Total = **O(n)**.  
+
+- **Space complexity:**  
+  The `inc` array uses **O(n)** extra space.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {boolean}
+ */
+var hasIncreasingSubarrays = function(nums, k) {
+  const n = nums.length;
+  // inc[i] = length of the strictly increasing run ending at i
+  const inc = new Array(n).fill(1);
+  for (let i = 1; i < n; i++) {
+    if (nums[i] > nums[i - 1]) inc[i] = inc[i - 1] + 1;
+  }
+
+  // Check adjacent windows [a .. a+k-1] and [a+k .. a+2k-1]
+  for (let a = 0; a + 2 * k - 1 < n; a++) {
+    const end1 = a + k - 1;
+    const end2 = a + 2 * k - 1;
+    if (inc[end1] >= k && inc[end2] >= k) return true;
+  }
+  return false;
+};
+```
+
+## 🧪 Edge Cases
+
+- Array too short → impossible, return false.
+    
+- Strictly increasing whole array → always has valid adjacent subarrays if `2k ≤ n`.
+    
+- Flat or decreasing regions → breaks runs, result false.
+    
+
+---
+
+## 🎥 Reflections
+
+This problem was a neat reminder that **precomputing run lengths** is a powerful technique for sequence checks.  
+Instead of re-checking each subarray from scratch, storing incremental info makes the solution both clean and efficient.
+
+That’s it for **Day 29** of my LeetCode journey!  
+On to the next challenge 🔥
+
+Happy Coding 👨‍💻

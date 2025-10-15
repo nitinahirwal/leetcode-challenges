@@ -1,0 +1,138 @@
+---
+title: LeetCode Challenge Day 30 — 3350. Adjacent Increasing Subarrays Detection II  
+summary: Day 30 of my LeetCode challenge! Today’s problem is "Adjacent Increasing Subarrays Detection II". I dive into the idea of combining left and right increasing runs, show how to use dynamic programming arrays to track them, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/adjacent-increasing-subarrays-detection-ii/solutions/7276863/3350-adjacent-increasing-subarrays-detec-vpoj
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-15  
+tags: ["LeetCode Challenge", "Day 30", "Arrays", "DP", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 30** of my LeetCode streak 🚀.  
+Today’s problem is **3350. Adjacent Increasing Subarrays Detection II** — a **medium array + DP problem** where we find the maximum length `k` such that two adjacent strictly increasing subarrays of length `k` exist.
+
+---
+
+## 📌 Problem Statement
+
+You are given an integer array `nums`.  
+We need to return the **maximum possible value of `k`** such that there exist **two adjacent subarrays of length `k`** where:  
+
+- Both subarrays are strictly increasing.  
+- They are adjacent, meaning if the first is `nums[a..a+k-1]`, then the second is `nums[a+k..a+2k-1]`.
+
+---
+
+## 💡 Intuition
+
+- If we look at a **boundary index `m`** between two adjacent subarrays:  
+  - The left subarray must end at `m`.  
+  - The right subarray must start at `m+1`.  
+
+- So the possible `k` at this boundary is constrained by:  
+  - `L[m]`: length of the increasing run ending at `m`.  
+  - `R[m+1]`: length of the increasing run starting at `m+1`.  
+
+- The largest `k` at this boundary is `min(L[m], R[m+1])`.  
+- The answer is the maximum of these values across all boundaries.
+
+---
+
+## 🔑 Approach
+
+1. Precompute `L[i]`: length of the strictly increasing run ending at index `i`.  
+   - If `nums[i-1] < nums[i]`, then extend run → `L[i] = L[i-1] + 1`.  
+   - Else reset to `1`.  
+
+2. Precompute `R[i]`: length of the strictly increasing run starting at index `i`.  
+   - If `nums[i] < nums[i+1]`, then extend run → `R[i] = R[i+1] + 1`.  
+   - Else reset to `1`.  
+
+3. For each boundary `m` between `m` and `m+1`:  
+       ```
+       k = min(L[m], R[m+1])
+       ```
+       Track the maximum `k`.  
+
+4. Return the maximum found.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+Two linear scans to build `L` and `R`, and one more scan for boundaries.  
+Total = **O(n)**.  
+
+- **Space complexity:**  
+Extra arrays `L` and `R` of size `n`.  
+Total = **O(n)** (can be optimized to O(1) with a streaming approach).  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```js
+/**
+* @param {number[]} nums
+* @return {number}
+*/
+var maxIncreasingSubarrays = function(nums) {
+const n = nums.length;
+if (n < 2) return 0;
+
+// L[i] = length of strictly increasing run ending at i
+const L = new Array(n).fill(1);
+for (let i = 1; i < n; i++) {
+ if (nums[i - 1] < nums[i]) L[i] = L[i - 1] + 1;
+}
+
+// R[i] = length of strictly increasing run starting at i
+const R = new Array(n).fill(1);
+for (let i = n - 2; i >= 0; i--) {
+ if (nums[i] < nums[i + 1]) R[i] = R[i + 1] + 1;
+}
+
+// For each boundary m, max k is min(L[m], R[m+1])
+let ans = 0;
+for (let m = 0; m < n - 1; m++) {
+ ans = Math.max(ans, Math.min(L[m], R[m + 1]));
+}
+return ans;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:  
+`nums = [2,5,7,8,9,2,3,4,3,1]`
+
+- Increasing runs:
+    
+    - `L = [1,2,3,4,5,1,2,3,1,1]`
+        
+    - `R = [5,4,3,2,1,3,2,1,1,1]`
+        
+- Boundaries:
+    
+    - At `m=4`: `min(L[4], R[5]) = min(5,3) = 3` ✅
+        
+    - This is the maximum.
+        
+
+Output: `3`.
+
+---
+
+## 🎥 Reflections
+
+This problem is a nice step up from Part I.  
+While Part I just asked if such subarrays exist, Part II pushes us to calculate the **maximum possible length**.  
+The trick was to precompute **increasing run lengths from both sides** and combine them at every boundary.
+
+That’s it for **Day 30** of my LeetCode journey!  
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

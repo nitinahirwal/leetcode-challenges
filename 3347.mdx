@@ -1,0 +1,178 @@
+---
+title: LeetCode Challenge Day 37 — 3347. Maximum Frequency of an Element After Performing Operations II  
+summary: Day 37 of my LeetCode challenge! Today’s problem is "Maximum Frequency of an Element After Performing Operations II". I explore how to use sweep line + difference arrays to track interval coverage, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/maximum-frequency-of-an-element-after-performing-operations-ii/solutions/7292965/3347-maximum-frequency-of-an-element-aft-ivtz
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-22  
+tags: ["LeetCode Challenge", "Day 37", "Greedy", "Sweep Line", "Difference Array", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 37** of my LeetCode streak 🚀.  
+Today’s problem is **3347. Maximum Frequency of an Element After Performing Operations II** — a **medium sweep line + difference array problem** where each number can be shifted within `[num - k, num + k]`, and we want to maximize the frequency of a single number after at most `numOperations`.
+
+---
+
+## 📌 Problem Statement
+
+You are given an array `nums`, and two integers `k` and `numOperations`.  
+
+- Each number `x` can be converted into any integer in `[x - k, x + k]`.  
+- You can perform at most `numOperations` conversions.  
+- Return the maximum possible frequency of any number after the operations.
+
+---
+
+## 💡 Intuition
+
+Each number contributes an **interval of possible target values**.  
+If we know:  
+- How many numbers can reach a given target `T` (coverage).  
+- How many numbers are already equal to `T`.  
+
+Then we can calculate the maximum achievable frequency for `T` by combining existing equals with up to `numOperations` conversions from its coverage set.
+
+---
+
+## 🔑 Approach
+
+1. **Frequency map**: Count occurrences of each exact number in `nums`.  
+
+2. **Build interval coverage (difference array)**:  
+   - For each number `x`, mark:  
+     - `+1` at `x - k`  
+     - `-1` at `x + k + 1`  
+   - This way, a sweep across the number line maintains how many intervals currently cover a point.
+
+3. **Sweep line**:  
+   - Sort event positions and target values.  
+   - Apply events left to right, keeping current coverage.  
+   - Record coverage at each target and track global maximum coverage.  
+
+4. **Compute best answer**:  
+   - If `T` is not an existing number: `ans = min(numOperations, maxCoverage)`  
+   - If `T` is an existing number:  
+     ```
+     candidate = min(freq(T) + numOperations, coverage(T))
+     ```  
+   - Take the maximum over all candidates.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  - Frequency map: **O(n)**  
+  - Events + sorting: **O(n log n)**  
+  - Sweep: **O(n)**  
+  - Overall: **O(n log n)**  
+
+- **Space complexity:**  
+  - Frequency map, events, and coverage: **O(n)**  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @param {number} numOperations
+ * @return {number}
+ */
+var maxFrequency = function(nums, k, numOperations) {
+  const n = nums.length;
+  if (n === 0) return 0;
+
+  // 1) frequency of exact values
+  const freq = new Map();
+  for (const x of nums) freq.set(x, (freq.get(x) || 0) + 1);
+
+  // 2) build sweep events for intervals [x-k, x+k]
+  const events = new Map();
+  const addEvent = (pos, delta) => events.set(pos, (events.get(pos) || 0) + delta);
+
+  for (const x of nums) {
+    const L = x - k;
+    const R = x + k;
+    addEvent(L, 1);
+    addEvent(R + 1, -1);
+  }
+
+  const eventPos = Array.from(events.keys()).sort((a, b) => a - b);
+  const targets = Array.from(freq.keys()).sort((a, b) => a - b);
+
+  // 3) sweep to record coverage at targets + max coverage
+  let e = 0, t = 0;
+  let cur = 0, maxCov = 0;
+  const covAt = new Map();
+
+  while (e < eventPos.length || t < targets.length) {
+    const nextE = e < eventPos.length ? eventPos[e] : Infinity;
+    const nextT = t < targets.length ? targets[t] : Infinity;
+
+    if (nextT < nextE) {
+      covAt.set(nextT, cur);
+      t++;
+    } else if (nextE < nextT) {
+      cur += events.get(nextE);
+      if (cur > maxCov) maxCov = cur;
+      e++;
+    } else {
+      cur += events.get(nextE);
+      if (cur > maxCov) maxCov = cur;
+      e++;
+      while (t < targets.length && targets[t] === nextT) {
+        covAt.set(targets[t], cur);
+        t++;
+      }
+    }
+  }
+
+  // 4) compute best answer
+  let ans = Math.min(numOperations, maxCov); // when T is not an existing value
+  for (const v of targets) {
+    const f = freq.get(v);
+    const cov = covAt.get(v) || 0;
+    const candidate = Math.min(f + numOperations, cov);
+    if (candidate > ans) ans = candidate;
+  }
+  return ans;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:
+nums = [1,4,5], k = 1, numOperations = 2
+
+Intervals:
+
+1 → [0,2]
+
+4 → [3,5]
+
+5 → [4,6]
+
+Candidate = 4:
+
+equal = 1 (the 4)
+
+coverNonEqual = 1 (the 5 can move to 4)
+
+With 2 operations available → freq = 2
+
+Output: 2
+
+## 🎥 Reflections
+
+This problem is an elegant mix of interval coverage, sweep line, and greedy adjustment.
+The difference array ensures efficient handling of ranges without brute force enumeration.
+
+That’s it for Day 37 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

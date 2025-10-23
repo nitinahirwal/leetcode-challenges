@@ -1,0 +1,100 @@
+---
+title: LeetCode Challenge Day 35 — 2011. Final Value of Variable After Performing Operations  
+summary: Day 35 of my LeetCode challenge! Today’s problem is "Final Value of Variable After Performing Operations". I explore how to simulate increment/decrement operations directly, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/final-value-of-variable-after-performing-operations/solutions/7292923/2011-final-value-of-variable-after-perfo-wm4l
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-20  
+tags: ["LeetCode Challenge", "Day 35", "Simulation", "String", "JavaScript", "Easy", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 35** of my LeetCode streak 🚀.  
+Today’s problem is **2011. Final Value of Variable After Performing Operations** — a **simple simulation problem** where we execute increment/decrement operations and track the final result of a variable.
+
+---
+
+## 📌 Problem Statement
+
+You are given an array of strings `operations`, where each string is one of:  
+
+- `"--X"`, `"X--"` → decrement by 1  
+- `"++X"`, `"X++"` → increment by 1  
+
+Return the final value of variable `X` after performing all operations.  
+
+---
+
+## 💡 Intuition
+
+The operations are straightforward — each one either increases or decreases `X` by 1.  
+We can simply simulate the process:  
+- Start with `X = 0`.  
+- For each operation, check if it contains `"++"` → increment, else decrement.  
+
+---
+
+## 🔑 Approach
+
+1. Initialize `X = 0`.  
+2. Loop through all operations.  
+   - If the operation string contains `"++"`, do `X++`.  
+   - Otherwise, do `X--`.  
+3. Return the final value of `X`.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  Each operation is processed in O(1). For `n` operations → **O(n)**.  
+
+- **Space complexity:**  
+  Only a constant amount of memory is used → **O(1)**.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string[]} operations
+ * @return {number}
+ */
+var finalValueAfterOperations = function(operations) {
+    let X = 0;
+    for (let op of operations) {
+        if (op.includes("++")) {
+            X++;
+        } else {
+            X--;
+        }
+    }
+    return X;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:
+operations = ["--X","X++","X++"]
+
+Start: X = 0
+
+"--X" → decrement → X = -1
+
+"X++" → increment → X = 0
+
+"X++" → increment → X = 1
+
+Output: 1
+
+## 🎥 Reflections
+
+This problem is a nice reminder that not every LeetCode challenge needs advanced data structures or algorithms — sometimes a clean, simple simulation does the trick.
+
+That’s it for Day 35 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

@@ -1,0 +1,230 @@
+---
+title: LeetCode Challenge Day 32 — 3003. Maximize the Number of Partitions After Operations  
+summary: Day 32 of my LeetCode challenge! Today’s problem is "Maximize the Number of Partitions After Operations". I dive into greedy partitioning with at most one character change, explain how precomputation + binary search helps, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/maximize-the-number-of-partitions-after-operations/solutions/7284397/3003-maximize-the-number-of-partitions-a-b7d9
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-17  
+tags: ["LeetCode Challenge", "Day 32", "Greedy", "Binary Search", "JavaScript", "Hard", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 32** of my LeetCode streak 🚀.  
+Today’s problem is **3003. Maximize the Number of Partitions After Operations** — a **hard greedy + binary search problem** where we can change at most one character in the string to maximize the number of partitions under the constraint of at most `k` distinct characters.
+
+---
+
+## 📌 Problem Statement
+
+You are given a string `s` and an integer `k`.  
+
+- You are allowed to change at most one character in `s`.  
+- Then, repeatedly take the longest prefix with at most `k` distinct characters and remove it.  
+- Count how many partitions you can make.  
+
+Return the maximum possible number of partitions after optimally performing the change.
+
+---
+
+## 💡 Intuition
+
+Without modification, greedy partitioning is fixed:  
+- At each step, take the longest prefix with at most `k` distinct characters.  
+
+Changing one character can either **introduce a new distinct character** or **remove an existing one**, which can force a different split and yield more partitions.
+
+The idea is:
+- Compute baseline partitions without modification.  
+- For each index, simulate replacing it with another character and see how its partition changes.  
+- Use precomputation + binary search to avoid recomputing everything for each case.
+
+---
+
+## 🔑 Approach
+
+1. **Precompute prefix frequencies**:  
+   Build a `freq` array where `freq[i][c]` is the count of character `c` in `s[0..i-1]`.  
+   This allows checking distinct counts in any substring `[l..r]` in O(26).
+
+2. **Compute baseline partitions** using greedy scan:  
+   - `pref[i]`: partitions up to index `i`.  
+   - `suff[i]`: partitions from index `i` to the end.  
+   - `partStart[i]`: the start index of the partition containing `i`.
+
+3. **Try modifications** for each index `i` and each possible replacement character:  
+   - **Case 1**: If `[p..i..r]` (where `p` is the partition start) stays valid after modification,  
+     use binary search to find farthest `r`.  
+     Answer = `pref[p-1] + 1 + suff[r+1]`.  
+   - **Case 2**: If `[p..i]` is invalid after modification, force a cut before `i`.  
+     Binary search for farthest `r2` where `[i..r2]` is valid.  
+     Answer = `pref[p-1] + 2 + suff[r2+1]`.
+
+4. Track the maximum across all cases.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  - Build prefix frequencies: O(26·n).  
+  - For each index (n), for each replacement (25), binary search O(log n) with O(26) checks.  
+  - Total: **O(n · 26 · log n)**, feasible for n ≤ 10⁴.  
+
+- **Space complexity:**  
+  - Prefix frequency table: O(26·n).  
+  - Arrays for `pref`, `suff`, and `partStart`.  
+  - Overall: **O(26·n)**.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string} s
+ * @param {number} k
+ * @return {number}
+ */
+var maxPartitionsAfterOperations = function(s, k) {
+  const n = s.length, A = 'a'.charCodeAt(0);
+
+  // prefix freq: freq[i+1][c] = count of char c in s[0..i]
+  const freq = Array.from({ length: n + 1 }, () => Array(26).fill(0));
+  for (let i = 0; i < n; i++) {
+    const idx = s.charCodeAt(i) - A;
+    for (let c = 0; c < 26; c++) freq[i + 1][c] = freq[i][c];
+    freq[i + 1][idx]++;
+  }
+
+  const distinct = (l, r) => {
+    if (l > r) return 0;
+    let d = 0;
+    for (let c = 0; c < 26; c++) {
+      if (freq[r + 1][c] - freq[l][c] > 0) d++;
+    }
+    return d;
+  };
+  const countIn = (l, r, ci) => (l > r ? 0 : freq[r + 1][ci] - freq[l][ci]);
+
+  // baseline pref/suff and partition starts
+  const pref = Array(n).fill(0);
+  const suff = Array(n).fill(0);
+  const partStart = Array(n).fill(0);
+
+  // build pref and partition_start via greedy
+  {
+    let seen = new Set(), cnt = 0, start = 0;
+    for (let i = 0; i < n; i++) {
+      seen.add(s[i]);
+      if (seen.size > k) {
+        cnt++;
+        seen.clear();
+        seen.add(s[i]);
+        start = i;
+      }
+      pref[i] = cnt + 1;
+      partStart[i] = start;
+    }
+  }
+  // build suff via greedy from right
+  {
+    let seen = new Set(), cnt = 0;
+    for (let i = n - 1; i >= 0; i--) {
+      seen.add(s[i]);
+      if (seen.size > k) {
+        cnt++;
+        seen.clear();
+        seen.add(s[i]);
+      }
+      suff[i] = cnt + 1;
+    }
+  }
+
+  let ans = pref[n - 1]; // baseline
+
+  for (let i = 0; i < n; i++) {
+    const p = partStart[i];
+    const oldIdx = s.charCodeAt(i) - A;
+
+    for (let nc = 0; nc < 26; nc++) {
+      if (nc === oldIdx) continue;
+
+      // ---- Case 1: extend [p..r] after change ----
+      let lo = i, hi = n - 1, r = i - 1;
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+
+        const d0 = distinct(p, mid);
+        const oldCnt = countIn(p, mid, oldIdx); // includes s[i] if i <= mid
+        const newCnt = countIn(p, mid, nc);     // before adding modified char at i
+
+        // distinct after modification inside [p..mid]
+        const dAfter = d0 - (oldCnt === 1 ? 1 : 0) + (newCnt === 0 ? 1 : 0);
+
+        if (dAfter <= k) {
+          r = mid;
+          lo = mid + 1;
+        } else hi = mid - 1;
+      }
+
+      if (r >= i) {
+        const left = p > 0 ? pref[p - 1] : 0;
+        const right = (r + 1 < n) ? suff[r + 1] : 0;
+        ans = Math.max(ans, left + 1 + right);
+        continue;
+      }
+
+      // ---- Case 2: [p..i] invalid after change → cut before i ----
+      const start2 = i; // second partition begins at i (modified char included)
+      let lo2 = start2, hi2 = n - 1, r2 = start2 - 1;
+      while (lo2 <= hi2) {
+        const mid = (lo2 + hi2) >> 1;
+
+        const d0b = distinct(start2, mid);
+        const oldCnt2 = countIn(start2, mid, oldIdx);
+        const newCnt2 = countIn(start2, mid, nc);
+
+        const dAfter2 = d0b - (oldCnt2 === 1 ? 1 : 0) + (newCnt2 === 0 ? 1 : 0);
+
+        if (dAfter2 <= k) {
+          r2 = mid;
+          lo2 = mid + 1;
+        } else hi2 = mid - 1;
+      }
+
+      const left = p > 0 ? pref[p - 1] : 0;
+      const right = (r2 + 1 < n) ? suff[r2 + 1] : 0;
+      ans = Math.max(ans, left + 2 + right);
+    }
+  }
+
+  return ans;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:  
+`s = "accca", k = 2`
+
+- Baseline partitions: 2
+    
+- Change `s[2] = 'c' → 'b'` → `"acbca"`
+    
+- Greedy partitions: `"ac" | "bc" | "a"` = 3
+    
+
+Output: `3`.
+
+---
+
+## 🎥 Reflections
+
+This problem is a solid test of combining **greedy, precomputation, and binary search**.  
+The key difficulty was handling both cases: extending partitions with the change, and forcing a cut if the modified partition becomes invalid.
+
+That’s it for **Day 32** of my LeetCode journey!  
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

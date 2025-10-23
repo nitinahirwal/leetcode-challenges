@@ -1,0 +1,109 @@
+---
+title: LeetCode Challenge Day 38 — 3461. Check If Digits Are Equal in String After Operations I  
+summary: Day 38 of my LeetCode challenge! Today’s problem is "Check If Digits Are Equal in String After Operations I". I simulate the digit-reduction process, explain the intuition, and share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/check-if-digits-are-equal-in-string-after-operations-i/solutions/7294699/3461-check-if-digits-are-equal-in-string-ybbi 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-23  
+tags: ["LeetCode Challenge", "Day 38", "Simulation", "String", "JavaScript", "Easy", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 38** of my LeetCode streak 🚀.  
+Today’s problem is **3461. Check If Digits Are Equal in String After Operations I** — an **easy simulation problem** where we repeatedly reduce a string of digits until only two remain, then check if those two digits are equal.
+
+---
+
+## 📌 Problem Statement
+
+You are given a string `s` consisting of digits. Perform the following operation until `s` has exactly two digits:  
+
+- For each pair of consecutive digits in `s`, calculate a new digit as `(s[i] + s[i+1]) % 10`.  
+- Replace `s` with the sequence of these new digits.  
+
+Return `true` if the final two digits are equal, otherwise return `false`.
+
+---
+
+## 💡 Intuition
+
+The key observation is that we don’t need to optimize anything — the input size is at most 100, so we can **directly simulate** the process.  
+
+At each step, the length of the string decreases by 1, and after at most `n-2` steps we’ll reach exactly two digits.  
+
+---
+
+## 🔑 Approach
+
+1. Convert the input string into an array of digits.  
+2. While the array length is greater than 2:  
+   - Create a new array.  
+   - For each consecutive pair, compute `(arr[i] + arr[i+1]) % 10`.  
+   - Replace the old array with this new one.  
+3. Once only 2 digits remain, check if they are equal.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  Each step reduces the array length by 1, and each step costs up to `O(n)`.  
+  Total complexity: **O(n²)**, which is fine for `n ≤ 100`.  
+
+- **Space complexity:**  
+  We only store arrays proportional to the size of the input.  
+  So, **O(n)**.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var hasSameDigits = function(s) {
+    // Convert string to array of digits
+    let arr = s.split("").map(Number);
+
+    // Keep reducing until only 2 digits left
+    while (arr.length > 2) {
+        let next = [];
+        for (let i = 0; i < arr.length - 1; i++) {
+            next.push((arr[i] + arr[i + 1]) % 10);
+        }
+        arr = next;
+    }
+
+    // Check if last two digits are equal
+    return arr[0] === arr[1];
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:  
+`s = "3902"`
+
+Steps:
+
+- First reduction: `"3902"` → `"292"`
+    
+- Second reduction: `"292"` → `"11"`
+    
+
+Since the last two digits are the same, the result is **true** ✅.
+
+---
+
+## 🎥 Reflections
+
+This problem is a great reminder that sometimes brute-force simulation is the simplest and most effective strategy when input sizes are small.  
+It also reinforces the importance of checking constraints before over-optimizing.
+
+That’s it for Day 38 of my LeetCode journey!  
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

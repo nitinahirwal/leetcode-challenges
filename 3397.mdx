@@ -1,0 +1,115 @@
+---
+title: LeetCode Challenge Day 33 — Maximize Distinct Elements Within Range  
+summary: Day 33 of my LeetCode challenge! Today’s problem is about picking distinct integers from flexible ranges. I explain the greedy interval strategy, why sorting by endpoints works, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/maximum-number-of-distinct-elements-after-operations/solutions/7292869/3397-maximum-number-of-distinct-elements-h5lr
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-18  
+tags: ["LeetCode Challenge", "Greedy", "Intervals", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 33" of my LeetCode streak 🚀.  
+Today’s problem is **Maximize Distinct Elements Within Range** — a **medium greedy + interval problem** where each number in an array gives us a range `[x - k, x + k]`, and we want to pick as many **distinct integers** as possible from these ranges.
+
+---
+
+## 📌 Problem Statement
+
+You are given:
+
+- An array `nums`.  
+- An integer `k`.  
+
+For each number `x` in `nums`, you can choose a value in the interval `[x - k, x + k]`.  
+
+Your goal is to maximize how many **distinct integers** you can pick overall.
+
+---
+
+## 💡 Intuition
+
+Each number defines a range of valid choices.  
+To maximize distinct integers:
+- We want to pick numbers in increasing order.  
+- If we always pick the smallest possible integer that’s still valid, we leave more space for future picks.  
+
+This is a classic **interval scheduling problem** — sort intervals by their right endpoint and greedily assign.
+
+---
+
+## 🔑 Approach
+
+1. Build intervals for each number: `[x - k, x + k]`.  
+2. Sort all intervals by their right endpoint.  
+3. Keep track of the **last picked integer** (`cur`).  
+4. For each interval:
+   - Pick `max(cur + 1, l)` — the smallest valid integer larger than the last chosen.  
+   - If it’s ≤ `r`, accept it and increment the count.  
+   - Otherwise, skip.  
+5. Return the count.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  - Sorting intervals: $$O(n \log n)$$  
+  - Greedy scan: $$O(n)$$  
+  **Overall: $$O(n \log n)$$**
+
+- **Space complexity:**  
+  - Intervals array: $$O(n)$$  
+  **Overall: $$O(n)$$**
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var maxDistinctElements = function(nums, k) {
+  const intervals = nums.map(x => [x - k, x + k]);
+  intervals.sort((a, b) => a[1] - b[1]); // sort by right endpoint
+
+  let cur = -Infinity;
+  let ans = 0;
+
+  for (const [l, r] of intervals) {
+    const pick = Math.max(cur + 1, l); // smallest valid integer > cur
+    if (pick <= r) {
+      ans++;
+      cur = pick;
+    }
+  }
+  return ans;
+};
+```
+
+🧪 Example Walkthrough
+
+Input:
+nums = [2, 4, 6], k = 1
+
+Intervals: [1,3], [3,5], [5,7]
+
+Sorted by right endpoint: [1,3], [3,5], [5,7]
+
+Greedy picks: 1 → 3 → 5
+
+Output: 3.
+
+🎥 Reflections
+
+This problem highlights how interval scheduling ideas apply outside of scheduling.
+The greedy choice of always picking the earliest possible valid number ensures maximum distinctness.
+
+That’s it for today’s challenge 💡
+Onwards to the next problem 🔥
+
+Happy Coding 👨‍💻

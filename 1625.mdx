@@ -1,0 +1,151 @@
+---
+title: LeetCode Challenge Day 34 — 1625. Lexicographically Smallest String After Applying Operations  
+summary: Day 34 of my LeetCode challenge! Today’s problem is "Lexicographically Smallest String After Applying Operations". I explore BFS state-space traversal, how to systematically generate new strings, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/lexicographically-smallest-string-after-applying-operations/solutions/7292899/1625-lexicographically-smallest-string-a-vi4k
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-19  
+tags: ["LeetCode Challenge", "Day 34", "BFS", "String", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 34** of my LeetCode streak 🚀.  
+Today’s problem is **1625. Lexicographically Smallest String After Applying Operations** — a **medium BFS + string transformation problem** where we must explore all reachable states by applying two operations: adding to digits at odd indices, and rotating the string.
+
+---
+
+## 📌 Problem Statement
+
+You are given a string `s` consisting of digits, and two integers `a` and `b`.  
+
+You can perform any number of operations in any order:  
+1. Add `a` to every digit at odd indices (mod 10).  
+2. Rotate the string to the right by `b` positions.  
+
+Return the **lexicographically smallest string** you can obtain.
+
+---
+
+## 💡 Intuition
+
+This is essentially a **state-space search**:  
+
+- Each string represents a **state**.  
+- Two operations allow transitions to new states.  
+- Our task is to find the **smallest string among all reachable states**.  
+
+BFS is a natural fit since it ensures we explore systematically while avoiding infinite cycles.
+
+---
+
+## 🔑 Approach
+
+1. **Model operations**:  
+   - `addOdd(t)`: adds `a` to all digits at odd indices.  
+   - `rotateRight(t)`: rotates the string by `b` positions.  
+
+2. **BFS Traversal**:  
+   - Start with initial string `s`.  
+   - Maintain a `visited` set to avoid revisiting states.  
+   - For each state, generate two new ones using the operations.  
+
+3. **Track the best string**:  
+   - Keep updating the smallest lexicographical string found so far.  
+
+4. Return the best result after BFS completes.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  - Each state is a unique string.  
+  - Odd-index digits can cycle through at most 10 possibilities, and rotations produce at most `n` positions.  
+  - Thus, total states: **O(10·n)**.  
+  - Each state transformation costs **O(n)**.  
+  - Overall: **O(10·n²)**.  
+
+- **Space complexity:**  
+  - Set to store visited states: **O(10·n)**.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string} s
+ * @param {number} a
+ * @param {number} b
+ * @return {string}
+ */
+var findLexSmallestString = function(s, a, b) {
+  const n = s.length;
+
+  const addOdd = (t) => {
+    const arr = t.split('');
+    for (let i = 1; i < n; i += 2) {
+      const d = (arr[i].charCodeAt(0) - 48 + a) % 10; // '0' -> 48
+      arr[i] = String.fromCharCode(48 + d);
+    }
+    return arr.join('');
+  };
+
+  const rotateRight = (t) => {
+    const k = b % n;
+    if (k === 0) return t;
+    return t.slice(n - k) + t.slice(0, n - k);
+  };
+
+  const visited = new Set();
+  const q = [s];
+  visited.add(s);
+
+  let best = s;
+
+  while (q.length) {
+    const cur = q.shift();
+    if (cur < best) best = cur;
+
+    const nxt1 = addOdd(cur);
+    if (!visited.has(nxt1)) {
+      visited.add(nxt1);
+      q.push(nxt1);
+    }
+
+    const nxt2 = rotateRight(cur);
+    if (!visited.has(nxt2)) {
+      visited.add(nxt2);
+      q.push(nxt2);
+    }
+  }
+
+  return best;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:
+s = "5525", a = 9, b = 2
+
+Start: "5525"
+
+Apply addOdd: "5414"
+
+Apply rotateRight: "2555"
+
+Continue BFS exploration → eventually reach "2050"
+
+Output: "2050"
+
+## 🎥 Reflections
+
+This problem is a great exercise in BFS over implicit graphs.
+The key takeaway: treat transformations as state transitions, and carefully track visited states to avoid cycles.
+
+That’s it for Day 34 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

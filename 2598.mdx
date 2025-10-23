@@ -1,0 +1,122 @@
+---
+title: LeetCode Challenge Day 31 — 2598. Smallest Missing Non-negative Integer After Operations  
+summary: Day 31 of my LeetCode challenge! Today’s problem is "Smallest Missing Non-negative Integer After Operations". I explore the idea of using modulo arithmetic, frequency counting, simulate the construction of numbers, analyze complexity, and share my JavaScript solution.  
+solution: https://leetcode.com/problems/smallest-missing-non-negative-integer-after-operations/solutions/7284279/2598-smallest-missing-non-negative-integ-iiif 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-16  
+tags: ["LeetCode Challenge", "Day 31", "HashMap", "Greedy", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 31** of my LeetCode streak 🚀.  
+Today’s problem is **2598. Smallest Missing Non-negative Integer After Operations** — a **medium hashmap + greedy problem** where we want to find the smallest integer we cannot form after reducing numbers modulo `value`.
+
+---
+
+## 📌 Problem Statement
+
+You are given an integer array `nums` and an integer `value`.  
+
+- You can replace any number in `nums` with `num % value`.  
+- After replacement, you want to construct integers starting from `0`.  
+- Return the **smallest non-negative integer** that cannot be constructed.
+
+---
+
+## 💡 Intuition
+
+Each number `num` can be represented by its remainder modulo `value`.  
+If we know the **frequency of each remainder**, we can try to "use up" these remainders to build integers in increasing order:
+
+- For integer `i`, check its remainder `i % value`.  
+- If we still have an unused element of that remainder, we can form `i`.  
+- If not, then `i` is the answer.
+
+---
+
+## 🔑 Approach
+
+1. Build a hashmap that counts the frequency of each remainder `(num % value)`.  
+   Normalize negatives with `((num % value) + value) % value`.  
+
+2. Start with `i = 0` and simulate construction:  
+   - Compute `mod = i % value`.  
+   - If `count[mod] > 0`, decrement and continue.  
+   - Otherwise, return `i`.  
+
+3. The loop guarantees termination because eventually, some `i` will map to an exhausted remainder.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  - Counting frequencies: **O(n)**.  
+  - Simulation loop: worst-case up to `n + 1` steps.  
+  - Overall **O(n)**.
+
+- **Space complexity:**  
+  - At most `value` unique remainders stored.  
+  - **O(value)** additional space.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @param {number} value
+ * @return {number}
+ */
+var findSmallestInteger = function(nums, value) {
+    const count = new Map();
+
+    // Count frequency of each remainder mod value
+    for (let num of nums) {
+        let mod = ((num % value) + value) % value;
+        count.set(mod, (count.get(mod) || 0) + 1);
+    }
+
+    let i = 0;
+    while (true) {
+        let mod = i % value;
+        if (count.has(mod) && count.get(mod) > 0) {
+            count.set(mod, count.get(mod) - 1);
+            i++;
+        } else {
+            return i;
+        }
+    }
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:  
+`nums = [1,2,3], value = 2`
+
+- Remainders: `{1:2, 0:1}`
+    
+- i = 0 → remainder 0 available → use one → counts `{1:2, 0:0}`
+    
+- i = 1 → remainder 1 available → use one → counts `{1:1, 0:0}`
+    
+- i = 2 → remainder 0 exhausted → return `2`.
+    
+
+Output: `2`.
+
+---
+
+## 🎥 Reflections
+
+This problem is a neat example of **modulo arithmetic + greedy simulation**.  
+The trick was realizing that constructing integers boils down to consuming remainder frequencies.
+
+That’s it for **Day 31** of my LeetCode journey!  
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

@@ -1,0 +1,162 @@
+---
+title: LeetCode Challenge Day 39 — 2048. Next Greater Numerically Balanced Number  
+summary: Day 39 of my LeetCode challenge! Today’s problem is "Next Greater Numerically Balanced Number". I explain the idea of numerically balanced numbers, show how to pre-generate all valid candidates, and share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/next-greater-numerically-balanced-number/solutions/7304908/2048-next-greater-numerically-balanced-n-7bgv
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-24  
+tags: ["LeetCode Challenge", "Day 39", "Backtracking", "Greedy", "Permutations", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 39** of my LeetCode streak 🚀.  
+Today’s problem is **2048. Next Greater Numerically Balanced Number** — a **medium combinatorics/backtracking problem** where we must find the smallest numerically balanced number strictly greater than `n`.
+
+---
+
+## 📌 Problem Statement
+
+A number is **numerically balanced** if every digit `d` appears exactly `d` times.  
+
+For example:  
+- `22` is balanced (digit `2` appears twice).  
+- `1333` is balanced (digit `1` appears once, digit `3` appears three times).  
+
+Given an integer `n`, return the **smallest numerically balanced number strictly greater than `n`**.
+
+---
+
+## 💡 Intuition
+
+- Only digits `1..7` matter.  
+  Any digit larger than 7 would require ≥ 8 occurrences, making the number too big (since `n ≤ 1e6`).  
+- The maximum length needed is 7 digits, because the smallest 7-digit balanced number is `1224444`.  
+- So the problem can be reduced to:  
+  **Generate all numerically balanced numbers up to 7 digits, sort them, then pick the smallest one greater than `n`.**
+
+---
+
+## 🔑 Approach
+
+1. **Generate multisets**  
+   - For each digit `d ∈ [1..7]`, include either `0` or `d` copies of it.  
+   - Keep only multisets whose total length ≤ 7.  
+
+2. **Generate permutations**  
+   - For each valid multiset, generate all unique permutations to form numbers.  
+
+3. **Store & sort**  
+   - Collect all numbers into a set (to remove duplicates).  
+   - Sort them in ascending order.  
+
+4. **Binary search**  
+   - Find the smallest number strictly greater than `n`.  
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  The search space is bounded and small. All multisets ≤ 7 digits, permutations ≤ `7!` in worst case.  
+  Thus complexity is effectively **O(1)** for given constraints.  
+
+- **Space complexity:**  
+  We store all generated numbers (a few thousand at most).  
+  So, **O(1)** as well.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * 2048. Next Greater Numerically Balanced Number
+ */
+var nextBeautifulNumber = function(n) {
+  const nums = [];
+  const digits = [1,2,3,4,5,6,7];
+
+  function genPermutations(arr) {
+    arr.sort((a,b) => a-b);
+    const used = new Array(arr.length).fill(false);
+    const cur = [], out = [];
+
+    function dfs() {
+      if (cur.length === arr.length) {
+        let val = 0;
+        for (let d of cur) val = val * 10 + d;
+        out.push(val);
+        return;
+      }
+      for (let i = 0; i < arr.length; i++) {
+        if (used[i]) continue;
+        if (i > 0 && arr[i] === arr[i-1] && !used[i-1]) continue;
+        used[i] = true;
+        cur.push(arr[i]);
+        dfs();
+        cur.pop();
+        used[i] = false;
+      }
+    }
+    dfs();
+    return out;
+  }
+
+  for (let mask = 1; mask < (1 << digits.length); mask++) {
+    let totalLen = 0;
+    const multiset = [];
+    for (let i = 0; i < digits.length; i++) {
+      if (mask & (1 << i)) {
+        const d = digits[i];
+        totalLen += d;
+        if (totalLen > 7) break;
+        for (let k = 0; k < d; k++) multiset.push(d);
+      }
+    }
+    if (multiset.length === totalLen && totalLen > 0 && totalLen <= 7) {
+      nums.push(...genPermutations(multiset));
+    }
+  }
+
+  const uniq = Array.from(new Set(nums)).sort((a,b) => a-b);
+
+  let lo = 0, hi = uniq.length - 1, ans = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (uniq[mid] > n) {
+      ans = uniq[mid];
+      hi = mid - 1;
+    } else {
+      lo = mid + 1;
+    }
+  }
+  return ans;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:
+n = 1
+
+Candidates include: 22, 1333, 1224444, …
+
+Smallest balanced number greater than 1 is 22. ✅
+
+Input:
+n = 300
+
+Balanced candidates around it: 1333, 1444, 2333, …
+
+The next greater is 1333. ✅
+
+## 🎥 Reflections
+
+This problem was fun because it looks tricky at first, but the constraints make brute-force feasible.
+By pre-generating all possible balanced numbers once, we can instantly answer for any n ≤ 1e6.
+
+That’s it for Day 39 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

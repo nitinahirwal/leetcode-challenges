@@ -1,0 +1,100 @@
+---
+title: LeetCode Challenge Day 40 — 1716. Calculate Money in LeetCode Bank  
+summary: Day 40 of my LeetCode challenge! Today’s problem is "Calculate Money in LeetCode Bank". I break the deposit pattern into full weeks and leftover days, then sum them up with a clean JavaScript solution and complexity analysis.  
+solution: https://leetcode.com/problems/calculate-money-in-leetcode-bank/solutions/7304927/1716-calculate-money-in-leetcode-bank-by-dg90  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-25  
+tags: ["LeetCode Challenge", "Day 40", "Math", "Simulation", "Arithmetic Progression", "JavaScript", "Easy", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 40** of my LeetCode streak 🚀.  
+Today’s problem is **1716. Calculate Money in LeetCode Bank** — a neat **math/simulation** task where deposits increase daily within each week and the whole week’s base amount also increases each new week.
+
+---
+
+## 📌 Problem Statement
+
+You deposit money for `n` days:
+- Week 1: deposit $1 on Monday, $2 on Tuesday, …, $7 on Sunday.
+- Week 2: start from $2 on Monday, then $3, …, $8 on Sunday.
+- And so on.
+
+Return the total money after `n` days.
+
+---
+
+## 💡 Intuition
+
+Split `n` into **full weeks** and **leftover days**.  
+- Each full week is an arithmetic sequence: the first week sums to `28`, and each subsequent week adds `7` more (because each day’s deposit is `+1` higher).  
+- Leftover days continue from the next week’s starting amount `(weeks + 1)`.
+
+---
+
+## 🔑 Approach
+
+1. Compute:
+   - `weeks = Math.floor(n / 7)`  
+   - `days = n % 7`
+2. Sum full weeks: week `i` contributes `28 + 7*i` (0-indexed).
+3. Sum leftover days: start from `(weeks + 1)` and add one per day.
+4. Return `weekTotal + dayTotal`.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  We iterate through the number of full weeks (≈ `n/7`) and up to `6` leftover days → **O(n)** in the given implementation (can be O(1) with closed-form sums).
+
+- **Space complexity:**  
+  Constant extra space → **O(1)**.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var totalMoney = function(n) {
+    let weeks = Math.floor(n / 7);
+    let days = n % 7;
+    
+    // total from full weeks
+    let weekTotal = 0;
+    for (let i = 0; i < weeks; i++) {
+        weekTotal += (28 + 7 * i);  // sum of each week
+    }
+    
+    // total from leftover days
+    let dayTotal = 0;
+    for (let d = 0; d < days; d++) {
+        dayTotal += (weeks + 1 + d);
+    }
+    
+    return weekTotal + dayTotal;
+};
+```
+
+## 🧪 Example Walkthrough
+
+If n = 10:
+
+Full weeks: 1 week → 28
+
+Leftover days: 3 days starting from 2 → 2 + 3 + 4 = 9
+
+Total = 28 + 9 = 37 ✅
+
+## 🎥 Reflections
+
+A small problem with a clean structure. Recognizing the weekly pattern and breaking it into full weeks + leftover days makes the implementation straightforward.
+You can also derive closed-form formulas for both parts to make it O(1).
+
+Happy Coding 👨‍💻

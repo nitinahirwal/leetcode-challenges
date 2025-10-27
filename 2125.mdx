@@ -1,0 +1,112 @@
+---
+title: LeetCode Challenge Day 42 — 2125. Number of Laser Beams in a Bank  
+summary: Day 42 of my LeetCode challenge! Today’s problem is "Number of Laser Beams in a Bank". I explain how to count security devices row by row, track consecutive non-empty rows, and share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/number-of-laser-beams-in-a-bank/solutions/7304966/2125-number-of-laser-beams-in-a-bank-by-y06nf
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-27  
+tags: ["LeetCode Challenge", "Day 42", "Simulation", "String", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 42** of my LeetCode streak 🚀.  
+Today’s problem is **2125. Number of Laser Beams in a Bank** — a **matrix simulation problem** where we count beams formed by security devices placed in rows.
+
+---
+
+## 📌 Problem Statement
+
+You are given a binary string array `bank` representing rows of a bank security floor.  
+- `'1'` represents a security device.  
+- `'0'` means no device.  
+
+A **laser beam** is formed between two devices in different rows **if and only if** all rows between them are empty (contain no devices).  
+
+Return the **total number of beams**.
+
+---
+
+## 💡 Intuition
+
+Beams only occur between **consecutive non-empty rows**.  
+So we can:  
+1. Count the number of devices in each row.  
+2. For every non-empty row, multiply its count with the previous non-empty row’s count.  
+3. Accumulate the result.
+
+---
+
+## 🔑 Approach
+
+1. Initialize `prev = 0` (count of devices in last non-empty row) and `beams = 0`.  
+2. Traverse each row:  
+   - Count devices (`curr`).  
+   - If `curr > 0`:  
+     - Add `prev * curr` to `beams`.  
+     - Update `prev = curr`.  
+   - Otherwise skip (empty row).  
+3. Return `beams`.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  We scan each row of length `n` for `m` rows → **O(m · n)**.  
+
+- **Space complexity:**  
+  Only a few variables (`prev`, `curr`, `beams`) → **O(1)**.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string[]} bank
+ * @return {number}
+ */
+var numberOfBeams = function (bank) {
+  let prev = 0;     // number of devices in the previous non-empty row
+  let beams = 0;
+
+  for (const row of bank) {
+    // count '1's in this row
+    let curr = 0;
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] === '1') curr++;
+    }
+
+    // if this row has devices, it forms beams with the previous non-empty row
+    if (curr > 0) {
+      beams += prev * curr;
+      prev = curr; // update previous non-empty row count
+    }
+  }
+
+  return beams;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:
+bank = ["011001","000000","010100","001000"]
+
+  -  Row 1 → 3 devices.
+  -  Row 2 → empty (skip).
+  -  Row 3 → 2 devices → beams += 3 * 2 = 6.
+  -  Row 4 → 1 device → beams += 2 * 1 = 2.
+
+Total = 8 ✅
+
+## 🎥 Reflections
+
+This problem highlights the importance of simplifying conditions.
+Instead of checking all row pairs, tracking only consecutive non-empty rows gives a clean and efficient solution.
+
+That’s it for Day 42 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

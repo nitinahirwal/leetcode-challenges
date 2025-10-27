@@ -1,0 +1,143 @@
+---
+title: LeetCode Challenge Day 41 — 2043. Simple Bank System  
+summary: Day 41 of my LeetCode challenge! Today’s problem is "Simple Bank System". I simulate a banking system with deposit, withdraw, and transfer operations, explain the intuition, and share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/simple-bank-system/solutions/7304953/2043-simple-bank-system-by-nitinahirwal_-p8q7
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-26  
+tags: ["LeetCode Challenge", "Day 41", "Simulation", "OOP", "JavaScript", "Design", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 41** of my LeetCode streak 🚀.  
+Today’s problem is **2043. Simple Bank System** — a **design + simulation problem** where we need to implement a bank that supports deposits, withdrawals, and transfers across multiple accounts.
+
+---
+
+## 📌 Problem Statement
+
+You are given an initial array `balance` where `balance[i]` is the starting amount for account `i+1`.  
+
+Implement a `Bank` class that supports:  
+1. `withdraw(account, money)` → withdraw money if sufficient funds exist.  
+2. `deposit(account, money)` → add money to an account.  
+3. `transfer(account1, account2, money)` → move money between two accounts if possible.  
+
+Return `true` if the operation succeeds, otherwise return `false`.
+
+---
+
+## 💡 Intuition
+
+The problem boils down to **managing balances in an array**.  
+Each operation requires checking:  
+- Whether the account index is valid.  
+- Whether sufficient balance exists (for withdraw/transfer).  
+
+Once checks pass, update balances accordingly.
+
+---
+
+## 🔑 Approach
+
+1. **Initialization**:  
+   - Store all balances in an array `this.balance`.  
+   - Track total number of accounts `this.n`.  
+
+2. **Withdraw**:  
+   - Validate account.  
+   - Check if balance is enough.  
+   - Deduct money.  
+
+3. **Deposit**:  
+   - Validate account.  
+   - Add money.  
+
+4. **Transfer**:  
+   - Validate both accounts.  
+   - Ensure source has enough funds.  
+   - Deduct from source and add to destination.  
+
+All operations return a boolean indicating success/failure.
+
+---
+
+## ⏱️ Complexity Analysis
+
+- **Time complexity:**  
+  Each operation (`deposit`, `withdraw`, `transfer`) involves only array access and constant-time updates → **O(1)**.  
+
+- **Space complexity:**  
+  We store balances in an array of length `n` → **O(n)**.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} balance
+ */
+var Bank = function(balance) {
+    this.balance = balance; 
+    this.n = balance.length;
+};
+
+/** 
+ * @param {number} account 
+ * @param {number} money
+ * @return {boolean}
+ */
+Bank.prototype.withdraw = function(account, money) {
+    if (account < 1 || account > this.n) return false;
+    if (this.balance[account - 1] < money) return false;
+    this.balance[account - 1] -= money;
+    return true;
+};
+
+/** 
+ * @param {number} account 
+ * @param {number} money
+ * @return {boolean}
+ */
+Bank.prototype.deposit = function(account, money) {
+    if (account < 1 || account > this.n) return false;
+    this.balance[account - 1] += money;
+    return true;
+};
+
+/** 
+ * @param {number} account1 
+ * @param {number} account2 
+ * @param {number} money
+ * @return {boolean}
+ */
+Bank.prototype.transfer = function(account1, account2, money) {
+    if (account1 < 1 || account1 > this.n) return false;
+    if (account2 < 1 || account2 > this.n) return false;
+    if (this.balance[account1 - 1] < money) return false;
+    this.balance[account1 - 1] -= money;
+    this.balance[account2 - 1] += money;
+    return true;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:
+balance = [10, 100, 20, 50, 30]
+  -  withdraw(3, 10) → true, new balance = [10, 100, 10, 50, 30]
+  -  transfer(5, 1, 20) → true, new balance = [30, 100, 10, 50, 10]
+  -  deposit(5, 20) → true, new balance = [30, 100, 10, 50, 30]
+  -  transfer(3, 4, 15) → false (insufficient balance).
+
+## 🎥 Reflections
+
+This is a classic design problem where clarity matters more than optimization.
+By carefully validating indices and balances, the implementation becomes clean and reliable.
+
+That’s it for Day 41 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

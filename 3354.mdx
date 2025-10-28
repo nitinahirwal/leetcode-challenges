@@ -1,0 +1,126 @@
+---
+title: LeetCode Challenge Day 43 — 3354. Make Array Elements Equal to Zero  
+summary: Day 43 of my LeetCode challenge! Today’s problem is "Make Array Elements Equal to Zero". I simulate starting from zeros, walk left/right with direction flips, and check if all numbers can be reduced to zero. I also share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/make-array-elements-equal-to-zero/solutions/7307413/3354-make-array-elements-equal-to-zero-b-g9rd 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-28 
+tags: ["LeetCode Challenge", "Day 43", "Simulation", "Array", "JavaScript", "Medium", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 43** of my LeetCode streak 🚀.  
+Today’s problem is **3354. Make Array Elements Equal to Zero** — a **simulation problem** where we try to walk across the array, decrementing and flipping direction, until everything becomes zero.  
+
+---
+
+## 📌 Problem Statement
+
+You are given an integer array `nums`.  
+- You can only **start from an index with value 0**.  
+- Choose a direction (left or right).  
+- At each step:  
+  - If the current element is `0`, move one step in the same direction.  
+  - If it is non-zero, decrement it by 1, flip direction, and move one step in the new direction.  
+- The process ends when you go out of bounds.  
+
+A start position + direction is **valid** if, at the end, **all elements are 0**.  
+Return the total number of valid selections.  
+
+---
+
+## 💡 Intuition
+
+- Starting positions must be at **zeros**, otherwise you’ll decrement immediately and leave non-zeros behind.  
+- From each zero, simulate moving left or right while flipping directions whenever you decrement.  
+- If all numbers are zero at the end, count this path as valid.  
+
+---
+
+## 🔑 Approach
+
+1. Loop through all indices.  
+2. For each index where `nums[i] === 0`:  
+   - Simulate starting at `i` with direction `-1` (left).  
+   - Simulate starting at `i` with direction `+1` (right).  
+3. In the simulation:  
+   - Copy the array.  
+   - While inside bounds:  
+     - If current element is `0`, move in the same direction.  
+     - Else decrement, flip direction, and step.  
+   - At the end, check if all elements are `0`.  
+4. Count all successful simulations.  
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  For each index (`O(n)`), simulation may walk across the whole array (`O(n)`) → **O(n²)** worst case.  
+
+- **Space complexity:**  
+  Copying the array costs **O(n)** extra memory.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)  
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var countValidSelections = function(nums) {
+  const n = nums.length;
+
+  // simulate process from a start position and direction
+  function simulate(start, dir) {
+    const arr = nums.slice(); // copy
+    let curr = start;
+    while (curr >= 0 && curr < n) {
+      if (arr[curr] === 0) {
+        curr += dir;
+      } else {
+        arr[curr] -= 1;
+        dir = -dir;
+        curr += dir;
+      }
+    }
+    // check if all elements are zero
+    for (let v of arr) if (v !== 0) return false;
+    return true;
+  }
+
+  let count = 0;
+  for (let i = 0; i < n; i++) {
+    if (nums[i] === 0) {
+      if (simulate(i, -1)) count++;
+      if (simulate(i,  1)) count++;
+    }
+  }
+  return count;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input: nums = [0,1,0]
+
+Start at index 0 → simulate left/right.
+
+Start at index 2 → simulate left/right.
+
+Some paths clear the array fully.
+
+Output: 2 ✅
+
+## 🎥 Reflections
+
+This is a fun simulation problem with direction flipping.
+Key insight: only zeros can be starting points, and from there the process is deterministic.
+
+That’s it for Day 43 of my LeetCode journey!
+Onwards to the next challenge 🔥
+
+Happy Coding 👨‍💻

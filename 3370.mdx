@@ -1,0 +1,112 @@
+---
+title: LeetCode Challenge Day 44 — 3370. Smallest Number With All Set Bits  
+summary: Day 44 of my LeetCode challenge! Today’s problem is "Smallest Number With All Set Bits". I realized it boils down to finding the next number of the form 2^k - 1 that is greater than or equal to n. I share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/smallest-number-with-all-set-bits/solutions/7310651/3370-smallest-number-with-all-set-bits-b-8fye
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-29  
+tags: ["LeetCode Challenge", "Day 44", "Bit Manipulation", "Math", "JavaScript", "Easy", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 44** of my LeetCode streak 🚀.  
+Today’s problem is **3370. Smallest Number With All Set Bits** — a **bit manipulation problem** that requires us to find the smallest integer ≥ `n` such that all its binary digits are 1s.  
+
+---
+
+## 📌 Problem Statement
+
+You are given a positive number `n`.  
+
+Return the smallest number `x` such that:  
+- `x >= n`  
+- The binary representation of `x` contains only set bits (all ones).  
+
+### Example 1:
+
+```
+Input: n = 5
+Output: 7
+Explanation: 7 in binary is 111.
+```
+### Example 2:
+
+```
+Input: n = 10
+Output: 15
+Explanation: 15 in binary is 1111.
+```
+### Example 3:
+```
+Input: n = 3
+Output: 3
+Explanation: 3 in binary is 11.
+```
+---
+
+## 💡 Intuition
+
+Numbers with all bits set follow a simple pattern:  
+1 (1), 3 (11), 7 (111), 15 (1111), 31 (11111), ... → all are of the form **2^k - 1**.  
+
+So the problem reduces to:  
+- Find the number of bits needed to represent `n`.  
+- Return `2^bits - 1`.  
+
+This will always give the smallest "all set bits" number ≥ `n`.
+
+---
+
+## 🔑 Approach
+
+1. Calculate how many bits are required to represent `n`.  
+   - Use `Math.clz32(n)` which gives leading zeros in a 32-bit integer.  
+   - `bits = 32 - Math.clz32(n)`.  
+2. The smallest all-ones number with those many bits is `(1 << bits) - 1`.  
+3. Return that value.  
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  \(O(1)\) → only constant-time bit operations.  
+
+- **Space complexity:**  
+  \(O(1)\) → no extra data structures.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)  
+
+```javascript
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var smallestNumber = function(n) {
+  // number of bits needed to represent n
+  const bits = 32 - Math.clz32(n); 
+  // smallest number with all bits set and >= n
+  return (1 << bits) - 1;
+};
+```
+
+
+## 🧪 Example Walkthrough
+Input: n = 10
+
+Binary: 1010 → needs 4 bits.
+
+Smallest all-ones with 4 bits = 1111 = 15.
+Output: 15 ✅
+
+## 🎥 Reflections
+This was a neat bit manipulation trick.
+The problem looks complicated at first, but once you realize it’s about finding the next number of the form 2^k - 1, it becomes very straightforward.
+
+That’s it for Day 44 of my LeetCode journey!
+Onwards to Day 45 🔥
+
+Happy Coding 👨‍💻

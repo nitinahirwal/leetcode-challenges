@@ -1,0 +1,122 @@
+---
+title: LeetCode Challenge Day 45 — 1526. Minimum Number of Increments on Subarrays to Form a Target Array  
+summary: Day 45 of my LeetCode challenge! Today’s problem is "Minimum Number of Increments on Subarrays to Form a Target Array". The trick is to realize you only need to pay for increases between consecutive elements. I share my JavaScript solution with complexity analysis.  
+solution: https://leetcode.com/problems/minimum-number-of-increments-on-subarrays-to-form-a-target-array/solutions/7313034/1526-minimum-number-of-increments-on-sub-io9h 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-30  
+tags: ["LeetCode Challenge", "Day 45", "Greedy", "Array", "Hard", "JavaScript", "Portfolio"]  
+---
+
+## Hey folks
+
+This is **Day 45** of my LeetCode streak 🚀.  
+Today’s problem is **1526. Minimum Number of Increments on Subarrays to Form a Target Array** — a **hard greedy problem** that looks tricky at first but simplifies once you spot the pattern.  
+
+---
+
+## 📌 Problem Statement
+
+You are given an integer array `target`.  
+You start with another array `initial` of the same size filled with zeros.  
+
+In one operation, you can choose a subarray of `initial` and increment each value in that subarray by 1.  
+
+Return the **minimum number of operations** required to form `target`.  
+
+### Example 1:
+```
+Input: target = [1,2,3,2,1]  
+Output: 3
+```
+
+### Example 2:
+```
+Input: target = [3,1,1,2]  
+Output: 4
+```
+
+### Example 3:
+```
+Input: target = [3,1,5,4,2]  
+Output: 7
+```
+
+
+---
+
+## 💡 Intuition
+
+Instead of simulating each subarray increment, notice this:  
+- If `target[i] > target[i-1]`, we need `(target[i] - target[i-1])` new operations.  
+- If `target[i] <= target[i-1]`, no new operations are needed.  
+- For the very first element `target[0]`, we need exactly `target[0]` operations.  
+
+Thus, the answer is simply the sum of all positive increases between consecutive elements.  
+
+---
+
+## 🔑 Approach
+
+1. Initialize `ops = target[0]`.  
+2. Iterate from index `1` to `n-1`.  
+   - If `target[i] > target[i-1]`, add the difference to `ops`.  
+3. Return `ops` as the result.  
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  \(O(n)\) → one linear pass.  
+
+- **Space complexity:**  
+  \(O(1)\) → constant space.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)  
+
+```javascript
+/**
+ * @param {number[]} target
+ * @return {number}
+ */
+var minNumberOperations = function(target) {
+  let ops = target[0];  // base cost for first element
+  for (let i = 1; i < target.length; i++) {
+    if (target[i] > target[i - 1]) {
+      ops += target[i] - target[i - 1];
+    }
+  }
+  return ops;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input: `target = [3,1,5,4,2]`
+
+- Start: ops = 3
+    
+- Compare 1 vs 3 → no increase
+    
+- Compare 5 vs 1 → +4 → ops = 7
+    
+- Compare 4 vs 5 → no increase
+    
+- Compare 2 vs 4 → no increase
+    
+
+✅ Output = 7
+
+---
+
+## 🎥 Reflections
+
+This problem looked intimidating at first because of the "subarray increment" definition. But once you reframe it as "count the rises," it becomes much simpler and elegant.
+
+That’s it for Day 45 of my LeetCode journey!  
+Onwards to Day 46 🔥
+
+Happy Coding 👨‍💻

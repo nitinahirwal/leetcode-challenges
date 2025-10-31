@@ -1,0 +1,131 @@
+---
+title: LeetCode Challenge Day 46 — 3314. Get Sneaky Numbers  
+summary: Day 46 of my LeetCode challenge! Today’s problem is "Get Sneaky Numbers" — a simple array problem that tests how you handle duplicates efficiently. I share my JavaScript solution with an optimized linear-time approach and clear reasoning.  
+solution: https://leetcode.com/problems/the-two-sneaky-numbers-of-digitville/solutions/7315766/3289-the-two-sneaky-numbers-of-digitvill-1clo
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-10-31  
+tags: ["LeetCode Challenge", "Day 46", "Array", "Hashing", "Easy", "JavaScript", "Portfolio"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 46** of my LeetCode streak 🚀  
+Today’s problem is **3314. Get Sneaky Numbers** — an **easy array problem** that involves finding two numbers that appear twice in the given array.  
+
+---
+
+## 📌 Problem Statement  
+
+You are given an integer array `nums` of length `n + 2` where every integer between `0` and `n - 1` appears exactly once, **except for two numbers that appear twice**.  
+
+Return an array containing the two duplicated numbers.  
+
+### Example 1:  
+```
+Input: nums = [0, 1, 2, 3, 2, 5, 4, 5]  
+Output: [2, 5]
+```
+
+### Example 2:
+```
+Input: nums = [0, 1, 2, 3, 0, 4, 5, 6]  
+Output: [0, 3]
+```
+
+
+---
+
+## 💡 Intuition  
+
+Since all numbers except two are unique,  
+we just need to detect **which numbers appear twice**.  
+
+A simple and efficient way to do this is to use a `seen` array or set — mark each number the first time it appears, and if it appears again, add it to the result.  
+
+---
+
+## 🔑 Approach  
+
+1. Initialize a boolean array `seen` of size `n` to track visited numbers.  
+2. Iterate through each element in `nums`.  
+   - If a number is already marked in `seen`, it’s a duplicate → add to result.  
+   - Otherwise, mark it as seen.  
+3. Stop once both duplicates are found.  
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  \(O(n)\) → Single pass through the array.  
+
+- **Space complexity:**  
+  \(O(n)\) → Extra space for the `seen` array.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)  
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ */
+var getSneakyNumbers = function(nums) {
+    const n = nums.length - 2;     // since two numbers are duplicated
+    const seen = new Array(n).fill(false);
+    const res = [];
+
+    for (let num of nums) {
+        if (seen[num]) {
+            res.push(num);
+            if (res.length === 2) break; // found both sneaky numbers
+        } else {
+            seen[num] = true;
+        }
+    }
+
+    return res;
+};
+```
+
+## 🧪 Example Walkthrough
+
+Input:  
+`nums = [0, 1, 2, 3, 2, 5, 4, 5]`
+
+Steps:
+
+- Seen = []
+    
+- 0 → mark seen
+    
+- 1 → mark seen
+    
+- 2 → mark seen
+    
+- 3 → mark seen
+    
+- 2 → already seen → add to result
+    
+- 5 → mark seen
+    
+- 4 → mark seen
+    
+- 5 → already seen → add to result
+    
+
+✅ Output = `[2, 5]`
+
+---
+
+## 🎯 Reflection
+
+A nice warm-up problem to strengthen your **array manipulation and hashing** intuition.  
+Simple yet satisfying — a perfect reminder that clean thinking leads to clean code ✨
+
+That’s it for **Day 46** of my LeetCode journey!  
+See you tomorrow for **Day 47** 🔥
+
+Happy Coding 👨‍💻

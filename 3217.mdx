@@ -1,0 +1,128 @@
+---
+title: LeetCode Challenge Day 47 — 3217. Delete Nodes From Linked List Present in Array  
+summary: Day 47 of my LeetCode challenge! Today’s problem is "Delete Nodes From Linked List Present in Array" — a medium-level linked list problem that tests efficient traversal and node deletion using hashing. I share my JavaScript solution with a clean one-pass approach.  
+solution: https://leetcode.com/problems/delete-nodes-from-linked-list-present-in-array/solutions/7318111/3217-delete-nodes-from-linked-list-prese-dtqi
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-01  
+tags: ["LeetCode Challenge", "Day 47", "Linked List", "Hashing", "Medium", "JavaScript", "Portfolio"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 47** of my LeetCode streak 🚀  
+Today’s problem is **3217. Delete Nodes From Linked List Present in Array** — a **medium-level** linked list problem that focuses on efficiently removing nodes based on an array of values.  
+
+---
+
+## 📌 Problem Statement  
+
+You are given an array of integers `nums` and the head of a linked list.  
+Return the head of the modified linked list after removing all nodes whose values exist in `nums`.  
+
+### Example 1:  
+```
+Input: nums = [1,2,3], head = [1,2,3,4,5]
+Output: [4,5]
+```
+
+### Example 2:
+```
+Input: nums = [1], head = [1,2,1,2,1,2]
+Output: [2,2,2]
+```
+
+### Example 3:
+```
+Input: nums = [5], head = [1,2,3,4]
+Output: [1,2,3,4]
+```
+
+
+---
+
+## 💡 Intuition  
+
+The key insight is that repeatedly checking if a node’s value exists in `nums` could be slow if we use an array lookup.  
+To make this efficient, we can store all elements of `nums` in a **Set**, allowing for O(1) lookups when determining whether a node should be deleted.  
+
+---
+
+## 🔑 Approach  
+
+1. Convert the array `nums` into a **Set** for constant-time value lookup.  
+2. Create a **dummy node** that points to the head — this simplifies removal of the head node when necessary.  
+3. Traverse the linked list using a pointer `current`.  
+   - If `current.next.val` exists in the set, skip the node (`current.next = current.next.next`).  
+   - Otherwise, move to the next node.  
+4. Continue until all nodes are processed.  
+5. Return `dummy.next` as the new head of the modified list.  
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  \(O(n + m)\) — where `n` is the number of linked list nodes and `m` is the number of elements in `nums`.  
+
+- **Space complexity:**  
+  \(O(m)\) — for storing `nums` in a Set.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)  
+
+```javascript
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+
+/**
+ * @param {number[]} nums
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+var modifiedList = function(nums, head) {
+    const removeSet = new Set(nums);
+    const dummy = new ListNode(0, head);
+    let current = dummy;
+
+    while (current.next) {
+        if (removeSet.has(current.next.val)) {
+            current.next = current.next.next;
+        } else {
+            current = current.next;
+        }
+    }
+
+    return dummy.next;
+};
+```
+
+### 🧪 Example Walkthrough
+```
+Input:
+nums = [1,2,3], head = [1,2,3,4,5]
+```
+Steps:
+
+1. Convert nums → {1,2,3}
+2. Start with dummy → 0 → 1 → 2 → 3 → 4 → 5
+3. Remove 1, 2, and 3 since they exist in the Set
+4. Remaining list: 4 → 5
+
+✅ Output = [4,5]
+
+### 🎯 Reflection
+
+This problem highlights how hash-based lookups and a dummy node pattern can simplify linked list manipulation.
+It’s an elegant one-pass solution that’s both clean and efficient — a must-know technique for any linked list problem!
+
+That’s it for Day 47 of my LeetCode journey 💪
+See you tomorrow for Day 48 — let’s keep building consistency and clarity in problem-solving! 🔥
+
+Happy Coding 👨‍💻

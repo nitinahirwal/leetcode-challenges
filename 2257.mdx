@@ -1,0 +1,144 @@
+---
+title: LeetCode Challenge Day 48 — 2257. Count Unguarded Cells in the Grid  
+summary: Day 48 of my LeetCode challenge! Today’s problem is "Count Unguarded Cells in the Grid" — a medium-level grid simulation problem that tests spatial reasoning and boundary condition handling. I share my JavaScript solution using a clean simulation-based approach.  
+solution: https://leetcode.com/problems/count-unguarded-cells-in-the-grid/solutions/7321544/2257-count-unguarded-cells-in-the-grid-b-rzlp
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-02  
+tags: ["LeetCode Challenge", "Day 48", "Grid", "Simulation", "Medium", "JavaScript", "Portfolio"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 48** of my LeetCode streak 🚀  
+Today’s problem is **2257. Count Unguarded Cells in the Grid** — a **medium-level** simulation problem where guards protect cells in four directions until blocked by walls or other guards.  
+
+---
+
+## 📌 Problem Statement  
+
+You are given two integers `m` and `n` representing a grid of size `m x n`.  
+You are also given two arrays:
+- `guards[i] = [row_i, col_i]` → the position of the `i`th guard  
+- `walls[j] = [row_j, col_j]` → the position of the `j`th wall  
+
+Each guard can see every cell in the same row and column **until a wall or another guard blocks the view**.  
+
+Return the number of **unguarded cells** in the grid.
+
+---
+
+## 💡 Intuition  
+
+The main idea is to **simulate how guards protect cells**.  
+Each guard can watch cells in four directions — up, down, left, and right — until blocked by walls or other guards.  
+
+So, if we can mark all the cells that are guarded, the number of remaining unmarked cells gives the count of unguarded ones.
+
+---
+
+## 🔑 Approach  
+
+1. Initialize a grid of size `m x n`, where:
+   - `0` → empty cell  
+   - `1` → guard  
+   - `2` → wall  
+   - `3` → guarded cell  
+
+2. Mark all walls and guards in the grid.  
+
+3. For each guard, **sweep in four directions**:
+   - Continue marking cells as `3` (guarded) until a wall (`2`) or another guard (`1`) blocks the way.  
+
+4. After all guards have been processed, **count how many cells remain with value `0`** — these are unguarded.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  \(O(m \times n)\) — Each cell is visited a limited number of times during sweeps.
+
+- **Space complexity:**  
+  \(O(m \times n)\) — For maintaining the grid state.
+
+---
+
+## 🧑‍💻 Code (JavaScript)  
+
+```javascript
+/**
+ * @param {number} m
+ * @param {number} n
+ * @param {number[][]} guards
+ * @param {number[][]} walls
+ * @return {number}
+ */
+var countUnguarded = function(m, n, guards, walls) {
+    // 0 = empty, 1 = guard, 2 = wall, 3 = guarded
+    const grid = Array.from({length: m}, () => new Array(n).fill(0));
+    
+    // mark walls
+    for (const [wr, wc] of walls) {
+        grid[wr][wc] = 2;
+    }
+    // mark guards
+    for (const [gr, gc] of guards) {
+        grid[gr][gc] = 1;
+    }
+    
+    // helper to sweep in a direction from a guard
+    const sweep = (r, c, dr, dc) => {
+        let i = r + dr, j = c + dc;
+        while (i >= 0 && i < m && j >= 0 && j < n) {
+            if (grid[i][j] === 2) break; // wall blocks
+            if (grid[i][j] === 1) break; // another guard blocks
+            if (grid[i][j] === 0) grid[i][j] = 3; // mark as guarded
+            i += dr; j += dc;
+        }
+    };
+    
+    // for every guard, sweep four directions
+    for (const [gr, gc] of guards) {
+        sweep(gr, gc, -1, 0); // up
+        sweep(gr, gc, 1, 0);  // down
+        sweep(gr, gc, 0, -1); // left
+        sweep(gr, gc, 0, 1);  // right
+    }
+    
+    // count unoccupied (still 0)
+    let count = 0;
+    for (let r = 0; r < m; r++) {
+        for (let c = 0; c < n; c++) {
+            if (grid[r][c] === 0) count++;
+        }
+    }
+    return count;
+};
+```
+
+### 🧪 Example Walkthrough
+```
+Input:
+m = 4, n = 6,
+guards = [[0,0],[1,1],[2,3]],
+walls = [[0,1],[2,2],[1,4]]
+```
+
+Steps:
+
+  1. Mark guards and walls.
+  2. For each guard, sweep in all directions until blocked.
+  3. Count remaining unguarded cells.
+
+✅ Output: 7
+
+### 🎯 Reflection
+
+This problem is a great exercise in grid simulation and careful handling of boundaries and obstacles.
+The approach is straightforward yet requires attention to correctly simulate visibility constraints.
+
+That’s it for Day 48 of my LeetCode journey 💪
+See you tomorrow for Day 49 — let’s keep pushing consistency and logic-driven problem solving! 🔥
+
+Happy Coding 👨‍💻

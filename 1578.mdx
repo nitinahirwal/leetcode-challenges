@@ -1,0 +1,126 @@
+---
+title: LeetCode Challenge Day 49 — 1578. Minimum Time to Make Rope Colorful  
+summary: Day 49 of my LeetCode challenge! Today’s problem is "Minimum Time to Make Rope Colorful" — a medium-level greedy problem that focuses on minimizing the total time required to remove adjacent same-colored balloons. I share my JavaScript solution with a simple and efficient one-pass approach.  
+solution: https://leetcode.com/problems/minimum-time-to-make-rope-colorful/solutions/7323126/1578-minimum-time-to-make-rope-colorful-3ls4x  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-03  
+tags: ["LeetCode Challenge", "Day 49", "Greedy", "String", "Medium", "JavaScript", "Portfolio"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 49** of my LeetCode streak 🚀  
+Today’s problem is **1578. Minimum Time to Make Rope Colorful** — a **medium-level** greedy problem involving strings and optimization of removal costs.  
+
+---
+
+## 📌 Problem Statement  
+
+Alice has `n` balloons arranged on a rope, represented by the string `colors`,  
+where `colors[i]` is the color of the `i`th balloon.  
+
+Each balloon requires `neededTime[i]` seconds to remove.  
+Alice wants the rope to be **colorful**, meaning **no two consecutive balloons have the same color**.  
+
+Return the **minimum total time** needed to remove balloons to achieve this.
+
+---
+
+## 💡 Intuition  
+
+When two or more consecutive balloons have the same color, we must remove all but one.  
+To minimize total time, we should **keep the balloon that takes the longest to remove** and remove the rest.  
+
+So, for every group of identical consecutive colors,  
+we calculate:  
+→ **sum of removal times − maximum removal time**  
+and add it to our total cost.
+
+---
+
+## 🔑 Approach  
+
+1. Iterate through the `colors` string.  
+2. For each consecutive group of same-colored balloons:
+   - Calculate the total sum of removal times (`runSum`).
+   - Find the maximum removal time in that group (`runMax`).
+   - Add `(runSum - runMax)` to the total cost.  
+3. When the color changes, reset the group tracking variables.  
+4. After the loop, add the cost from the last group.  
+
+This ensures we only remove the minimum necessary balloons to make the rope colorful.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time complexity:**  
+  \( O(n) \) — Single traversal through the balloons.
+
+- **Space complexity:**  
+  \( O(1) \) — Only a few variables are used for sums and maximums.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string} colors
+ * @param {number[]} neededTime
+ * @return {number}
+ */
+var minCost = function(colors, neededTime) {
+    const n = colors.length;
+    if (n === 0) return 0;
+
+    let total = 0;
+    let runSum = neededTime[0];
+    let runMax = neededTime[0];
+
+    for (let i = 1; i < n; i++) {
+        if (colors[i] === colors[i - 1]) {
+            runSum += neededTime[i];
+            runMax = Math.max(runMax, neededTime[i]);
+        } else {
+            total += runSum - runMax; // remove all but the max in the previous run
+            runSum = neededTime[i];
+            runMax = neededTime[i];
+        }
+    }
+
+    // finalize the last run
+    total += runSum - runMax;
+    return total;
+};
+
+// Tests (from the prompt)
+console.log(minCost("abaac", [1,2,3,4,5])); // 3
+console.log(minCost("abc", [1,2,3]));       // 0
+console.log(minCost("aabaa", [1,2,3,4,1])); // 2
+```
+
+### 🧪 Example Walkthrough
+
+Input:
+colors = "abaac", neededTime = [1,2,3,4,5]
+
+Steps:
+
+Balloons a(1) and a(3) → remove the one with less time (3 seconds).
+✅ Total = 3
+
+Output:
+3
+
+### 🎯 Reflection
+
+This problem beautifully showcases how greedy choices can minimize cost efficiently.
+By always keeping the balloon with the highest removal time,
+we ensure no unnecessary deletions and achieve the optimal result.
+
+That’s it for Day 49 of my LeetCode journey 💪
+See you tomorrow for Day 50 — let’s keep the streak alive and consistent! 🔥
+
+Happy Coding 👨‍💻

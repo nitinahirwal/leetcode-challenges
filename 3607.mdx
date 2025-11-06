@@ -1,0 +1,181 @@
+---
+title: LeetCode Challenge Day 52 — 3607. Power Grid Maintenance  
+summary: Day 52 of my LeetCode challenge! Today’s problem is "Power Grid Maintenance" — a medium-level DSU + component tracking problem focused on efficient online/offline management within connected grids.  
+solution: https://leetcode.com/problems/power-grid-maintenance/solutions/7330403/3607-power-grid-maintenance-by-nitinahir-62j1 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-06  
+tags: ["LeetCode Challenge", "Day 52", "DSU", "Union-Find", "Graph", "Offline Queries", "JavaScript", "Portfolio"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 52** of my LeetCode streak 🚀  
+Today’s problem is **3607. Power Grid Maintenance** — a **medium-level** DSU and graph-based problem that tests your ability to efficiently maintain connectivity and query online components after nodes go offline.  
+
+---
+
+## 📌 Problem Statement  
+
+You are given `c` power stations (1-indexed) connected via `n` bidirectional cables.  
+Stations connected directly or indirectly form a **power grid**.  
+
+All stations are initially **online**.  
+You’re also given a list of queries:  
+
+* `[1, x]` → Maintenance check for station `x`.  
+  - If `x` is online → return `x`.  
+  - If `x` is offline → return the smallest online station in the same grid.  
+  - If no operational station exists → return `-1`.  
+
+* `[2, x]` → Station `x` goes offline (but remains part of the grid structure).  
+
+Return an array of integers representing the result of each `[1, x]` query.
+
+---
+
+## 💡 Intuition  
+
+The grid’s structure never changes, even when stations go offline.  
+Thus, we can **precompute all connected components once** using a **Disjoint Set Union (DSU)**.  
+
+Each component can be represented as a **sorted list of its member stations**.  
+When a station goes offline, we just mark it.  
+When queried, if it’s offline, we simply return the **smallest online station** in its component — efficiently tracked using a **lazy pointer** per component.
+
+---
+
+## 🔑 Approach  
+
+1. **Preprocess Components**
+   - Use DSU to find connected components.
+   - Collect all members per component root and sort them.
+
+2. **Track State**
+   - Maintain a boolean array `online[]`, initially `true`.
+   - Maintain a pointer `compPtr[root]` → the smallest *currently online* index in that component’s sorted list.
+
+3. **Query Handling**
+   - For `[2, x]`: mark `online[x] = false`.  
+   - For `[1, x]`:  
+     - If `online[x]` → return `x`.  
+     - Otherwise, find `x`’s component and move `compPtr[root]` forward while stations are offline.  
+     - If pointer remains valid → return that station, else return `-1`.
+
+This ensures **each station is skipped at most once overall**, giving amortized `O(1)` per pointer move.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  - DSU build: `O((c + n) α(c))`  
+  - Sorting components: `O(c log c)`  
+  - Processing queries: `O(q + c)`  
+  → **Overall:** `O((c + n) α(c) + c log c + q)`  
+
+- **Space Complexity:**  
+  `O(c)` — for DSU arrays, component lists, and online status tracking.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number} c
+ * @param {number[][]} connections
+ * @param {number[][]} queries
+ * @return {number[]}
+ */
+var processQueries = function(c, connections, queries) {
+  // ----- DSU (Disjoint Set Union) -----
+  const parent = Array(c + 1);
+  const rank = Array(c + 1).fill(0);
+  for (let i = 1; i <= c; i++) parent[i] = i;
+
+  const find = (x) => {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]];
+      x = parent[x];
+    }
+    return x;
+  };
+
+  const union = (a, b) => {
+    let ra = find(a), rb = find(b);
+    if (ra === rb) return;
+    if (rank[ra] < rank[rb]) {
+      parent[ra] = rb;
+    } else if (rank[rb] < rank[ra]) {
+      parent[rb] = ra;
+    } else {
+      parent[rb] = ra;
+      rank[ra]++;
+    }
+  };
+
+  for (const [u, v] of connections) union(u, v);
+
+  // ----- Build components: root -> sorted member list -----
+  const compMembers = new Map();
+  for (let i = 1; i <= c; i++) {
+    const r = find(i);
+    if (!compMembers.has(r)) compMembers.set(r, []);
+    compMembers.get(r).push(i);
+  }
+  for (const arr of compMembers.values()) arr.sort((a, b) => a - b);
+
+  // Pointer per component
+  const compPtr = new Map();
+  for (const r of compMembers.keys()) compPtr.set(r, 0);
+
+  // Online state
+  const online = Array(c + 1).fill(true);
+
+  const smallestOnlineInComp = (x) => {
+    const r = find(x);
+    const arr = compMembers.get(r) || [];
+    let p = compPtr.get(r) ?? 0;
+    while (p < arr.length && !online[arr[p]]) p++;
+    compPtr.set(r, p);
+    return p < arr.length ? arr[p] : -1;
+  };
+
+  const ans = [];
+  for (const [t, x] of queries) {
+    if (t === 1) {
+      if (online[x]) ans.push(x);
+      else ans.push(smallestOnlineInComp(x));
+    } else {
+      online[x] = false;
+    }
+  }
+  return ans;
+};
+```
+
+## 🧪 Example
+
+Input:
+`c = 5, connections = [[1,2],[2,3],[3,4],[4,5]], queries = [[1,3],[2,1],[1,1],[2,2],[1,2]]`
+
+Output:
+`[3, 2, 3]`
+
+Explanation:
+1️⃣ `[1,3]` → Station 3 is online → answer 3
+2️⃣ `[2,1]` → Station 1 goes offline
+3️⃣ `[1,1]` → 1 is offline → smallest online in grid is 2
+4️⃣ `[2,2]` → Station 2 goes offline
+5️⃣ `[1,2]` → 2 is offline → smallest online in grid is 3
+
+## 🎯 Reflection
+
+This problem is a perfect blend of graph connectivity and stateful query optimization.
+It reinforces the power of DSU for static graphs and how lazy pointers can turn a brute-force scan into an amortized O(1) operation.
+
+That’s it for Day 52 of my LeetCode journey 💪
+Let’s keep maintaining consistency — one grid, one challenge at a time ⚡
+
+Happy Coding 👨‍💻

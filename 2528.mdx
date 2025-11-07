@@ -1,0 +1,161 @@
+---
+title: LeetCode Challenge Day 53 — 2528. Maximize the Minimum Powered City  
+summary: Day 53 of my LeetCode challenge! Today’s problem is "Maximize the Minimum Powered City" — a hard binary search + greedy problem focused on optimizing resource allocation and ensuring balance across cities.  
+solution: https://leetcode.com/problems/maximize-the-minimum-powered-city/solutions/7332285/2528-maximize-the-minimum-powered-city-b-7fd4
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-07  
+tags: ["LeetCode Challenge", "Day 53", "Binary Search", "Greedy", "Prefix Sum", "Difference Array", "JavaScript", "Hard", "Algorithm"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 53** of my LeetCode streak 🚀  
+Today’s problem is **2528. Maximize the Minimum Powered City** — a **hard** problem that combines **binary search**, **prefix sums**, and a **greedy difference-array simulation** to maximize fairness in resource distribution.  
+
+---
+
+## 📌 Problem Statement  
+
+You are given an integer array `stations` where `stations[i]` is the number of power stations in the `i-th` city.  
+Each station can provide power to every city within distance `r`.  
+
+You can build `k` additional power stations anywhere.  
+The goal is to **maximize the minimum power** across all cities.
+
+Return the maximum possible minimum power.
+
+**Example:**  
+`Input: stations = [1,2,4,5,0], r = 1, k = 2
+Output: 5`
+
+Explanation: By adding both new stations to city 1, all cities end up with at least power `5`.
+
+---
+
+## 💡 Intuition  
+
+We want every city to have at least `x` power after optimally placing new stations.  
+Instead of directly deciding where to place each new station (which would be exponential), we **binary search** for the largest possible `x` and **check feasibility** using a **greedy** approach.  
+
+If we can ensure every city reaches at least `x` power using ≤ `k` new stations, then `x` is feasible — otherwise, it’s too high.
+
+---
+
+## 🔑 Approach  
+
+1. **Precompute Power Influence**  
+   - For each city, calculate the total number of stations that affect it using a **prefix-sum window** of size `2r + 1`.
+
+2. **Binary Search on Answer**  
+   - Let `x` be the minimum power we want to achieve.  
+   - We binary search for the largest possible `x` (between 0 and `max(stations) + k`).
+
+3. **Feasibility Check (`can(x)`)**  
+   - Sweep left to right while maintaining the “boost” effect of additional stations via a **difference array** (`dec`).  
+   - When a city’s power is below `x`, we **add new stations** as far right as possible (`i + r`) to maximize coverage.  
+   - Update the difference array to remove this effect after `r` cities.  
+   - If we need more than `k` stations, return false.
+
+4. **Return the Maximum Feasible `x`**  
+   - Using binary search, find the highest `x` such that `can(x)` returns true.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  - Each feasibility check runs in `O(n)`  
+  - Binary search runs `O(log M)` where `M = maxPower + k`  
+  → **Total:** `O(n log M)`
+
+- **Space Complexity:**  
+  - `O(n)` for prefix sums, base power array, and difference array.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number[]} stations
+ * @param {number} r
+ * @param {number} k
+ * @return {number}
+ */
+var maxPower = function(stations, r, k) {
+  const n = stations.length;
+
+  // 1) Precompute base power per city using prefix sums
+  const pref = new Array(n + 1).fill(0);
+  for (let i = 0; i < n; i++) pref[i + 1] = pref[i] + stations[i];
+
+  const base = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const L = Math.max(0, i - r);
+    const R = Math.min(n - 1, i + r);
+    base[i] = pref[R + 1] - pref[L];
+  }
+
+  // Feasibility check: can we ensure every city has power >= x using at most k extra stations?
+  function can(x) {
+    let remaining = k;
+    let boost = 0;                // running sum of active additions affecting current index
+    const dec = new Array(n + 1).fill(0); // dec[i] reduces boost starting at i
+
+    for (let i = 0; i < n; i++) {
+      boost += dec[i]; // expire additions that no longer affect position i
+      let curr = base[i] + boost;
+
+      if (curr < x) {
+        const need = x - curr;
+        if (need > remaining) return false;
+
+        remaining -= need;
+        boost += need; // newly added stations start affecting from i now
+
+        // Place them at pos = min(n-1, i + r), so they cover the current i and extend maximally right.
+        const endPos = Math.min(n - 1, i + r);
+        const stopIdx = endPos + r + 1; // coverage ends just before this index
+
+        if (stopIdx < n) dec[stopIdx] -= need;
+      }
+    }
+    return true;
+  }
+
+  // 2) Binary search the maximum minimal power
+  let low = 0;
+  let high = Math.max(...base) + k; // safe upper bound
+
+  while (low < high) {
+    const mid = Math.floor((low + high + 1) / 2);
+    if (can(mid)) low = mid;
+    else high = mid - 1;
+  }
+
+  return low;
+};
+```
+
+🧪 Example
+
+Input:
+`stations = [1,2,4,5,0], r = 1, k = 2`
+
+Output:
+`5`
+
+Explanation:
+By adding both stations to city 1, each city gets power ≥ 5.
+Final power distribution: `[5,9,13,9,5]`.
+
+🎯 Reflection
+
+This problem beautifully combines binary search on the answer with greedy range updates — a powerful pattern for optimization under constraints.
+It reinforces how difference arrays can simulate range effects efficiently and how greedy left-to-right logic ensures feasibility in minimal time.
+
+That’s it for Day 53 of my LeetCode challenge 💪
+Let’s keep optimizing — one city, one challenge at a time ⚡
+
+Happy Coding 👨‍💻

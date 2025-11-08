@@ -1,0 +1,142 @@
+---
+title: LeetCode Challenge Day 54 — 1611. Minimum One Bit Operations to Make Integers Zero  
+summary: Day 54 of my LeetCode challenge! Today’s problem is "Minimum One Bit Operations to Make Integers Zero" — a fascinating hard problem that involves bit manipulation, recursion, and Gray code logic to minimize the number of operations required to turn an integer into zero.  
+solution: https://leetcode.com/problems/minimum-one-bit-operations-to-make-integers-zero/solutions/7334426/1611-minimum-one-bit-operations-to-make-43fkw  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-08  
+tags: ["LeetCode Challenge", "Day 54", "Bit Manipulation", "Recursion", "Gray Code", "Mathematics", "JavaScript", "Hard", "Algorithm"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 54** of my LeetCode streak 🚀  
+Today’s problem is **1611. Minimum One Bit Operations to Make Integers Zero** — a **hard** bit manipulation problem that uses **recursive Gray code transformations** to determine the minimum number of operations to convert a number into zero.
+
+---
+
+## 📌 Problem Statement  
+
+Given an integer `n`, you can perform the following operations any number of times:
+
+1. Change the rightmost (0th) bit in the binary representation of `n`.
+2. Change the `i-th` bit if the `(i-1)`th bit is `1` and all bits lower than `i-1` are `0`.
+
+Return the **minimum number of operations** needed to transform `n` into `0`.
+
+**Example 1:**  
+```
+Input: n = 3
+Output: 2
+Explanation: "11" -> "01" -> "00"
+```
+
+
+**Example 2:**  
+```
+Input: n = 6
+Output: 4
+Explanation: "110" -> "010" -> "011" -> "001" -> "000"
+```
+
+
+---
+
+## 💡 Intuition  
+
+This problem’s pattern is very similar to **Gray codes**, where only one bit flips between consecutive numbers.  
+To reach `0`, every bit flip at a higher position recursively affects all the bits below it.
+
+If `k` is the highest set bit in `n`, then:
+```
+f(0) = 0
+f(2^k + m) = (2^(k+1) - 1) - f(m)
+```
+
+This reflects how flipping the most significant bit (MSB) mirrors the remaining operations for the lower bits.
+
+---
+
+## 🔑 Approach  
+
+1. **Base Case:**  
+   - If `n` is 0, return 0.
+
+2. **Find the Most Significant Bit (MSB):**  
+   - Use `Math.clz32(n)` to find the position of the highest set bit `k`.
+
+3. **Recursive Relation:**  
+   - Apply the formula  
+     ```
+     f(n) = (2^(k+1) - 1) - f(n - 2^k)
+     ```
+
+4. **Memoization:**  
+   - Store results in a map to avoid redundant calculations.
+
+5. **Return the final recursive result.**
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  \( O(\log n) \) — We make one recursive call per bit level.  
+
+- **Space Complexity:**  
+  \( O(\log n) \) — Recursion depth and memoized values.  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var minimumOneBitOperations = function(n) {
+    const memo = new Map();
+    memo.set(0, 0);
+
+    function dfs(x) {
+        if (memo.has(x)) return memo.get(x);
+        // Find highest set bit k (2^k <= x)
+        let k = 31 - Math.clz32(x);
+        let pow = 1 << k;
+        let m = x - pow;
+        let val = ((1 << (k + 1)) - 1) - dfs(m);
+        memo.set(x, val);
+        return val;
+    }
+
+    return dfs(n);
+};
+```
+
+### 🧪 Example
+
+Input:
+
+`n = 6
+`
+
+Process:
+
+
+`110 → 010 → 011 → 001 → 000
+`
+
+
+Output:
+4
+
+🎯 Reflection
+
+This problem elegantly combines recursion, binary logic, and mathematical observation.
+It’s a beautiful example of how complex bit manipulation can often be reduced to recursive relationships — almost like a Gray code unfolding step by step.
+
+That’s it for Day 54 of my LeetCode challenge 💪
+Let’s keep flipping bits and breaking limits ⚡
+
+Happy Coding 👨‍💻

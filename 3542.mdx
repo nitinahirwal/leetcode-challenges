@@ -1,0 +1,138 @@
+---
+title: LeetCode Challenge Day 56 — 3542. Minimum Operations to Convert All Elements to Zero  
+summary: Day 56 of my LeetCode challenge! Today’s problem is "Minimum Operations to Convert All Elements to Zero" — a medium-level stack-based problem that requires identifying the minimal steps to turn an array of non-negative integers into zeros using subarray-based operations.  
+solution: https://leetcode.com/problems/minimum-operations-to-convert-all-elements-to-zero/solutions/7339256/3542-minimum-operations-to-convert-all-e-o935
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-10  
+tags: ["LeetCode Challenge", "Day 56", "Stack", "Greedy", "Array", "JavaScript", "Algorithm", "Medium"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 56** of my LeetCode streak 🚀  
+Today’s problem is **3542. Minimum Operations to Convert All Elements to Zero** — a **medium** yet elegant problem that blends **monotonic stack** and **greedy logic** to find the minimum number of operations to reduce all elements of an array to zero.
+
+---
+
+## 📌 Problem Statement  
+
+You are given an array `nums` consisting of non-negative integers.  
+
+In one operation:
+- Select a subarray `[i, j]`.
+- Find the **minimum non-zero value** within that subarray.
+- Set all occurrences of that value in the subarray to `0`.
+
+Return the **minimum number of operations** required to make all elements in the array equal to `0`.
+
+**Example 1:**  
+```
+Input: nums = [0,2]  
+Output: 1  
+Explanation:  
+Select subarray [1,1] → min = 2 → set 2 → 0 → [0,0]
+```
+
+**Example 2:**
+```
+Input: nums = [3,1,2,1]  
+Output: 3  
+Explanation:  
+Step 1: Subarray [1,3] → min = 1 → [3,0,2,0]  
+Step 2: Subarray [2,2] → min = 2 → [3,0,0,0]  
+Step 3: Subarray [0,0] → min = 3 → [0,0,0,0]
+```
+
+---
+
+## 💡 Intuition  
+
+We need to minimize the number of operations.  
+A brute-force approach would repeatedly find subarrays and zeros, but that’s too costly.
+
+Instead, think in terms of **value progression**:
+- Each **distinct positive increase** in the array requires one new operation.
+- Zeros act as **boundaries** that separate different operation groups.
+- Whenever we see a **smaller number**, it means previous larger values are already handled — so we “pop” them out.
+
+This gives us a clear hint to use a **monotonic increasing stack**.
+
+---
+
+## 🔑 Approach  
+
+1. Initialize an empty **stack** and an `ops` counter.
+2. Traverse through each element `a` in `nums`:
+   - While the stack’s top is **greater than `a`**, pop it — because those values no longer matter.
+   - If `a > 0` and (`stack` is empty or top < `a`), push it and increment `ops`.
+   - Ignore zeros completely (they separate operation segments).
+3. The final `ops` count gives the **minimum operations** needed.
+
+Each time we push a new element, it signifies starting a new subarray operation.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  \( O(n) \) — each element is pushed and popped at most once.  
+
+- **Space Complexity:**  
+  \( O(n) \) — in the worst case (strictly increasing array).
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minOperations = function(nums) {
+    const stack = [];
+    let ops = 0;
+    for (let a of nums) {
+        // Remove values greater than current a
+        while (stack.length && stack[stack.length - 1] > a) {
+            stack.pop();
+        }
+        // If current is positive and different from stack top, we need a new operation
+        if (a > 0) {
+            if (!stack.length || stack[stack.length - 1] < a) {
+                stack.push(a);
+                ops++;
+            }
+        }
+        // if a == 0 -> we do not push zeros (treated as separators)
+    }
+    return ops;
+};
+```
+
+## 🧩 Example Walkthrough
+
+**Input:**
+
+`nums = [1,2,1,2,1,2]`
+
+**Process:**
+
+`Step 1 → Push 1 → ops = 1   Step 2 → Push 2 → ops = 2   Step 3 → Pop 2 (since 1 < 2), Push 1 → no new op (already counted)   Step 4 → Push 2 → ops = 3   Step 5 → Pop 2 → Push 1 → no new op   Step 6 → Push 2 → ops = 4`
+
+**Output:**
+
+`4`
+
+---
+
+## 🎯 Reflection
+
+This problem beautifully demonstrates how **stack-based thinking** can simplify complex subarray operations.  
+Instead of simulating each subarray removal, we just **track value transitions** — leading to an optimal and clean O(n) solution.
+
+That’s it for **Day 56** of my LeetCode challenge 💪  
+Keep stacking up your logic, one element at a time ⚡
+
+**Happy Coding 👨‍💻**

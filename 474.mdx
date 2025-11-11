@@ -1,0 +1,89 @@
+---
+title: LeetCode — 474. Ones and Zeroes  
+summary: Solve LeetCode 474: given an array of binary strings and limits m (zeros) and n (ones), find the largest subset of strings you can form without exceeding those limits. This is a 0/1 knapsack style DP problem using a 2D DP table over zeros and ones.  
+solution: https://leetcode.com/problems/ones-and-zeroes/solutions/7341175/474-ones-and-zeroes-by-nitinahirwal_in-hfyt
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-11  
+tags: ["LeetCode", "474", "Ones and Zeroes", "Dynamic Programming", "0/1 Knapsack", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋
+
+This problem asks us to pick the largest subset of binary strings such that the total number of `0`s is at most `m` and total number of `1`s is at most `n`.  
+It maps directly to a **0/1 knapsack** variant with **two dimensions (zeros and ones)** — treat each string as an item with cost `(zeros, ones)` and value `1`.
+
+---
+
+# Intuition
+At first glance this is similar to the classic **0/1 knapsack** problem: every string is an item that consumes two resources (number of zeros and number of ones) and yields value `1` (one element in the subset).  
+We want the maximum total value (count of strings) without exceeding resource limits `m` and `n`.  
+This suggests a **2D DP** where `dp[i][j]` = maximum subset size using at most `i` zeros and `j` ones.
+
+# Approach
+1. Initialize a 2D DP array of size `(m+1) x (n+1)` filled with zeros. `dp[i][j]` will represent the best we can do with limits `i` zeros and `j` ones.
+2. For each string in `strs`, count its zeros and ones.
+3. Update the DP table in **reverse** (from `m` down to `zeros`, and `n` down to `ones`) so that each string is considered **only once** (0/1 knapsack behavior).  
+   Update rule:
+```
+dp[i][j] = Math.max(dp[i][j], dp[i - zeros][j - ones] + 1)
+```
+4. After processing all strings, `dp[m][n]` holds the answer.
+
+We iterate capacities in reverse to prevent using the same string multiple times. Counting zeros/ones is O(length of string), and updating dp is O(m * n) per string.
+
+# Complexity
+- **Time complexity:**  
+\( O(L \times m \times n) \) where \( L = \) number of strings (`strs.length`). Counting each string costs up to its length, but the dominating cost is updating the DP for each string.
+
+- **Space complexity:**  
+\( O(m \times n) \) for the 2D DP table.
+
+# Code
+```javascript []
+/**
+* @param {string[]} strs
+* @param {number} m
+* @param {number} n
+* @return {number}
+*/
+var findMaxForm = function(strs, m, n) {
+ // dp[i][j] = max number of strings we can form with at most i zeros and j ones
+ const dp = Array.from({length: m + 1}, () => Array(n + 1).fill(0));
+ 
+ for (const s of strs) {
+     // count zeros and ones in current string
+     let zeros = 0, ones = 0;
+     for (let ch of s) {
+         if (ch === '0') zeros++;
+         else ones++;
+     }
+     // update dp in reverse to avoid reuse of the same string
+     for (let i = m; i >= zeros; i--) {
+         for (let j = n; j >= ones; j--) {
+             dp[i][j] = Math.max(dp[i][j], dp[i - zeros][j - ones] + 1);
+         }
+     }
+ }
+ 
+ return dp[m][n];
+};
+```
+
+### Example
+
+Input:
+`strs = ["10","0001","111001","1","0"], m = 5, n = 3`
+
+Output:
+`4`
+
+Explanation:
+A valid largest subset is `{"10", "0001", "1", "0"}` — total zeros = 5, ones = 3.
+
+### Reflection
+
+This problem is a clean demonstration of extending knapsack to multiple resource constraints.
+The key idea is converting each string into a pair `(zeros, ones)` and using a 2D DP to track capacity usage — updating in reverse ensures each string is counted once.
+
+Happy Coding 👨‍💻

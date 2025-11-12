@@ -1,45 +1,87 @@
 ---
-title: LeetCode — 474. Ones and Zeroes  
-summary: Solve LeetCode 474: given an array of binary strings and limits m (zeros) and n (ones), find the largest subset of strings you can form without exceeding those limits. This is a 0/1 knapsack style DP problem using a 2D DP table over zeros and ones.  
+title: LeetCode Challenge Day 57 — 474. Ones and Zeroes  
+summary: Day 57 of my LeetCode challenge! Today’s problem is "474. Ones and Zeroes" — a dynamic programming problem inspired by the 0/1 Knapsack pattern, where we aim to build the largest subset of binary strings under limited counts of zeros and ones.  
 solution: https://leetcode.com/problems/ones-and-zeroes/solutions/7341175/474-ones-and-zeroes-by-nitinahirwal_in-hfyt
 image:  
 author: Nitin Ahirwal  
 publishedAt: 2025-11-11  
-tags: ["LeetCode", "474", "Ones and Zeroes", "Dynamic Programming", "0/1 Knapsack", "JavaScript", "Medium"]  
+tags: ["LeetCode Challenge", "Day 57", "Dynamic Programming", "0/1 Knapsack", "Binary Strings", "JavaScript", "Algorithm", "Medium"]  
 ---
 
-## Hey folks 👋
+## Hey folks 👋  
 
-This problem asks us to pick the largest subset of binary strings such that the total number of `0`s is at most `m` and total number of `1`s is at most `n`.  
-It maps directly to a **0/1 knapsack** variant with **two dimensions (zeros and ones)** — treat each string as an item with cost `(zeros, ones)` and value `1`.
+This is **Day 57** of my LeetCode streak 🚀  
+Today’s problem is **474. Ones and Zeroes** — a **medium**-level **dynamic programming** problem that generalizes the classic **0/1 knapsack** into two dimensions — zeros and ones.  
+
+The goal is to pick the largest subset of strings such that the total number of zeros ≤ `m` and ones ≤ `n`.  
 
 ---
 
-# Intuition
-At first glance this is similar to the classic **0/1 knapsack** problem: every string is an item that consumes two resources (number of zeros and number of ones) and yields value `1` (one element in the subset).  
-We want the maximum total value (count of strings) without exceeding resource limits `m` and `n`.  
-This suggests a **2D DP** where `dp[i][j]` = maximum subset size using at most `i` zeros and `j` ones.
+## 📌 Problem Statement  
 
-# Approach
-1. Initialize a 2D DP array of size `(m+1) x (n+1)` filled with zeros. `dp[i][j]` will represent the best we can do with limits `i` zeros and `j` ones.
-2. For each string in `strs`, count its zeros and ones.
-3. Update the DP table in **reverse** (from `m` down to `zeros`, and `n` down to `ones`) so that each string is considered **only once** (0/1 knapsack behavior).  
-   Update rule:
+You are given an array of binary strings `strs` and two integers `m` and `n`.  
+Return the size of the **largest subset** of `strs` such that there are **at most `m` zeros** and **at most `n` ones** in the subset.
+
+**Example 1:**  
 ```
-dp[i][j] = Math.max(dp[i][j], dp[i - zeros][j - ones] + 1)
+Input: strs = ["10","0001","111001","1","0"], m = 5, n = 3
+Output: 4
 ```
-4. After processing all strings, `dp[m][n]` holds the answer.
+Explanation: The largest subset with at most 5 zeros and 3 ones is {"10", "0001", "1", "0"}.
 
-We iterate capacities in reverse to prevent using the same string multiple times. Counting zeros/ones is O(length of string), and updating dp is O(m * n) per string.
 
-# Complexity
-- **Time complexity:**  
-\( O(L \times m \times n) \) where \( L = \) number of strings (`strs.length`). Counting each string costs up to its length, but the dominating cost is updating the DP for each string.
+**Example 2:**  
+```
+Input: strs = ["10","0","1"], m = 1, n = 1
+Output: 2
+```
+Explanation: The largest subset is {"0", "1"}.
 
-- **Space complexity:**  
-\( O(m \times n) \) for the 2D DP table.
 
-# Code
+---
+
+## 💡 Intuition  
+
+This problem resembles a **knapsack problem** — each binary string is like an “item” with a cost in two dimensions:
+- Cost in zeros
+- Cost in ones  
+
+You have limited capacities (`m` zeros and `n` ones).  
+Your task is to choose as many items (strings) as possible without exceeding these capacities.
+
+---
+
+## 🔑 Approach  
+
+1. **Define a DP table:**  
+   Let `dp[i][j]` represent the maximum number of strings you can form with at most `i` zeros and `j` ones.
+
+2. **Process each string:**  
+   - Count the number of zeros and ones in the string.
+   - Traverse the DP table **in reverse order** (from `m` to `zeros`, `n` to `ones`) to ensure each string is only used once.
+
+3. **Transition:**  
+
+
+
+4. **Result:**  
+The answer is stored in `dp[m][n]`.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+\( O(L \times m \times n) \), where `L` = number of strings.  
+Each string updates the entire DP table once.
+
+- **Space Complexity:**  
+\( O(m \times n) \) — using a 2D array for DP.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
 ```javascript []
 /**
 * @param {string[]} strs
@@ -70,20 +112,34 @@ var findMaxForm = function(strs, m, n) {
 };
 ```
 
-### Example
+### 🧩 Example Walkthrough
 
 Input:
-`strs = ["10","0001","111001","1","0"], m = 5, n = 3`
+strs = `["10", "0001", "111001", "1", "0"]`, m = 5, n = 3
+
+Process:
+
+- "10" → (1 zero, 1 one)
+
+ - "0001" → (3 zeros, 1 one)
+
+ - "111001" → (2 zeros, 4 ones)
+
+ - "1" → (0 zeros, 1 one)
+
+ - "0" → (1 zero, 0 ones)
+
+You can pick {"10", "0001", "1", "0"} → total = 4 strings.
 
 Output:
 `4`
 
-Explanation:
-A valid largest subset is `{"10", "0001", "1", "0"}` — total zeros = 5, ones = 3.
+### 🎯 Reflection
 
-### Reflection
+This problem beautifully illustrates how multi-dimensional constraints extend classical DP problems.
+By adapting knapsack logic to track both zeros and ones, we efficiently determine the largest subset size possible.
 
-This problem is a clean demonstration of extending knapsack to multiple resource constraints.
-The key idea is converting each string into a pair `(zeros, ones)` and using a 2D DP to track capacity usage — updating in reverse ensures each string is counted once.
+That’s it for Day 57 of my LeetCode challenge 💪
+Keep learning, keep optimizing — one DP state at a time ⚡
 
 Happy Coding 👨‍💻

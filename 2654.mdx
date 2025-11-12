@@ -1,0 +1,166 @@
+---
+title: LeetCode Challenge Day 58 — 2654. Minimum Number of Operations to Make All Array Elements Equal to 1  
+summary: Day 58 of my LeetCode challenge! Today’s problem is "2654. Minimum Number of Operations to Make All Array Elements Equal to 1" — a gcd-based greedy problem where we find the minimal number of operations to reduce all array elements to 1 by replacing neighbors with their gcd.  
+solution: https://leetcode.com/problems/minimum-number-of-operations-to-make-all-array-elements-equal-to-1/solutions/7343281/2654-minimum-number-of-operations-to-mak-d3ny  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-12  
+tags: ["LeetCode Challenge", "Day 58", "GCD", "Greedy", "Math", "Array", "JavaScript", "Algorithm", "Medium"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 58** of my LeetCode streak 🚀  
+Today’s problem is **2654. Minimum Number of Operations to Make All Array Elements Equal to 1** — a **medium**-level gcd-based problem that tests observation and number theory.  
+
+The task is to find the **minimum operations** needed to make every element in the array equal to 1, given that we can repeatedly replace any element with the gcd of it and its neighbor.
+
+---
+
+## 📌 Problem Statement  
+
+You are given a 0-indexed array `nums` consisting of positive integers.  
+You can perform the following operation any number of times:
+- Select an index `i` (0 ≤ i < n - 1)  
+- Replace **either** `nums[i]` or `nums[i + 1]` with `gcd(nums[i], nums[i + 1])`
+
+Return the **minimum number of operations** to make all elements of `nums` equal to `1`.  
+If it’s impossible, return `-1`.
+
+**Example 1:**  
+```
+Input: nums = [2,6,3,4]
+Output: 4
+```
+
+Explanation:
+- gcd(3,4)=1 → nums=[2,6,1,4]
+- gcd(6,1)=1 → nums=[2,1,1,4]
+- gcd(2,1)=1 → nums=[1,1,1,4]
+- gcd(1,4)=1 → nums=[1,1,1,1]
+
+
+**Example 2:**  
+```
+Input: nums = [2,10,6,14]
+Output: -1
+```
+
+Explanation:
+No subarray has gcd=1, so it's impossible.
+
+
+---
+
+## 💡 Intuition  
+
+If any element is already `1`, we can easily convert the rest:
+- Every non-1 element becomes `1` in one operation by using a neighbor `1`.  
+→ So answer = `n - count(1)`.
+
+If there’s **no 1** in the array:
+- The only way to create a `1` is through a subarray whose gcd = 1.
+- Once a `1` is created, it can be spread to all other elements in `n - 1` steps.
+
+So the key is to find the **shortest subarray with gcd = 1**.
+If none exists, return `-1`.
+
+---
+
+## 🔑 Approach  
+
+1. **Count 1’s in the array:**  
+   - If any exist, result = number of non-1 elements (`n - count(1)`).
+
+2. **Otherwise, find the shortest subarray with gcd = 1:**  
+   - For each index `i`, maintain a running gcd with all subsequent elements.
+   - As soon as gcd = 1, note the length and update the minimum length found.
+
+3. **If gcd 1 never appears, return `-1`.**
+
+4. **Otherwise, compute:**  
+   - To create first 1 → `(L - 1)` operations (for subarray of length `L`)  
+   - To make all 1s → `(n - 1)` additional operations  
+   - Total = `(L - 1) + (n - 1)`
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  \( O(n^2 \times \log A) \), where `A` is the max value in `nums`.  
+  Perfectly fine for \( n ≤ 50 \).
+
+- **Space Complexity:**  
+  \( O(1) \) — only uses constant extra variables.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minOperations = function(nums) {
+    const n = nums.length;
+    // count ones
+    let ones = 0;
+    for (let v of nums) if (v === 1) ones++;
+    if (ones > 0) {
+        // each non-1 needs one operation with adjacent 1
+        return n - ones;
+    }
+    // no 1 present: find minimal subarray length with gcd 1
+    const gcd = (a, b) => {
+        while (b !== 0) {
+            const t = a % b;
+            a = b;
+            b = t;
+        }
+        return Math.abs(a);
+    };
+    
+    let minLen = Infinity;
+    for (let i = 0; i < n; i++) {
+        let g = nums[i];
+        if (g === 1) { minLen = 1; break; }
+        for (let j = i + 1; j < n; j++) {
+            g = gcd(g, nums[j]);
+            if (g === 1) {
+                minLen = Math.min(minLen, j - i + 1);
+                break; // shortest subarray starting at i found
+            }
+        }
+    }
+    if (minLen === Infinity) return -1;
+    // L-1 operations to make a 1 in that subarray, then n-1 ops to convert rest
+    return (minLen - 1) + (n - 1);
+};
+```
+
+### 🧩 Example Walkthrough
+
+Input:
+`nums = [2,6,3,4]`
+
+Steps:
+
+Subarray `[3,4]` → gcd = 1 → L = 2
+
+Total operations = (2 - 1) + (4 - 1) = 4
+
+Output:
+`4`
+
+### 🎯 Reflection
+
+This problem beautifully combines number theory and greedy observation.
+By recognizing that we only need one 1 to transform the entire array, we reduce a seemingly complex transformation problem into a simple gcd search and arithmetic calculation.
+
+That’s it for Day 58 of my LeetCode challenge 💪
+Keep exploring — sometimes, a single GCD can solve what seems impossible ⚡
+
+Happy Coding 👨‍💻
+

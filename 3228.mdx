@@ -1,0 +1,136 @@
+---
+title: LeetCode Challenge Day 59 — 3228. Maximum Number of Operations to Move Ones to the End  
+summary: Day 59 of my LeetCode challenge! Today’s problem is "3228. Maximum Number of Operations to Move Ones to the End" — a clever greedy + counting problem based on zero-block structure in a binary string.  
+solution: https://leetcode.com/problems/maximum-number-of-operations-to-move-ones-to-the-end/  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-13  
+tags: ["LeetCode Challenge", "Day 59", "Binary String", "Greedy", "Counting", "JavaScript", "Algorithm", "Medium"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 59** of my LeetCode streak 🚀  
+Today’s problem is **3228. Maximum Number of Operations to Move Ones to the End** — a **medium-level** greedy + counting problem based on understanding patterns inside a binary string.
+
+Instead of simulating each operation, the trick is to observe how **zero-block boundaries** control the number of possible moves.
+
+---
+
+## 📌 Problem Statement  
+
+You are given a binary string `s`.  
+You may perform the following operation any number of times:
+
+- Choose an index `i` such that `s[i] == '1'` and `s[i + 1] == '0'`
+- Move that `'1'` to the right until it reaches:
+  - the end of the string, or  
+  - another `'1'`
+
+Return the **maximum number of operations** possible.
+
+**Example 1:**  
+```
+Input: "1001101"  
+Output: 4
+```
+
+
+**Example 2:**  
+```
+Input: "00111"  
+Output: 0
+```
+
+
+---
+
+## 💡 Intuition  
+
+Whenever a `'1'` is followed by a `'0'`, it can produce one operation.  
+But instead of checking each pair, we notice:
+
+👉 **Only the last zero of each consecutive zero-block contributes to the final count.**  
+Each such zero-block end allows **all previously seen '1's** to “jump” over it.
+
+So we scan the string once and count operations based on block structure.
+
+---
+
+## 🔑 Approach  
+
+1. Traverse the string from left to right.  
+2. Maintain `ones` → number of `'1'`s seen so far.  
+3. For each `'0'`:
+   - Check if it is the **end of a zero-block**  
+     (i.e., next char is `'1'` or we are at the last index).
+   - If yes → add `ones` to the answer.
+4. Return the final count.
+
+This avoids any simulation and leverages pure counting.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  \( O(n) \)
+
+- **Space Complexity:**  
+  \( O(1) \)
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var maxOperations = function(s) {
+    let ans = 0;
+    let ones = 0;
+    const n = s.length;
+
+    for (let i = 0; i < n; ++i) {
+        if (s[i] === '1') {
+            ones += 1;
+        } else { // s[i] === '0'
+            // If this zero is the last in its zero-block
+            if (i === n - 1 || s[i + 1] === '1') {
+                ans += ones;
+            }
+        }
+    }
+
+    return ans;
+};
+
+```
+
+
+## 🎯 Example Walkthrough
+
+**Input:**  
+`"1001101"`
+
+Zero-block ends at positions:
+
+- index 2 → adds 1
+    
+- index 4 → adds 2
+    
+- index 5 → adds 4
+    
+
+Total = **4 operations**
+
+---
+
+## 🎯 Reflection
+
+This problem highlights how recognizing **patterns** and **block structures** in strings can eliminate the need for simulation and drastically simplify logic.
+
+See you tomorrow for **Day 60** — the grind continues! 💪  
+Happy Coding 👨‍💻✨

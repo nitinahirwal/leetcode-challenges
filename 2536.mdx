@@ -1,0 +1,121 @@
+---
+title: LeetCode Challenge Day 60 — 2536. Increment Submatrices by One  
+summary: Day 60 of my LeetCode challenge! Today’s problem is "2536. Increment Submatrices by One" — a classic 2D prefix-sum (difference array) problem that optimizes range updates on matrices.  
+solution: https://leetcode.com/problems/increment-submatrices-by-one/solutions/7348076/2536-increment-submatrices-by-one-by-nit-x74c
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-14  
+tags: ["LeetCode Challenge", "Day 60", "Matrix", "2D Difference Array", "Prefix Sum", "JavaScript", "Algorithm", "Medium"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 60** of my LeetCode streak 🚀  
+Today’s problem is **2536. Increment Submatrices by One** — a smart matrix update problem where we avoid brute-force increments and instead use a **2D difference array** to optimize.
+
+---
+
+## 📌 Problem Statement  
+
+You're given an `n x n` zero matrix and a list of queries.  
+Each query `[r1, c1, r2, c2]` asks you to increment all values inside that submatrix by `+1`.
+
+Return the matrix after all queries are applied.
+
+---
+
+## 💡 Intuition  
+
+Applying each query directly means nested loops → **too slow** when `q` can be 10,000.
+
+But with a **2D difference array**, we mark the corners of each submatrix update and then apply prefix sums to reconstruct the result.  
+This reduces range updates from `O(n²)` to **O(1)**.
+
+---
+
+## 🔑 Approach  
+
+1. Initialize a **(n+1)×(n+1)** difference matrix `diff`.
+2. For each query:
+   - `diff[r1][c1] += 1`
+   - `diff[r1][c2+1] -= 1`
+   - `diff[r2+1][c1] -= 1`
+   - `diff[r2+1][c2+1] += 1`
+3. Perform prefix sums across rows.
+4. Then prefix sums across columns.
+5. Extract the final `n×n` matrix.
+
+---
+
+## 📘 Example Walkthrough  
+
+### **Input**
+`n = 3`  
+`queries = [[1,1,2,2], [0,0,1,1]]`
+
+### **Step 1: Initial 3×3 matrix**
+`0 0 0`  
+`0 0 0`  
+`0 0 0` 
+
+### **After first query [1,1,2,2]**
+Add +1 to this submatrix:
+`- 1 1`
+`- 1 1`
+
+
+Final matrix:
+`1 1 0`  
+`1 2 1`  
+`0 1 1`
+
+## ⏱️ Complexity Analysis  
+
+- **Time:**  
+  \( O(n^2 + q) \)
+
+- **Space:**  
+  \( O(n^2) \)
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number} n
+ * @param {number[][]} queries
+ * @return {number[][]}
+ */
+var rangeAddQueries = function(n, queries) {
+    const diff = Array.from({length: n + 1}, () => Array(n + 1).fill(0));
+
+    for (const [r1, c1, r2, c2] of queries) {
+        diff[r1][c1] += 1;
+        if (c2 + 1 <= n - 1) diff[r1][c2 + 1] -= 1;
+        if (r2 + 1 <= n - 1) diff[r2 + 1][c1] -= 1;
+        if (r2 + 1 <= n - 1 && c2 + 1 <= n - 1) diff[r2 + 1][c2 + 1] += 1;
+    }
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 1; j < n; j++) {
+            diff[i][j] += diff[i][j - 1];
+        }
+    }
+
+    for (let j = 0; j < n; j++) {
+        for (let i = 1; i < n; i++) {
+            diff[i][j] += diff[i - 1][j];
+        }
+    }
+
+    return Array.from({length: n}, (_, i) => diff[i].slice(0, n));
+};
+```
+
+## 🎯 Reflection
+
+This problem is a perfect example of converting a brute-force update into an elegant, optimized approach using **2D prefix sums**.
+
+See you tomorrow for **Day 61** — keep the momentum alive! 💪  
+Happy Coding 👨‍💻✨

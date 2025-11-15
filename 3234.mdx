@@ -1,0 +1,192 @@
+---
+title: LeetCode Challenge Day 61 — 3234. Count the Number of Substrings With Dominant Ones
+summary: Day 61 of my LeetCode challenge! Today's problem is "3234. Count the Number of Substrings With Dominant Ones" — an optimization problem that uses smart enumeration and mathematical counting to avoid brute force.
+solution: https://leetcode.com/problems/count-the-number-of-substrings-with-dominant-ones/solutions/7349737/3234-count-the-number-of-substrings-with-kbbx
+image:
+author: Nitin Ahirwal
+publishedAt: 2025-11-15
+tags: ["LeetCode Challenge", "Day 61", "String", "Counting", "Math", "Optimization", "JavaScript", "Algorithm", "Medium"]
+---
+
+## Hey folks 👋
+This is **Day 61** of my LeetCode streak 🚀
+
+Today's problem is **3234. Count the Number of Substrings With Dominant Ones** — a clever counting problem where we need to find substrings where the number of '1's is at least the square of the number of '0's.
+
+---
+
+## 📌 Problem Statement
+Given a binary string `s`, count the number of substrings where the number of ones is at least the square of the number of zeros.
+
+In other words, for a substring with `zeros` zeros and `ones` ones, we need: `ones ≥ zeros²`
+
+---
+
+## 💡 Intuition
+The problem asks us to count substrings where the number of ones is at least the square of the number of zeros. We can break this into two cases:
+
+1. **Substrings with no zeros**: These are all-ones substrings, which always satisfy the condition (since 1s ≥ 0²).
+2. **Substrings with k zeros**: We need at least k² ones for the condition to hold.
+
+For case 2, we can't enumerate all possible substrings (too slow). Instead, we fix the exact k zeros that appear in the substring and count how many ways we can extend left and right while maintaining ones ≥ k². Since k² grows quickly, we only need to check k up to √n (larger k would require more than n characters).
+
+---
+
+## 🔑 Approach
+1. **Count all-ones substrings**: Find each maximal run of consecutive '1's. A run of length L contributes L×(L+1)/2 substrings.
+
+2. **For each valid k (1 to √n)**:
+   - Store positions of all zeros in an array
+   - For each possible selection of k consecutive zeros (by their positions):
+     - Calculate the "base" ones already between these k zeros
+     - Determine how many additional ones we need from left/right extensions: `need = k² - base`
+     - Count valid combinations of left extensions (L choices) and right extensions (R choices)
+     - If `left + right ≥ need`, the substring is valid
+     - Use a helper function to efficiently count pairs (x, y) where x + y ≥ need
+
+3. **Helper function `countPairsLE(L, R, t)`**: Counts pairs where x ∈ [0, L-1], y ∈ [0, R-1], and x + y ≤ t. We use this to find bad pairs (x + y < need), then subtract from total pairs.
+
+---
+
+## 📘 Example Walkthrough
+### **Input**
+`s = "00011"`
+
+### **Step 1: Count all-ones substrings**
+The substring "11" at the end contributes: 2×(2+1)/2 = 3 substrings
+- "1" (index 3)
+- "1" (index 4)  
+- "11" (index 3-4)
+
+**Count so far: 3**
+
+### **Step 2: Count substrings with k=1 zero**
+For each single '0':
+- First '0' at index 0: Can extend right to include ones, giving us valid substrings
+- Second '0' at index 1: Similarly can form valid substrings
+- Third '0' at index 2: Can include the '11' on the right
+
+### **Final Result**
+After counting all valid combinations, we get the total count of substrings where ones ≥ zeros².
+
+---
+
+## ⏱️ Complexity Analysis
+- **Time Complexity:**  
+  \( O(n \cdot \sqrt{n}) \)
+  
+  We iterate through at most √n values of k, and for each k, we iterate through O(n) possible windows of k zeros. Each window is processed in O(1) time with the helper function.
+
+- **Space Complexity:**  
+  \( O(n) \)
+  
+  We store the positions of all zeros, which in the worst case can be O(n) if the entire string consists of zeros.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+```javascript
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var numberOfSubstrings = function(s) {
+    const n = s.length;
+    const zeroPos = [];
+    for (let i = 0; i < n; ++i) if (s[i] === '0') zeroPos.push(i);
+    const m = zeroPos.length;
+    let ans = 0;
+
+    // 1) count substrings with zero zeros (all-ones substrings)
+    // sum over runs of consecutive '1's: L*(L+1)/2
+    let i = 0;
+    while (i < n) {
+        if (s[i] === '1') {
+            let j = i;
+            while (j + 1 < n && s[j + 1] === '1') j++;
+            const L = j - i + 1;
+            ans += (L * (L + 1)) / 2;
+            i = j + 1;
+        } else i++;
+    }
+
+    if (m === 0) return ans; // no zeros, done
+
+    // helper: number of pairs (x,y) with 0<=x<=L-1, 0<=y<=R-1 and x+y <= t
+    function countPairsLE(L, R, t) {
+        if (t < 0) return 0;
+        // maximum possible sum is L-1 + R-1
+        const maxT = L + R - 2;
+        if (t >= maxT) return L * R;
+
+        // we need sum_{x=0..min(L-1,t)} min(R, t - x + 1)
+        const up = Math.min(L - 1, t);
+        // find split where (t - x + 1) >= R  => x <= t - R + 1
+        const split = t - R + 1;
+        const a = Math.min(up, split); // x in [0..a] contributes R each (if a>=0)
+        let res = 0;
+        if (a >= 0) {
+            res += (a + 1) * R;
+        }
+        // remaining x from a+1 .. up contribute (t - x + 1)
+        const start = Math.max(a + 1, 0);
+        if (start <= up) {
+            // sum_{x=start..up} (t - x + 1) = ( (t - start + 1) + (t - up + 1) ) * (up - start + 1) / 2
+            const cnt = up - start + 1;
+            const first = t - start + 1;
+            const last = t - up + 1;
+            res += (first + last) * cnt / 2;
+        }
+        return res;
+    }
+
+    // limit for k (zeros count) is sqrt(n) because k^2 > n impossible to satisfy
+    const K = Math.floor(Math.sqrt(n)) + 1;
+
+    // 2) for k = 1..K, count substrings with exactly k zeros and ones >= k^2
+    for (let k = 1; k <= K; ++k) {
+        if (k > m) break; // can't have more zeros than exist
+        for (let startIdx = 0; startIdx + k - 1 < m; ++startIdx) {
+            const endIdx = startIdx + k - 1;
+
+            const prevZeroPos = (startIdx === 0) ? -1 : zeroPos[startIdx - 1];
+            const nextZeroPos = (endIdx + 1 === m) ? n : zeroPos[endIdx + 1];
+
+            const L = zeroPos[startIdx] - prevZeroPos; // number of possible starts (0..L-1 left ones)
+            const R = nextZeroPos - zeroPos[endIdx];   // number of possible ends (0..R-1 right ones)
+
+            // base ones inside the minimal window covering these k zeros
+            const windowLen = zeroPos[endIdx] - zeroPos[startIdx] + 1;
+            const baseOnes = windowLen - k; // ones between the zeros inside minimal window
+
+            const need = k * k - baseOnes; // additional ones (from left+right extensions) required
+            if (need <= 0) {
+                // every combination of left and right choices works
+                ans += L * R;
+            } else {
+                // count pairs (x in [0..L-1], y in [0..R-1]) with x+y >= need
+                const totalPairs = L * R;
+                const badPairs = countPairsLE(L, R, need - 1); // pairs with x+y <= need-1
+                ans += totalPairs - badPairs;
+            }
+        }
+    }
+
+    return ans;
+};
+```
+
+---
+
+## 🎯 Reflection
+This problem demonstrates the power of **mathematical optimization** over brute force. By recognizing that k can only go up to √n and using smart pair counting, we transform an intractable O(n³) problem into an efficient O(n√n) solution.
+
+Key insights:
+- All-ones substrings are always valid (ones ≥ 0²)
+- For k zeros, we need k² ones, limiting k to √n
+- Fixed zero positions + extension counting avoids enumerating all substrings
+- Helper function efficiently counts valid pairs without nested loops
+
+See you tomorrow for **Day 62** — keep the momentum alive! 💪
+
+Happy Coding 👨‍💻✨

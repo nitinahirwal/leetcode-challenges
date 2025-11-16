@@ -1,6 +1,6 @@
 ---
 title: LeetCode Challenge Day 61 — 3234. Count the Number of Substrings With Dominant Ones
-summary: Day 61 of my LeetCode challenge! Today's problem is "3234. Count the Number of Substrings With Dominant Ones" — an optimization problem that uses smart enumeration and mathematical counting to avoid brute force.
+summary: Day 61 of my LeetCode challenge! Today's problem is "3234. Count the Number of Substrings With Dominant Ones" — an optimization problem that uses smart enumeration and mathematical counting to efficiently count substrings where ones dominate zeros.
 solution: https://leetcode.com/problems/count-the-number-of-substrings-with-dominant-ones/solutions/7349737/3234-count-the-number-of-substrings-with-kbbx
 image:
 author: Nitin Ahirwal
@@ -9,33 +9,63 @@ tags: ["LeetCode Challenge", "Day 61", "String", "Counting", "Math", "Optimizati
 ---
 
 ## Hey folks 👋
+
 This is **Day 61** of my LeetCode streak 🚀
 
-Today's problem is **3234. Count the Number of Substrings With Dominant Ones** — a clever counting problem where we need to find substrings where the number of '1's is at least the square of the number of '0's.
+Today's problem is **3234. Count the Number of Substrings With Dominant Ones** — a **medium**-level counting problem that cleverly combines mathematical insight with efficient enumeration.
+
+The task is to count substrings where the number of '1's is at least the square of the number of '0's, avoiding brute force by leveraging the constraint that k² grows rapidly.
 
 ---
 
 ## 📌 Problem Statement
+
 Given a binary string `s`, count the number of substrings where the number of ones is at least the square of the number of zeros.
 
-In other words, for a substring with `zeros` zeros and `ones` ones, we need: `ones ≥ zeros²`
+In other words, for a substring with `zeros` zeros and `ones` ones, we need:
+```
+ones ≥ zeros²
+```
+
+**Example 1:**
+```
+Input: s = "00011"
+Output: 5
+```
+
+Explanation:
+- Substrings with 0 zeros: "1", "1", "11" → 3 substrings
+- Substrings with zeros that satisfy ones ≥ zeros²: 2 more substrings
+- Total: 5
+
+**Example 2:**
+```
+Input: s = "101101"
+Output: 16
+```
 
 ---
 
 ## 💡 Intuition
+
 The problem asks us to count substrings where the number of ones is at least the square of the number of zeros. We can break this into two cases:
 
 1. **Substrings with no zeros**: These are all-ones substrings, which always satisfy the condition (since 1s ≥ 0²).
 2. **Substrings with k zeros**: We need at least k² ones for the condition to hold.
 
-For case 2, we can't enumerate all possible substrings (too slow). Instead, we fix the exact k zeros that appear in the substring and count how many ways we can extend left and right while maintaining ones ≥ k². Since k² grows quickly, we only need to check k up to √n (larger k would require more than n characters).
+For case 2, we can't enumerate all possible substrings (too slow). Instead, we fix the exact k zeros that appear in the substring and count how many ways we can extend left and right while maintaining ones ≥ k².
+
+**Key insight:** Since k² grows quickly, we only need to check k up to √n (larger k would require more than n characters).
 
 ---
 
 ## 🔑 Approach
-1. **Count all-ones substrings**: Find each maximal run of consecutive '1's. A run of length L contributes L×(L+1)/2 substrings.
 
-2. **For each valid k (1 to √n)**:
+1. **Count all-ones substrings:**
+   - Find each maximal run of consecutive '1's.
+   - A run of length L contributes L×(L+1)/2 substrings.
+
+2. **For each valid k (1 to √n):**
    - Store positions of all zeros in an array
    - For each possible selection of k consecutive zeros (by their positions):
      - Calculate the "base" ones already between these k zeros
@@ -44,34 +74,46 @@ For case 2, we can't enumerate all possible substrings (too slow). Instead, we f
      - If `left + right ≥ need`, the substring is valid
      - Use a helper function to efficiently count pairs (x, y) where x + y ≥ need
 
-3. **Helper function `countPairsLE(L, R, t)`**: Counts pairs where x ∈ [0, L-1], y ∈ [0, R-1], and x + y ≤ t. We use this to find bad pairs (x + y < need), then subtract from total pairs.
+3. **Helper function `countPairsLE(L, R, t)`:**
+   - Counts pairs where x ∈ [0, L-1], y ∈ [0, R-1], and x + y ≤ t
+   - We use this to find bad pairs (x + y < need), then subtract from total pairs
+   - Uses arithmetic series formula for O(1) computation
 
 ---
 
 ## 📘 Example Walkthrough
-### **Input**
-`s = "00011"`
 
-### **Step 1: Count all-ones substrings**
-The substring "11" at the end contributes: 2×(2+1)/2 = 3 substrings
-- "1" (index 3)
-- "1" (index 4)  
-- "11" (index 3-4)
+### Input:
+```
+s = "00011"
+```
+
+### Step 1: Count all-ones substrings
+The substring "11" at the end contributes:
+- 2×(2+1)/2 = 3 substrings
+  - "1" (index 3)
+  - "1" (index 4)
+  - "11" (index 3-4)
 
 **Count so far: 3**
 
-### **Step 2: Count substrings with k=1 zero**
+### Step 2: Count substrings with k=1 zero
 For each single '0':
-- First '0' at index 0: Can extend right to include ones, giving us valid substrings
-- Second '0' at index 1: Similarly can form valid substrings
-- Third '0' at index 2: Can include the '11' on the right
+- Zero at index 0: Can extend to include right ones
+- Zero at index 1: Can form valid substrings
+- Zero at index 2: Can include the "11" on the right
 
-### **Final Result**
-After counting all valid combinations, we get the total count of substrings where ones ≥ zeros².
+After checking all combinations where left + right extensions provide enough ones (≥ 1² = 1), we add 2 more valid substrings.
+
+### Final Result:
+```
+Output: 5
+```
 
 ---
 
 ## ⏱️ Complexity Analysis
+
 - **Time Complexity:**  
   \( O(n \cdot \sqrt{n}) \)
   
@@ -85,7 +127,7 @@ After counting all valid combinations, we get the total count of substrings wher
 ---
 
 ## 🧑‍💻 Code (JavaScript)
-```javascript
+```javascript []
 /**
  * @param {string} s
  * @return {number}
@@ -179,14 +221,16 @@ var numberOfSubstrings = function(s) {
 ---
 
 ## 🎯 Reflection
+
 This problem demonstrates the power of **mathematical optimization** over brute force. By recognizing that k can only go up to √n and using smart pair counting, we transform an intractable O(n³) problem into an efficient O(n√n) solution.
 
-Key insights:
+**Key insights:**
 - All-ones substrings are always valid (ones ≥ 0²)
 - For k zeros, we need k² ones, limiting k to √n
 - Fixed zero positions + extension counting avoids enumerating all substrings
 - Helper function efficiently counts valid pairs without nested loops
 
-See you tomorrow for **Day 62** — keep the momentum alive! 💪
+That's it for **Day 61** of my LeetCode challenge 💪  
+Sometimes, recognizing mathematical constraints can turn impossible enumeration into elegant counting ⚡
 
 Happy Coding 👨‍💻✨

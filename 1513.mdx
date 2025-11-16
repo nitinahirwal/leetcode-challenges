@@ -1,0 +1,117 @@
+---
+title: LeetCode Challenge Day 62 — 1513. Number of Substrings With Only 1s
+summary: Day 62 of my LeetCode challenge! Today’s problem is "1513. Number of Substrings With Only 1s" — a clean counting problem based on consecutive run arithmetic.
+solution: https://leetcode.com/problems/number-of-substrings-with-only-1s/solutions/7353131/1513-number-of-substrings-with-only-1s-b-87qx
+image:
+author: Nitin Ahirwal
+publishedAt: 2025-11-16
+tags: ["LeetCode Challenge", "Day 62", "Binary String", "Counting", "Math", "JavaScript", "Medium"]
+---
+
+## Hey folks 👋
+
+This is **Day 62** of my LeetCode streak 🚀  
+Today’s problem is **1513 — Number of Substrings With Only 1s**.
+
+It looks simple at first glance, but the trick is to notice how consecutive `1`s form substrings.
+
+---
+
+## 💡 Intuition
+
+When you see consecutive `1`s:
+
+- A run of length `1` → contributes `1`
+- A run of length `2` → contributes `1 + 2 = 3`
+- A run of length `3` → contributes `1 + 2 + 3 = 6`
+
+In general:
+```
+For a run of length L:  
+Total substrings = L × (L + 1) / 2
+```
+
+This gives a direct counting approach without generating substrings.
+
+---
+
+## 📌 Approach
+
+1. Iterate through the string left to right.
+2. Maintain a variable `run` that counts consecutive `1`s.
+3. On every `'1'`:
+   - Increment `run`
+   - Add `run` to the answer
+4. On `'0'`, reset `run = 0`
+5. Keep everything modulo **1e9+7**.
+
+This converts a potentially O(n²) substring problem into an efficient **O(n)** solution.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n)` — single pass  
+- **Space Complexity:** `O(1)` — constant auxiliary space
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var numSub = function(s) {
+    const MOD = 1000000007;
+    let ans = 0;
+    let run = 0;
+    for (let i = 0; i < s.length; ++i) {
+        if (s[i] === '1') {
+            run += 1;
+            ans = (ans + run) % MOD;
+        } else {
+            run = 0;
+        }
+    }
+    return ans;
+};
+```
+
+## 🎯 Example
+
+Input:
+
+`s = "0110111"`
+
+Output:
+
+`9`
+
+Because runs of `1`s contribute:
+
+- `1` → 1
+    
+- `11` → 3
+    
+- `111` → 6
+    
+
+Total = **9**
+
+---
+
+## 🧠 Reflection
+
+This problem reinforces the idea that many substring problems can be simplified by:
+
+- Recognizing **run patterns**
+    
+- Using **arithmetic formulas**
+    
+- Avoiding brute-force enumeration
+    
+
+See you tomorrow for **Day 63**! 🚀  
+Happy Coding 👨‍💻✨

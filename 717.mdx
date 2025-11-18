@@ -1,0 +1,120 @@
+---
+
+title: LeetCode Challenge Day 64 — 717. 1-bit and 2-bit Characters  
+summary: Day 64 of my LeetCode challenge! Today’s problem is "717. 1-bit and 2-bit Characters" — simulate left-to-right decoding to check whether the last 0 is a standalone character.  
+solution: https://leetcode.com/problems/1-bit-and-2-bit-characters/solutions/7357876/717-1-bit-and-2-bit-characters-by-nitina-44e3
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-18  
+tags: ["LeetCode Challenge", "Day 64", "Binary", "Simulation", "JavaScript", "Easy"]
+---
+
+## Hey folks 👋
+
+This is **Day 64** of my LeetCode streak 🚀  
+Today’s problem is **717 — 1-bit and 2-bit Characters**.
+
+A neat binary decoding problem:  
+We must determine whether the **final 0** in the array is a **single-bit** character or part of a **two-bit** character.
+
+---
+
+## 💡 Intuition
+
+Characters are encoded as:
+
+- `0` → one-bit character
+    
+- `10` or `11` → two-bit character
+    
+
+So, the approach is to **simulate decoding left-to-right**:
+
+- If you see a `1`, skip the next bit (because it's a two-bit character)
+    
+- If you see a `0`, move one step
+    
+
+If after processing all characters, you land **exactly at the last index**, that last 0 is a single-bit character.  
+If you **jump past** it, then it was consumed as part of a two-bit character.
+
+---
+
+## 📌 Approach
+
+1. Initialize `i = 0`.
+    
+2. Traverse the array while `i < bits.length - 1`:
+    
+    - If `bits[i] === 1`, move `i += 2`.
+        
+    - Else move `i += 1`.
+        
+3. At the end, return whether `i === bits.length - 1`.
+    
+
+A clean linear scan solves it.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n)` — one pass through the array
+    
+- **Space Complexity:** `O(1)` — no extra storage
+    
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} bits
+ * @return {boolean}
+ */
+var isOneBitCharacter = function(bits) {
+    let i = 0;
+
+    while (i < bits.length - 1) {
+        if (bits[i] === 1) {
+            i += 2;
+        } else {
+            i += 1;
+        }
+    }
+
+    return i === bits.length - 1;
+};
+```
+
+---
+
+## 🎯 Example
+
+Input:  
+`bits = [1,0,0]`  
+Output:  
+`true`
+
+The decoding goes: `10` (a two-bit char) → `0` (a one-bit char).  
+We land on the last index → it’s a standalone one-bit character.
+
+---
+
+## 🧠 Reflection
+
+This problem reinforces how **simple simulation** is often the most effective solution.  
+No need for dynamic programming or complex logic — just follow the encoding rules.
+
+Key learnings:
+
+- Understand the encoding scheme
+    
+- Track only what matters: your current index
+    
+- Avoid unnecessary extra steps or structures
+    
+
+See you tomorrow for **Day 65**! 🚀  
+Happy Coding 👨‍💻✨

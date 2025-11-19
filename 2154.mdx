@@ -1,0 +1,91 @@
+---
+
+title: LeetCode Challenge Day 65 — 2154. Keep Multiplying Found Values by Two  
+summary: Day 65 of my LeetCode challenge! Today’s problem is "2154. Keep Multiplying Found Values by Two" — keep doubling the number as long as it appears in the list.  
+solution: https://leetcode.com/problems/keep-multiplying-found-values-by-two/solutions/7358902/2154-keep-multiplying-found-values-by-tw-l47s  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-19  
+tags: ["LeetCode Challenge", "Day 65", "Array", "Hashing", "JavaScript", "Easy"]
+---
+
+## Hey folks 👋
+
+This is **Day 65** of my LeetCode streak 🚀  
+Today’s problem is **2154 — Keep Multiplying Found Values by Two**.
+
+A fun simulation-style problem:  
+You repeatedly check whether your current number exists in the array —  
+if yes, **double it** and continue the process.
+
+---
+
+## 💡 Intuition
+
+The straightforward idea is:
+
+- If the number is present → multiply by 2  
+- Otherwise → stop  
+
+However, repeatedly searching through the array is slow.  
+So to optimize, we use a **Set**, allowing constant-time lookups.
+
+---
+
+## 📌 Approach
+
+1. Convert the input `nums` into a **Set** for O(1) search.  
+2. While the current `original` value exists inside the Set:
+   - Update `original = original * 2`.  
+3. When the number is no longer present, return the final value.
+
+This ensures minimal overhead and avoids unnecessary repeated scans.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n)`  
+  Creating the Set takes O(n); the doubling process is very short.
+
+- **Space Complexity:** `O(n)`  
+  A Set is used to store the list values.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+var findFinalValue = function(nums, original) {
+    const set = new Set(nums);
+
+    while (set.has(original)) {
+        original *= 2;
+    }
+
+    return original;
+};
+```
+
+## 🎯 Example
+
+Input:  
+`nums = [5,3,6,1,12], original = 3`  
+Output:  
+`24`
+
+Explanation:  
+3 is in `nums` → becomes 6  
+6 is in `nums` → becomes 12  
+12 is in `nums` → becomes 24  
+24 is **not** in `nums`, so we stop.
+
+---
+
+## 🧠 Reflection
+
+A clean demonstration of how **hashing** simplifies repeated search tasks.  
+By converting to a Set, the problem becomes a simple loop instead of repeated array scans.
+
+See you tomorrow for **Day 66**! 🚀  
+Happy Coding 👨‍💻✨

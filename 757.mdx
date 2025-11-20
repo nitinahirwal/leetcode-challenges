@@ -1,0 +1,111 @@
+---
+
+title: LeetCode Challenge Day 66 — 757. Set Intersection Size At Least Two  
+summary: Day 66 of my LeetCode challenge! Today’s problem is "757. Set Intersection Size At Least Two" — choose the minimum number of points such that every interval contains at least two of them.  
+solution: https://leetcode.com/problems/set-intersection-size-at-least-two/solutions/7362625/757-set-intersection-size-at-least-two-b-cddn  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-20  
+tags: ["LeetCode Challenge", "Day 66", "Greedy", "Intervals", "JavaScript", "Hard"]
+---
+
+## Hey folks 👋
+
+This is **Day 66** of my LeetCode streak 🚀  
+Today’s problem is **757 — Set Intersection Size At Least Two**.
+
+A tricky **greedy + interval** problem:  
+From each interval, we must include **at least two integers** in our final set —  
+while keeping the total size as small as possible.
+
+---
+
+## 💡 Intuition
+
+To satisfy every interval with minimum points, we must place points **as far right as possible**.  
+Why?  
+Because points placed near the end of an interval have a higher chance of also lying inside upcoming intervals.
+
+So the core greedy intuition becomes:
+
+- Sort by interval **end ascending**  
+- Try to reuse previously chosen points  
+- If insufficient points are inside an interval → add new ones at the **rightmost** positions
+
+---
+
+## 📌 Approach
+
+1. **Sort intervals** by:  
+   - Increasing end  
+   - If ends tie → decreasing start  
+
+2. Maintain the two largest selected points:  
+   - `last1 < last2`
+
+3. For each interval `[a, b]`:
+   - If **no** selected point lies inside → add `b-1` and `b`
+   - If **only one** lies inside → add `b`
+   - If **two already** lie inside → do nothing
+
+4. Sum of added points = minimum size of the containing set.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n log n)`  
+  Sorting dominates.
+
+- **Space Complexity:** `O(1)`  
+  Only constant extra space is used.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[][]} intervals
+ * @return {number}
+ */
+var intersectionSizeTwo = function(intervals) {
+    if (!intervals || intervals.length === 0) return 0;
+    // sort by end ascending; for equal ends, sort start descending
+    intervals.sort((A, B) => {
+        if (A[1] !== B[1]) return A[1] - B[1];
+        return B[0] - A[0];
+    });
+
+    let res = 0;
+    // last1 < last2 are the two largest chosen points so far
+    let last1 = -Infinity, last2 = -Infinity;
+
+    for (const [a, b] of intervals) {
+        if (a > last2) {
+            // no chosen point in [a,b], add two: b-1 and b
+            res += 2;
+            last1 = b - 1;
+            last2 = b;
+        } else if (a > last1) {
+            // exactly one chosen point (last2) lies in [a,b], add one: b
+            res += 1;
+            last1 = last2;
+            last2 = b;
+        } else {
+            // already have at least two points inside [a,b], nothing to do
+        }
+    }
+    return res;
+};
+```
+
+---
+
+## 🧠 Reflection
+
+This problem is a perfect example of how **sorting + greedy** can break down a tough interval question into a simple, optimal strategy.  
+Picking points at the **interval end** maximizes reuse and keeps the final set as small as possible.
+
+See you tomorrow for **Day 67**! 🚀  
+Happy Coding 👨‍💻✨

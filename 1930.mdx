@@ -1,0 +1,106 @@
+---
+
+title: LeetCode Challenge Day 67 — 1930. Unique Length-3 Palindromic Subsequences  
+summary: Day 67 of my LeetCode challenge! Today’s problem is "1930. Unique Length-3 Palindromic Subsequences" — count how many distinct palindromes of the form c_x_c exist in the string.  
+solution: https://leetcode.com/problems/unique-length-3-palindromic-subsequences/solutions/7364777/1930-unique-length-3-palindromic-subsequ-h23w  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-21  
+tags: ["LeetCode Challenge", "Day 67", "Palindromic Subsequences", "Strings", "JavaScript", "Medium"]
+---
+
+## Hey folks 👋
+
+This is **Day 67** of my LeetCode streak 🚀  
+Today’s problem is **1930 — Unique Length-3 Palindromic Subsequences**.
+
+We need to count how many **distinct palindromes of the form `c ? c`** appear in the string —  
+where the first and last characters are the same, and the middle character can be anything.
+
+---
+
+## 💡 Intuition
+
+A valid palindrome of length 3 has the form:
+`c _ c`
+
+So the idea is simple:
+- For each character `c`, find its **first** and **last** occurrence.
+- Any **distinct character between those two indices** can serve as the middle.
+- Each unique middle character forms a unique `c x c` palindrome.
+
+No need to actually construct subsequences — just analyze the string structure.
+
+---
+
+## 📌 Approach
+
+1. Traverse the string once and record:  
+   - `first[c]`: the first index of each character  
+   - `last[c]`: the last index of each character  
+
+2. For each character from `'a'` to `'z'`:
+   - If it appears fewer than 2 times → skip  
+   - Initialize a `seen[26]` boolean array  
+   - Scan the substring between `first[c]` and `last[c]`  
+   - Mark all distinct middle characters  
+
+3. Add the count of marked characters to the result.  
+   The sum across all characters gives the total number of unique palindromes.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n)`  
+  One pass for boundaries + scanning ranges.
+
+- **Space Complexity:** `O(1)`  
+  Only fixed 26-length arrays used.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string} s
+ * @return {number}
+ */
+var countPalindromicSubsequence = function(s) {
+    const n = s.length;
+    // record first and last occurrence for each letter
+    const first = new Array(26).fill(-1);
+    const last  = new Array(26).fill(-1);
+    for (let i = 0; i < n; ++i) {
+        const idx = s.charCodeAt(i) - 97;
+        if (first[idx] === -1) first[idx] = i;
+        last[idx] = i;
+    }
+    
+    let result = 0;
+    // for each possible end character c
+    for (let c = 0; c < 26; ++c) {
+        if (first[c] === -1) continue;         // char doesn't appear
+        if (first[c] >= last[c]) continue;     // need at least two occurrences for c _ c
+        
+        const seen = new Array(26).fill(false);
+        // count distinct characters between first[c] and last[c]
+        for (let i = first[c] + 1; i < last[c]; ++i) {
+            seen[s.charCodeAt(i) - 97] = true;
+        }
+        for (let k = 0; k < 26; ++k) {
+            if (seen[k]) result++;
+        }
+    }
+    return result;
+};
+```
+
+## 🧠 Reflection
+
+This problem highlights how looking at **boundary positions** instead of brute-forcing subsequences can lead to a clean, optimal solution.  
+A smart observation turns a potentially complex subsequence problem into a simple linear scan.
+
+See you tomorrow for **Day 68**! 🚀  
+Happy Coding 👨‍💻✨

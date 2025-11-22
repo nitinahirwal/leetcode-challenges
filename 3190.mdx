@@ -1,0 +1,80 @@
+---
+title: LeetCode Challenge Day 68 — 3190. Find Minimum Operations to Make All Elements Divisible by Three  
+summary: Day 68 of my LeetCode challenge! Today’s problem is "3190. Find Minimum Operations to Make All Elements Divisible by Three" — each element can be incremented or decremented by 1, and we must find the minimum steps to make every element divisible by 3.  
+solution: https://leetcode.com/problems/find-minimum-operations-to-make-all-elements-divisible-by-three/solutions/7367193/3190-find-minimum-operations-to-make-all-37gl  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-22  
+tags: ["LeetCode Challenge", "Day 68", "Math", "Greedy", "JavaScript", "Easy"]
+---
+
+## Hey folks 👋
+
+This is **Day 68** of my LeetCode streak 🚀  
+Today’s problem is **3190 — Find Minimum Operations to Make All Elements Divisible by Three**.
+
+Given an array `nums`, in one operation we can **add or subtract 1 from an element**.  
+Our task is to make **all elements divisible by 3** with the **minimum number of operations**.
+
+---
+
+## 💡 Intuition
+
+Every number is at most **one step away** from a multiple of 3:
+
+| `num % 3` | Action | Cost |
+|----------|--------|------|
+| `0`      | Already divisible by 3 | 0 |
+| `1`      | Do `num - 1` | 1 |
+| `2`      | Do `num + 1` | 1 |
+
+So every element that is **not divisible by 3** requires **exactly one operation**.
+
+---
+
+## 📌 Approach
+
+1. Loop through the array.
+2. If a number is divisible by 3 → no change needed.
+3. Otherwise → increment the operation counter.
+4. Return the counter.
+
+Because each non-divisible number costs exactly **one operation**,  
+the result is just the number of elements where `num % 3 !== 0`.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n)`  
+- **Space Complexity:** `O(1)`
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var minimumOperations = function(nums) {
+    let ops = 0;
+    
+    for (const x of nums) {
+        if (x % 3 !== 0) {
+            ops += 1;
+        }
+    }
+    
+    return ops;
+};
+```
+
+## 🧠 Reflection
+
+Not every problem needs simulation — sometimes **a mathematical observation** gives the most optimal solution.  
+Realizing that every number is only **one step away from being divisible by 3** simplifies the challenge drastically.
+
+See you tomorrow for **Day 69**! 🚀  
+Happy Coding 👨‍💻✨

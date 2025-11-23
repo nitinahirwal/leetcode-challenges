@@ -1,0 +1,133 @@
+---
+title: LeetCode Challenge Day 69 — 1262. Greatest Sum Divisible by Three
+summary: Day 69 of my LeetCode challenge! Today’s problem is "1262. Greatest Sum Divisible by Three" — a greedy + modular arithmetic strategy to keep the sum maximum while ensuring divisibility by 3.
+solution: https://leetcode.com/problems/greatest-sum-divisible-by-three/solutions/7369758/1262-greatest-sum-divisible-by-three-by-dbdwz
+image:
+author: Nitin Ahirwal
+publishedAt: 2025-11-23
+tags: ["LeetCode Challenge", "Day 69", "Greedy", "Math", "JavaScript", "Medium"]
+---
+
+## Hey folks 👋
+
+This is **Day 69** of my LeetCode streak 🚀  
+Today’s problem is **1262 — Greatest Sum Divisible by Three**.
+
+The task is to form the **maximum possible sum from the array** such that the result is **divisible by 3**.
+
+---
+
+## 💡 Intuition
+
+Instead of trying to determine which values to **include**, flip the thought process:
+
+> Take the sum of all numbers — that is the absolute maximum.  
+> If this sum isn't divisible by 3, remove the **minimum amount** required to fix it.
+
+To do that efficiently, we only need to remember the smallest numbers that leave **remainder 1** and **remainder 2** when divided by 3.
+
+---
+
+## 📌 Approach
+
+1. Compute the total sum.
+2. Track:
+   - the **two smallest numbers with remainder 1**
+   - the **two smallest numbers with remainder 2**
+3. If `sum % 3 == 0`, return `sum`.
+4. If `sum % 3 == 1`:
+   - remove **one smallest remainder-1 number**, OR
+   - remove **two smallest remainder-2 numbers**
+5. If `sum % 3 == 2`:
+   - remove **one smallest remainder-2 number**, OR
+   - remove **two smallest remainder-1 numbers**
+6. Remove whichever option has the **least total value** → ensures the final result stays maximum.
+
+---
+
+## 📈 Complexity
+
+- **Time Complexity:** `O(n)` — one scan through the array  
+- **Space Complexity:** `O(1)` — constant extra memory
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxSumDivThree = function(nums) {
+    let sum = 0;
+
+    // Smallest and second smallest numbers with remainder 1 and 2
+    let r1small1 = Infinity, r1small2 = Infinity;
+    let r2small1 = Infinity, r2small2 = Infinity;
+
+    for (let x of nums) {
+        sum += x;
+        const r = x % 3;
+
+        if (r === 1) {
+            if (x < r1small1) {
+                r1small2 = r1small1;
+                r1small1 = x;
+            } else if (x < r1small2) {
+                r1small2 = x;
+            }
+        } else if (r === 2) {
+            if (x < r2small1) {
+                r2small2 = r2small1;
+                r2small1 = x;
+            } else if (x < r2small2) {
+                r2small2 = x;
+            }
+        }
+    }
+
+    const rem = sum % 3;
+    if (rem === 0) return sum;
+
+    let remove = Infinity;
+
+    if (rem === 1) {
+        remove = Math.min(remove, r1small1);
+        if (r2small1 < Infinity && r2small2 < Infinity) {
+            remove = Math.min(remove, r2small1 + r2small2);
+        }
+    } else if (rem === 2) {
+        remove = Math.min(remove, r2small1);
+        if (r1small1 < Infinity && r1small2 < Infinity) {
+            remove = Math.min(remove, r1small1 + r1small2);
+        }
+    }
+
+    if (remove === Infinity) return 0;
+    return sum - remove;
+};
+```
+
+## 🎯 Example
+
+Input:  
+`nums = [3, 6, 5, 1, 8]`  
+Output:  
+`18`
+
+We remove nothing because after choosing appropriate elements, sum `18` is already divisible by 3 — also maximum.
+
+---
+
+## 🧠 Reflection
+
+This problem beautifully demonstrates that:
+
+- Optimization isn't always about **adding** — sometimes it's about **removing the smallest cost**.
+    
+- Greedy + number theory can replace DP when thinking from the right angle.
+    
+
+See you tomorrow for **Day 70**! 🚀  
+Happy Coding 👨‍💻✨

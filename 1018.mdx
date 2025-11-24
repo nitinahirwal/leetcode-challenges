@@ -1,0 +1,125 @@
+---
+title: LeetCode Challenge Day 70 — 1018. Binary Prefix Divisible By 5  
+summary: Day 70 of my LeetCode challenge! Today’s problem is "Binary Prefix Divisible By 5" — a neat math + bit manipulation problem where we track binary prefixes using modular arithmetic to efficiently check divisibility by 5.  
+solution: https://leetcode.com/problems/binary-prefix-divisible-by-5/solutions/7371999/1018-binary-prefix-divisible-by-5-by-nit-6o3b 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-24  
+tags: ["LeetCode Challenge", "Day 70", "Math", "Bit Manipulation", "Prefix", "Array", "JavaScript", "Easy"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 70** of my LeetCode streak 🚀  
+Today’s problem is **1018. Binary Prefix Divisible By 5** — an **easy** but very elegant problem that uses **modular arithmetic** to avoid overflow while working with growing binary prefixes.
+
+---
+
+## 📌 Problem Statement  
+
+You are given a binary array `nums` where each element is either `0` or `1`.
+
+For each prefix `nums[0..i]`, interpret it as a **binary number**, and determine whether that number is **divisible by 5**.
+
+Return an array `result` where `result[i]` is:
+- `true` if the integer represented by `nums[0..i]` is divisible by `5`
+- `false` otherwise
+
+**Example:**  
+```
+Input: nums = [0,1,1]  
+Binary prefixes:
+
+- 0 → 0 (divisible by 5 ✅)
+    
+- 01 → 1 (not divisible ❌)
+    
+- 011 → 3 (not divisible ❌)
+    
+
+Output: [true, false, false]
+```
+
+
+---
+
+## 💡 Intuition  
+
+Directly converting each prefix to a decimal number is tempting, but quickly becomes inefficient and can overflow for large inputs.
+
+Instead:
+- A number is divisible by 5 **only if its remainder modulo 5 is 0**
+- When a new bit is appended, the value becomes:
+```
+newValue = oldValue * 2 + bit
+```
+
+- In modulo form:
+```
+(oldValue * 2 + bit) % 5 = ((oldValue % 5) * 2 + bit) % 5
+```
+
+
+So we store **only the remainder mod 5**, not the whole number.
+
+---
+
+## 🔑 Approach  
+
+1. Initialize:
+ - `prefixMod = 0`
+ - `result = []`
+2. For each bit:
+```
+prefixMod = (prefixMod * 2 + nums[i]) % 5
+```
+3. If `prefixMod === 0`, push `true`, otherwise `false`
+
+This keeps the value small and avoids overflow.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+| Complexity | Value |
+|-----------|--------|
+| Time      | O(n)   |
+| Space     | O(n) for result, O(1) extra vars |
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+* @param {number[]} nums
+* @return {boolean[]}
+*/
+var prefixesDivBy5 = function(nums) {
+ const result = [];
+ let prefixMod = 0; // current value modulo 5
+
+ for (let i = 0; i < nums.length; i++) {
+     prefixMod = (prefixMod * 2 + nums[i]) % 5;
+     result.push(prefixMod === 0);
+ }
+
+ return result;
+};
+```
+
+## 🎯 Reflection
+
+This problem is a great reminder that:
+
+- You don’t always need the **exact number** — sometimes the **remainder** is enough
+    
+- Modular arithmetic is a powerful tool for avoiding overflow
+    
+- Even “easy” problems can teach strong **math + bitwise reasoning**
+    
+
+That’s it for **Day 70** of my LeetCode challenge 💪  
+Keep iterating, one bit (and one day) at a time ⚡
+
+**Happy Coding 👨‍💻**

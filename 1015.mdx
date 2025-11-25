@@ -1,0 +1,115 @@
+---
+title: LeetCode Challenge Day 71 — 1015. Smallest Integer Divisible by K  
+summary: Day 71 of my LeetCode challenge! Today's problem is "Smallest Integer Divisible by K" — a clever math problem where we find the smallest repunit (number made of only 1's) divisible by K using modular arithmetic and the pigeonhole principle.  
+solution: https://leetcode.com/problems/smallest-integer-divisible-by-k/solutions/7374100/1015-smallest-integer-divisible-by-k-by-onk6u
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-25  
+tags: ["LeetCode Challenge", "Day 71", "Math", "Modular Arithmetic", "Number Theory", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 71** of my LeetCode streak 🚀  
+Today's problem is **1015. Smallest Integer Divisible by K** — a **medium** problem that beautifully demonstrates the power of **modular arithmetic** and the **pigeonhole principle** to solve what initially seems like a brute-force problem.
+
+---
+
+## 📌 Problem Statement  
+Given a positive integer `k`, you need to find the **length** of the smallest positive integer `n` such that `n` is divisible by `k`, **and** `n` only contains the digit **1**.
+
+Return the **length** of `n`. If there is no such `n`, return `-1`.
+
+**Note:** `n` may not fit in a 64-bit signed integer.
+
+**Example:**  
+```
+Input: k = 3  
+Output: 3  
+Explanation: The smallest repunit divisible by 3 is 111 (length 3)
+
+Input: k = 2  
+Output: -1  
+Explanation: No repunit can be divisible by 2 (they're all odd)
+```
+
+---
+
+## 💡 Intuition  
+We're looking for repunits: numbers like 1, 11, 111, 1111, etc. The key insight is that we can't build these numbers directly (they overflow quickly), but we can track their **remainders modulo k**.
+
+Two critical observations:
+1. **Early termination**: Repunits are always odd and never end in 0 or 5, so they can't be divisible by 2 or 5. If k has factors of 2 or 5, return -1 immediately.
+
+2. **Pigeonhole principle**: There are only k possible remainders (0 to k-1). After at most k iterations, we must either find remainder 0 (success) or repeat a remainder (impossible case).
+
+Instead of building actual numbers, we compute:
+```
+newRemainder = (oldRemainder * 10 + 1) % k
+```
+This simulates appending a '1' digit without overflow.
+
+---
+
+## 🔑 Approach  
+1. **Quick rejection**: If k is divisible by 2 or 5, return -1 immediately.
+
+2. **Iterative remainder tracking**:
+   - Start with `remainder = 0`
+   - For each length from 1 to k:
+     - Update: `remainder = (remainder * 10 + 1) % k`
+     - If remainder becomes 0, we found our answer — return current length
+
+3. **Pigeonhole guarantee**: By trying up to k lengths, we're guaranteed to either find a solution or prove none exists.
+
+**Why this works:**  
+- `remainder * 10 + 1` simulates going from n to n*10 + 1 (e.g., 11 → 111)
+- Taking mod k keeps numbers manageable and avoids overflow
+- The pigeonhole principle ensures we don't need to check beyond k iterations
+
+---
+
+## ⏱️ Complexity Analysis  
+| Complexity | Value |
+|-----------|--------|
+| Time      | $$O(k)$$ |
+| Space     | $$O(1)$$ |
+
+We iterate at most k times, and only use constant extra space for the remainder variable.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+```javascript
+/**
+ * @param {number} k
+ * @return {number}
+ */
+var smallestRepunitDivByK = function(k) {
+    // Shortcut: numbers made of only '1's cannot be divisible by 2 or 5
+    if (k % 2 === 0 || k % 5 === 0) return -1;
+
+    let rem = 0;
+    // Try lengths from 1 up to k (pigeonhole ensures correctness)
+    for (let len = 1; len <= k; len++) {
+        rem = (rem * 10 + 1) % k;
+        if (rem === 0) return len;
+    }
+    return -1;
+};
+```
+
+---
+
+## 🎯 Reflection
+This problem is a beautiful example of how **mathematical insights** can transform an apparently difficult problem into an elegant solution:
+
+- **Modular arithmetic** prevents overflow while preserving divisibility properties
+- The **pigeonhole principle** gives us a guaranteed upper bound on iterations
+- **Number theory** tells us which cases are impossible from the start
+
+Even though we're looking for potentially massive numbers, we never need to store anything larger than k!
+
+That's it for **Day 71** of my LeetCode challenge 💪  
+Keep solving, one remainder at a time ⚡
+
+**Happy Coding 👨‍💻**

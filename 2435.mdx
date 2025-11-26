@@ -1,0 +1,162 @@
+---
+title: LeetCode Challenge Day 72 — 2435. Paths in Matrix Whose Sum Is Divisible by K  
+summary: Day 72 of my LeetCode challenge! Today's problem is "Paths in Matrix Whose Sum Is Divisible by K" — a dynamic programming problem where we track path sums modulo k across a grid using optimized rolling DP.  
+solution: https://leetcode.com/problems/paths-in-matrix-whose-sum-is-divisible-by-k/solutions/7375935/2435-paths-in-matrix-whose-sum-is-divisi-2gca
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-26  
+tags: ["LeetCode Challenge", "Day 72", "Dynamic Programming", "Grid DP", "Modulo Arithmetic", "JavaScript", "Hard"]  
+---
+
+## Hey folks 👋  
+This is **Day 72** of my LeetCode streak 🚀  
+Today's problem is **2435. Paths in Matrix Whose Sum Is Divisible by K** — a **hard** but elegant dynamic programming problem where we count paths while tracking remainders modulo `k`.
+
+---
+
+## 📌 Problem Statement  
+Given an `m x n` grid, starting at `(0,0)` and moving only **right** or **down**, return the number of paths to `(m−1, n−1)` such that the **sum of values along the path is divisible by k**.
+
+Since the result may be large, return it modulo **10⁹ + 7**.
+```
+Example:  
+grid = [[5,2,4],  
+[3,0,5],  
+[0,7,2]], k = 3  
+Output: 2
+```
+
+
+---
+
+## 💡 Intuition  
+The problem asks us to count paths where the sum is divisible by `k`.  
+Since path sums grow large, the key is:  
+➡️ **Only the remainder modulo k matters**.
+
+For each cell, we track how many ways we can reach it with each possible remainder from `0` to `k-1`.
+
+---
+
+## 🔑 Approach  
+
+### ✔️ DP State  
+`dp[j][r]` → number of ways to reach column `j` (in the current row) such that  
+the path sum modulo `k` equals `r`.
+
+We use a **rolling DP** to keep memory small.
+
+---
+
+### ✔️ Transition  
+From cell `(i, j)` with value `val = grid[i][j] % k`:
+
+We can come from:
+- **Top** → previous row, same column → `dp[j]`
+- **Left** → current row, previous column → `dp[j-1]`
+
+For every remainder `r`:
+```
+newR = (r + val) % k  
+cur[newR] += dpPrev[r]
+```
+
+
+---
+
+### ✔️ Base Case  
+At `(0,0)`:
+```
+dp[0][ grid[0][0] % k ] = 1
+```
+
+---
+
+### ✔️ Final Answer  
+The total number of valid paths is:
+```
+dp[n - 1][0]
+```
+
+
+Paths ending with remainder `0` → sum divisible by `k`.
+
+---
+
+## ⏱️ Complexity Analysis  
+| Complexity | Value |
+|-----------|--------|
+| Time      | O(m × n × k) |
+| Space     | O(n × k) |
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[][]} grid
+ * @param {number} k
+ * @return {number}
+ */
+var numberOfPaths = function(grid, k) {
+    const MOD = 1_000_000_007;
+    const m = grid.length;
+    const n = grid[0].length;
+
+    // dp[j] will be an array of length k: counts for column j
+    const dp = new Array(n);
+    for (let j = 0; j < n; j++) dp[j] = new Array(k).fill(0);
+
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            const val = grid[i][j] % k;
+            const cur = new Array(k).fill(0);
+
+            if (i === 0 && j === 0) {
+                // start cell
+                cur[val] = 1;
+            } else {
+                // from top (previous row): dp[j] currently holds previous row counts for column j
+                if (i > 0) {
+                    const top = dp[j];
+                    for (let r = 0; r < k; r++) {
+                        if (top[r] === 0) continue;
+                        const nr = (r + val) % k;
+                        cur[nr] = (cur[nr] + top[r]) % MOD;
+                    }
+                }
+                // from left (current row): dp[j-1] was already updated to current row
+                if (j > 0) {
+                    const left = dp[j - 1];
+                    for (let r = 0; r < k; r++) {
+                        if (left[r] === 0) continue;
+                        const nr = (r + val) % k;
+                        cur[nr] = (cur[nr] + left[r]) % MOD;
+                    }
+                }
+            }
+
+            dp[j] = cur; // set column j to current row's counts
+        }
+    }
+
+    // answer: number of paths to bottom-right with remainder 0
+    return dp[n - 1][0] % MOD;
+};
+```
+
+## 🎯 Reflection
+
+This problem showcases how **modulo-based DP** helps manage large sums efficiently.  
+By tracking only remainders, we dramatically reduce computation and memory.
+
+✔ Rolling DP saves space  
+✔ Remainder states avoid overflow  
+✔ Clean transitions make a complex problem manageable
+
+That's it for **Day 72** of my LeetCode challenge 💪  
+See you tomorrow!
+
+**Happy Coding 👨‍💻**
+

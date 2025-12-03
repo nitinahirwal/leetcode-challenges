@@ -1,0 +1,137 @@
+---
+
+title: LeetCode Challenge Day 73 — Max Subarray Sum With Length Divisible by K  
+summary: Day 73 of my LeetCode challenge! Today's problem is about finding the maximum subarray sum such that the subarray length is divisible by k — solved efficiently using prefix sums and modulo arithmetic.  
+solution: https://leetcode.com/problems/maximum-subarray-sum-with-length-divisible-by-k/solutions/7388974/3381-maximum-subarray-sum-with-length-di-7axr  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-27  
+tags: ["LeetCode Challenge", "Day 73", "Prefix Sum", "Modulo Arithmetic", "JavaScript", "Medium"]
+
+---
+
+## Hey folks 👋
+
+This is **Day 73** of my LeetCode streak 🚀  
+Today's problem is **Max Subarray Sum With Length Divisible by K** — a clean and elegant prefix-sum-based problem leveraging modulo arithmetic.
+
+---
+
+## 📌 Problem Statement
+
+Given an array `nums` and an integer `k`, return the **maximum subarray sum** such that the **length of the subarray is divisible by k**.
+
+A subarray qualifies only if:
+
+```
+(subarray_end - subarray_start + 1) % k === 0
+```
+
+---
+
+## 💡 Intuition
+
+To get subarrays whose lengths are divisible by `k`, we use a key observation:
+
+➡️ If two prefix sums appear at indices `i` and `j` where:
+
+```
+(i - j) % k === 0
+```
+
+then the subarray between them has **length divisible by k**.
+
+This leads to a powerful idea:
+
+- Group prefix sums by their **index % k**.
+    
+- For each remainder `r`, store the **minimum prefix sum** seen so far.
+    
+- At index `i`, with prefix `pref` and residue `r`, the best subarray ending here is:
+    
+
+```
+pref - minPref[r]
+```
+
+---
+
+## 🔑 Approach
+
+1. Maintain a running prefix sum `pref`.
+    
+2. Track an array `minPref[k]` storing minimum prefix sum for each residue class.
+    
+3. Initialize `minPref[0] = 0` for the empty prefix.
+    
+4. For each index `i`:
+    
+    - Compute `r = i % k`
+        
+    - If we have a previous prefix with the same `r`, compute a candidate maximum.
+        
+    - Update `minPref[r]` with the smallest prefix sum so far.
+        
+
+This reduces the problem to simple arithmetic while ensuring O(n) performance.
+
+---
+
+## ⏱️ Complexity Analysis
+
+|Complexity|Value|
+|---|---|
+|Time|O(n)|
+|Space|O(k)|
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var maxSubarraySum = function(nums, k) {
+    const n = nums.length;
+    const minPref = new Array(k).fill(Number.POSITIVE_INFINITY);
+    minPref[0] = 0;
+
+    let pref = 0;
+    let ans = Number.NEGATIVE_INFINITY;
+
+    for (let i = 1; i <= n; i++) {
+        pref += nums[i - 1];
+        const r = i % k;
+
+        if (minPref[r] !== Number.POSITIVE_INFINITY) {
+            const candidate = pref - minPref[r];
+            if (candidate > ans) ans = candidate;
+        }
+
+        if (pref < minPref[r]) minPref[r] = pref;
+    }
+
+    return ans;
+};
+```
+
+---
+
+## 🎯 Reflection
+
+This problem elegantly demonstrates how **prefix sums + modulo arithmetic** can simplify constraints involving subarray lengths.
+
+- ✔ Avoids brute-force O(n²)
+    
+- ✔ Only `k` prefix values tracked
+    
+- ✔ Clean and efficient O(n) solution
+    
+
+That's it for **Day 73** of my LeetCode challenge 💪  
+Catch you tomorrow!
+
+**Happy Coding 👨‍💻**

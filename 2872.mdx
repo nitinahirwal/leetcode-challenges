@@ -1,0 +1,148 @@
+---
+
+title: LeetCode Challenge Day 74 — 2872.Max K-Divisible Components  
+summary: Day 74 of my LeetCode challenge! Today's problem is about splitting a tree into the maximum number of components such that each component's sum is divisible by k — solved using DFS, subtree sums, and greedy cuts.  
+solution: https://leetcode.com/problems/maximum-number-of-k-divisible-components/solutions/7389012/2872-maximum-number-of-k-divisible-compo-drzw  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-28  
+tags: ["LeetCode Challenge", "Day 74", "Tree", "DFS", "Subtree Sum", "Modulo Arithmetic", "JavaScript", "Medium"]
+
+---
+
+## Hey folks 👋
+
+This is **Day 74** of my LeetCode streak 🚀  
+Today's problem is **K-Divisible Components** — a tree DP/DFS problem where we compute subtree sums and greedily cut edges to form valid components.
+
+---
+
+## 📌 Problem Statement
+
+You are given a tree with `n` nodes, an array `values[]` where each node has a value, and an integer `k`.
+
+Your task: **split the tree into the maximum possible number of connected components such that the sum of each component is divisible by k.**
+
+You may delete edges to form these components.
+
+---
+
+## 💡 Intuition
+
+A subtree can form an independent component **if its total sum is divisible by k**.  
+So while doing a postorder traversal:
+
+- If the subtree rooted at a node has sum divisible by `k`, we can "cut" the edge to its parent.
+    
+- Cutting does NOT affect any other subtree sums above it.
+    
+- This greedy approach works because removing a divisible subtree never harms ancestor decisions.
+    
+
+Thus, compute subtree sums bottom-up and count how many such divisible subtrees exist.
+
+---
+
+## 🔑 Approach
+
+1. Build an adjacency list from the edges.
+    
+2. Root the tree at node `0` using an iterative DFS.
+    
+3. Store nodes in DFS order, then process in **reverse** for postorder.
+    
+4. For each node:
+    
+    - Add its children's subtree sums.
+        
+    - If its total subtree sum is divisible by `k` → increment cut count and do NOT pass its sum up.
+        
+    - Otherwise → add its sum to the parent.
+        
+5. Final answer = `cuts + 1`.
+    
+
+---
+
+## ⏱️ Complexity Analysis
+
+|Complexity|Value|
+|---|---|
+|Time|O(n)|
+|Space|O(n)|
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number} n
+ * @param {number[][]} edges
+ * @param {number[]} values
+ * @param {number} k
+ * @return {number}
+ */
+var maxKDivisibleComponents = function(n, edges, values, k) {
+    // build adjacency list
+    const adj = Array.from({length: n}, () => []);
+    for (const [a,b] of edges) {
+        adj[a].push(b);
+        adj[b].push(a);
+    }
+
+    // iterative DFS to produce a parent array and postorder list
+    const parent = new Array(n).fill(-2);
+    const order = [];
+    const stack = [0];
+    parent[0] = -1;
+    while (stack.length) {
+        const u = stack.pop();
+        order.push(u);
+        for (const v of adj[u]) {
+            if (parent[v] === -2) {
+                parent[v] = u;
+                stack.push(v);
+            }
+        }
+    }
+
+    // order currently is preorder; process in reverse for postorder accumulation
+    const subtreeSum = new Array(n).fill(0);
+    for (let i = 0; i < n; ++i) subtreeSum[i] = values[i];
+
+    let cuts = 0;
+    for (let i = order.length - 1; i >= 0; --i) {
+        const node = order[i];
+        const p = parent[node];
+        // if not root and subtree sum divisible by k -> we can cut here
+        if (node !== 0 && subtreeSum[node] % k === 0) {
+            cuts += 1;
+        } else {
+            // pass the subtree sum up to parent (if parent exists)
+            if (p !== -1) subtreeSum[p] += subtreeSum[node];
+        }
+    }
+
+    // number of components = cuts + 1
+    return cuts + 1;
+};
+```
+
+---
+
+## 🎯 Reflection
+
+This problem highlights a clean use of **tree DFS + greedy cuts based on modulo properties**.
+
+- ✔ Efficient: Only one DFS + one postorder pass.
+    
+- ✔ Greedy works due to subtree isolation.
+    
+- ✔ Perfect example of how modular arithmetic blends with tree processing.
+    
+
+That's it for **Day 74** of my LeetCode challenge 💪  
+Catch you tomorrow!
+
+**Happy Coding 👨‍💻**

@@ -1,0 +1,93 @@
+---
+
+title: LeetCode Challenge Day 75 — 3512.Minimum Operations to Make Array Sum Divisible by K  
+summary: Day 75 of my LeetCode challenge! Today's problem is about determining the minimum number of operations needed to make the sum of an array divisible by k — solved using a simple mathematical observation.  
+solution: https://leetcode.com/problems/minimum-operations-to-make-array-sum-divisible-by-k/solutions/7389039/3512-minimum-operations-to-make-array-su-obxb 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-11-29  
+tags: ["LeetCode Challenge", "Day 75", "Math", "Modulo Arithmetic", "JavaScript", "Easy"]
+
+---
+
+## Hey folks 👋
+
+This is **Day 75** of my LeetCode streak 🚀  
+Today's problem is **Minimum Operations to Make Array Sum Divisible by K** — one of the cleanest math-based problems in the series.
+
+---
+
+## 📌 Problem Statement
+
+You are given an array `nums` and an integer `k`.  
+Your task: **find the minimum number of operations needed to make the sum of the array divisible by k.**
+
+Each operation allows you to increment any element by `1`.
+
+---
+
+## 💡 Intuition
+
+To make the total sum divisible by `k`, we only need to check:
+
+```
+remainder = sum(nums) % k
+```
+
+If `remainder == 0`, the sum is already divisible → **0 operations**.  
+Otherwise, we need exactly `remainder` increments to reach the next multiple of `k`.
+
+This works because every increment increases the total sum by `1`.
+
+---
+
+## 🔑 Approach
+
+1. Compute the total sum of the array.
+    
+2. Return `sum % k` — the remainder directly represents the number of operations needed.
+    
+
+This solution is optimal because increments are the only allowed operation.
+
+---
+
+## ⏱️ Complexity Analysis
+
+---
+ComplexityValue
+TimeO(n)
+SpaceO(1)
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number}
+ */
+var minOperations = function(nums, k) {
+    const sum = nums.reduce((a, b) => a + b, 0);
+    return sum % k;
+};
+```
+
+---
+
+## 🎯 Reflection
+
+This is a perfect example of how **simple modulo arithmetic** can turn a problem into a one-line solution.
+
+- ✔ No complex logic
+    
+- ✔ Pure math
+    
+- ✔ Runs in linear time with constant space
+    
+
+That's it for **Day 75** of my LeetCode challenge 💪  
+See you tomorrow!
+
+**Happy Coding 👨‍💻**

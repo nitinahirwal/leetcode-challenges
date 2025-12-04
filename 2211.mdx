@@ -1,0 +1,139 @@
+---
+title: LeetCode Challenge Day 80 — 2211. Count Collisions on a Road  
+summary: Day 80 of my LeetCode challenge! Today’s problem is "Count Collisions on a Road" — an interesting simulation problem where recognizing patterns allows us to avoid simulating each step and instead derive collisions mathematically.  
+solution: https://leetcode.com/problems/count-collisions-on-a-road/solutions/7391776/2211-count-collisions-on-a-road-by-nitin-nwud 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-04  
+tags: ["LeetCode Challenge", "Day 80", "Greedy", "Simulation", "Patterns", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+
+This is **Day 80** of my LeetCode streak 🚀  
+Today’s problem is **2211. Count Collisions on a Road** — a clever simulation-based problem that becomes surprisingly simple once you observe how cars behave at the boundaries.
+
+---
+
+## 📌 Problem Statement  
+
+You are given a string `directions` where each character represents the movement of a car:
+
+- `'L'` → moves left  
+- `'R'` → moves right  
+- `'S'` → stationary  
+
+Cars move at the same speed. When a collision happens:
+- Both cars stop permanently.
+- Collisions with opposite directions add **2** to the count.
+- Collisions with stationary or already stopped cars add **1**.
+
+Return the **total number of collisions** that will occur.
+
+---
+
+## 💡 Intuition  
+
+Some cars will **never collide**, no matter what:
+
+- Leading `'L'` cars at the **left** keep moving outward and escape.
+- Trailing `'R'` cars at the **right** also escape outward.
+
+Once these harmless cars are ignored, every remaining `'L'` or `'R'` in the middle zone is **forced to collide** with another car or obstacle.
+
+Thus:
+
+> Remove leading `'L'` and trailing `'R'`.  
+> Count how many `'L'` or `'R'` remain.  
+> Each such moving car contributes exactly **1 collision**.
+
+This avoids full simulation and reduces the problem to a **substring and counting** task.
+
+---
+
+## 🔑 Approach  
+
+1. Use two pointers to skip:
+   - All starting `'L'` cars  
+   - All ending `'R'` cars  
+2. In the remaining substring `directions[i…j]`, every `'L'` or `'R'` will collide.  
+3. Count non-`'S'` characters (i.e., `'L'` and `'R'`).  
+4. That count equals the total number of collisions.
+
+This is optimal and avoids unnecessary simulation.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  \( O(n) \) —  
+  We scan the string at most twice.
+
+- **Space Complexity:**  
+  \( O(1) \) —  
+  Uses only a few pointer variables.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {string} directions
+ * @return {number}
+ */
+var countCollisions = function(directions) {
+    const n = directions.length;
+    let i = 0, j = n - 1;
+
+    // Skip leading 'L' cars (they escape left)
+    while (i < n && directions[i] === 'L') i++;
+
+    // Skip trailing 'R' cars (they escape right)
+    while (j >= 0 && directions[j] === 'R') j--;
+
+    if (i > j) return 0; // No collision zone
+
+    let collisions = 0;
+
+    // Count all moving cars in the collision segment
+    for (let k = i; k <= j; k++) {
+        if (directions[k] !== 'S') collisions++;
+    }
+
+    return collisions;
+};
+```
+
+### 🧩 Example Walkthrough
+
+Input:
+
+`"RLRSLL"`
+
+Process:
+
+`Initial directions: R L R S L L Skip none (no leading L or trailing R) Middle segment: whole string  Count of moving cars (R/L): 5 → Total collisions = 5`
+
+Output:
+
+`5`
+
+### 🎯 Reflection
+
+This problem rewards **pattern recognition** over brute-force simulation.  
+The two key insights are:
+
+- Cars moving outward from the edges never collide
+    
+- All middle cars that move must eventually collide
+    
+
+Once this is clear, the solution becomes a simple counting problem.  
+A great example of how breaking a problem into logical zones simplifies everything!
+
+That’s it for **Day 80** of my LeetCode challenge 💪  
+See you in the next one!
+
+**Happy Coding 👨‍💻**

@@ -1,0 +1,135 @@
+---
+title: LeetCode Challenge Day 81 — 3432. Count Partitions with Even Sum Difference. 
+summary: A surprisingly simple problem once you recognize the parity trick! Instead of checking every partition, we use number theory to determine instantly whether all or none of the partitions are valid.  
+solution: https://leetcode.com/problems/count-partitions-with-even-sum-difference/solutions/7394057/3432-count-partitions-with-even-sum-diff-d7fe 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-05  
+tags: ["LeetCode Challenge", "Math", "Parity", "Prefix Sum", "JavaScript", "Easy"]  
+---
+
+## Hey folks 👋  
+
+Today’s problem is **3432. Count Partitions with Even Sum Difference** —  
+an elegant math-based problem where a single insight lets you solve it in **O(n)** without checking each partition individually.
+
+---
+
+## 📌 Problem Statement  
+
+You are given an integer array `nums` of length `n`.  
+A partition at index `i` splits the array into:
+
+- Left: `nums[0…i]`  
+- Right: `nums[i+1…n-1]`  
+
+A partition is **valid** if:
+
+\[
+\left(\text{sum(left)} - \text{sum(right)}\right)
+\]
+
+is **even**.
+
+Return the **number of valid partitions**.
+
+---
+
+## 💡 Intuition  
+
+Let:
+
+- `L = sum(left)`
+- `R = sum(right)`
+- `S = total sum = L + R`
+
+The difference is:
+
+\[
+\text{diff} = L - R = L - (S - L) = 2L - S
+\]
+
+Here’s the key observation:
+
+### ✅ `2L` is always even  
+So the parity of `diff` depends **only on `S`**.
+
+Therefore:
+
+- If **total sum `S` is even → diff is always even → all `(n - 1)` partitions are valid**
+- If **total sum `S` is odd → diff is always odd → no partition works**
+
+This turns the problem into a simple sum and parity check!
+
+---
+
+## 🔑 Approach  
+
+1. Compute the total sum `S` of the array.
+2. If `S` is **even**, return `n - 1` — because every split works.
+3. If `S` is **odd**, return `0` — because no split can produce an even difference.
+4. Done.
+
+No prefix sums, no checking each split, nothing complicated.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  \( O(n) \) — Only the array sum is computed.
+
+- **Space Complexity:**  
+  \( O(1) \)
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript []
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var countPartitions = function(nums) {
+    const n = nums.length;
+    let total = 0;
+    for (let x of nums) total += x;
+    return (total % 2 === 0) ? (n - 1) : 0;
+};
+```
+
+## 🧩 Example Walkthrough
+
+### Example
+
+Input:  
+`[10, 10, 3, 7, 6]`  
+Total sum = 36 → even  
+Partitions = `n - 1 = 4`
+
+Output:  
+`4`
+
+### Example
+
+Input:  
+`[1, 2, 2]`  
+Total sum = 5 → odd  
+No valid partitions.
+
+Output:  
+`0`
+
+---
+
+## 🎯 Reflection
+
+This problem is a perfect example of how **mathematical reasoning** can simplify what first appears to be a brute-force task.
+
+Instead of iterating through partition sums, a quick parity insight collapses the entire problem into a **one-line condition**.
+
+That’s it for today’s challenge!  
+See you in the next one 🚀
+
+**Happy Coding 👨‍💻**

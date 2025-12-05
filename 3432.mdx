@@ -1,37 +1,36 @@
 ---
-title: LeetCode Challenge Day 81 — 3432. Count Partitions with Even Sum Difference. 
-summary: A surprisingly simple problem once you recognize the parity trick! Instead of checking every partition, we use number theory to determine instantly whether all or none of the partitions are valid.  
+title: LeetCode Challenge Day 81 — 3432. Count Partitions with Even Sum Difference  
+summary: Day 81 of my LeetCode challenge! Today’s problem is "Count Partitions with Even Sum Difference" — a fun parity-based problem where a single mathematical observation lets us skip checking all partitions and solve it instantly.  
 solution: https://leetcode.com/problems/count-partitions-with-even-sum-difference/solutions/7394057/3432-count-partitions-with-even-sum-diff-d7fe 
 image:  
 author: Nitin Ahirwal  
 publishedAt: 2025-12-05  
-tags: ["LeetCode Challenge", "Math", "Parity", "Prefix Sum", "JavaScript", "Easy"]  
+tags: ["LeetCode Challenge", "Day 81", "Math", "Parity", "Patterns", "JavaScript", "Easy"]  
 ---
 
 ## Hey folks 👋  
 
-Today’s problem is **3432. Count Partitions with Even Sum Difference** —  
-an elegant math-based problem where a single insight lets you solve it in **O(n)** without checking each partition individually.
+This is **Day 81** of my LeetCode streak 🚀  
+Today’s problem is **3432. Count Partitions with Even Sum Difference** — a clean and elegant math-based problem.
 
 ---
 
 ## 📌 Problem Statement  
 
-You are given an integer array `nums` of length `n`.  
+You are given an integer array `nums` of length `n`.
+
 A partition at index `i` splits the array into:
 
-- Left: `nums[0…i]`  
-- Right: `nums[i+1…n-1]`  
+- Left subarray: `nums[0..i]`  
+- Right subarray: `nums[i+1..n-1]`  
 
-A partition is **valid** if:
+A partition is valid if:
 
-\[
-\left(\text{sum(left)} - \text{sum(right)}\right)
-\]
+sum(left) - sum(right)
 
-is **even**.
+is even.
 
-Return the **number of valid partitions**.
+Return the number of valid partitions.
 
 ---
 
@@ -39,54 +38,43 @@ Return the **number of valid partitions**.
 
 Let:
 
-- `L = sum(left)`
-- `R = sum(right)`
-- `S = total sum = L + R`
+- L = sum(left)  
+- R = sum(right)  
+- S = total sum = L + R  
 
-The difference is:
+Then:
 
-\[
-\text{diff} = L - R = L - (S - L) = 2L - S
-\]
+diff = L - R = 2L - S
 
-Here’s the key observation:
+Since `2L` is always even, the parity of the result depends **only on S**.
 
-### ✅ `2L` is always even  
-So the parity of `diff` depends **only on `S`**.
+- If S is even → all partitions result in an even difference → valid = n - 1  
+- If S is odd → no partition results in an even difference → valid = 0  
 
-Therefore:
-
-- If **total sum `S` is even → diff is always even → all `(n - 1)` partitions are valid**
-- If **total sum `S` is odd → diff is always odd → no partition works**
-
-This turns the problem into a simple sum and parity check!
+This is the key observation that simplifies the problem completely.
 
 ---
 
 ## 🔑 Approach  
 
-1. Compute the total sum `S` of the array.
-2. If `S` is **even**, return `n - 1` — because every split works.
-3. If `S` is **odd**, return `0` — because no split can produce an even difference.
-4. Done.
+1. Compute the total sum S.  
+2. If S is even, return n - 1.  
+3. If S is odd, return 0.  
 
-No prefix sums, no checking each split, nothing complicated.
+No prefix sums needed, no checking every index.
 
 ---
 
 ## ⏱️ Complexity Analysis  
 
-- **Time Complexity:**  
-  \( O(n) \) — Only the array sum is computed.
-
-- **Space Complexity:**  
-  \( O(1) \)
+- Time Complexity: O(n)  
+- Space Complexity: O(1)
 
 ---
 
 ## 🧑‍💻 Code (JavaScript)
 
-```javascript []
+```javascript
 /**
  * @param {number[]} nums
  * @return {number}
@@ -101,35 +89,28 @@ var countPartitions = function(nums) {
 
 ## 🧩 Example Walkthrough
 
-### Example
+Input:  
+[10, 10, 3, 7, 6]  
+Total = 36 (even)  
+Valid partitions = 4
+
+Output: 4
 
 Input:  
-`[10, 10, 3, 7, 6]`  
-Total sum = 36 → even  
-Partitions = `n - 1 = 4`
+[1, 2, 2]  
+Total = 5 (odd)  
+Valid partitions = 0
 
-Output:  
-`4`
-
-### Example
-
-Input:  
-`[1, 2, 2]`  
-Total sum = 5 → odd  
-No valid partitions.
-
-Output:  
-`0`
+Output: 0
 
 ---
 
 ## 🎯 Reflection
 
-This problem is a perfect example of how **mathematical reasoning** can simplify what first appears to be a brute-force task.
+This problem shows how math can simplify logic-heavy tasks.  
+Instead of evaluating every partition, a simple parity check solves everything in constant time.
 
-Instead of iterating through partition sums, a quick parity insight collapses the entire problem into a **one-line condition**.
-
-That’s it for today’s challenge!  
-See you in the next one 🚀
+That’s it for **Day 81** of my LeetCode challenge 💪  
+See you tomorrow!
 
 **Happy Coding 👨‍💻**

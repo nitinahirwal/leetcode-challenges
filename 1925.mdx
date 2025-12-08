@@ -1,0 +1,113 @@
+---
+title: LeetCode Challenge Day 84 — 1925. Count Square Sum Triples  
+summary: Day 84 of my LeetCode challenge! Today's problem is "Count Square Sum Triples" — a simple yet insightful math problem where we count Pythagorean triples within a given range using precomputation and brute force.  
+solution: https://leetcode.com/problems/count-square-sum-triples/solutions/7400721/1925-count-square-sum-triples-by-nitinah-f3hf  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-08  
+tags: ["LeetCode Challenge", "Day 84", "Math", "Brute Force", "Pythagorean Triples", "JavaScript", "Easy"]  
+---
+
+## Hey folks 👋  
+This is **Day 84** of my LeetCode streak 🚀  
+Today's problem is **1925. Count Square Sum Triples** — an **easy** problem that revisits the classic **Pythagorean theorem** with clean constraints and a straightforward approach.
+
+---
+
+## 📌 Problem Statement  
+A **square triple** `(a, b, c)` is defined such that:
+`a² + b² = c²`
+
+Given an integer `n`, count how many such ordered triples exist where:
+`1 ≤ a, b, c ≤ n`
+
+**Example:**  
+```Input: n = 5  
+Output: 2  
+Explanation: (3,4,5) and (4,3,5)
+
+Input: n = 10  
+Output: 4  
+Explanation: (3,4,5), (4,3,5), (6,8,10), (8,6,10)`
+```
+---
+
+## 💡 Intuition  
+The equation `a² + b² = c²` directly points to **Pythagorean triples**.
+
+Since the constraint is small (`n ≤ 250`), we don’t need any advanced math optimizations.  
+The key idea is:
+- Try all possible values of `a` and `b`
+- Check if `a² + b²` forms a perfect square `c²` within range
+
+To make this check fast, we can **precompute all squares** from `1²` to `n²`.
+
+---
+
+## 🔑 Approach  
+1. Precompute a set of squares of all numbers from `1` to `n`.
+2. Iterate through all ordered pairs `(a, b)` where `1 ≤ a, b ≤ n`.
+3. Calculate `a² + b²` for each pair.
+4. If this value exists in the square set, it means:
+`a² + b² = c² (for some 1 ≤ c ≤ n)`
+so we count it as a valid square triple.
+5. Return the final count.
+
+**Important note:**  
+- `(a, b, c)` and `(b, a, c)` are treated as **different triples**, which is why both are counted.
+
+---
+
+## ⏱️ Complexity Analysis  
+| Complexity | Value |
+|----------|-------|
+| Time     | $$O(n^2)$$ |
+| Space    | $$O(n)$$ |
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+```javascript
+/**
+* @param {number} n
+* @return {number}
+*/
+var countTriples = function(n) {
+ // Precompute all squares from 1 to n
+ const squares = new Set();
+ for (let c = 1; c <= n; c++) {
+     squares.add(c * c);
+ }
+
+ let count = 0;
+
+ // Check all ordered pairs (a, b)
+ for (let a = 1; a <= n; a++) {
+     for (let b = 1; b <= n; b++) {
+         const sum = a * a + b * b;
+         if (squares.has(sum)) {
+             count++;
+         }
+     }
+ }
+
+ return count;
+};
+```
+
+## 🎯 Reflection
+
+This problem is a nice reminder that:
+
+- Constraints guide the solution approach
+    
+- Precomputation can turn expensive checks into constant-time operations
+    
+- Classic math concepts often appear in competitive programming
+    
+
+That’s it for **Day 84** of my LeetCode challenge 💪  
+Streak continues 🔥
+
+**Happy Coding 👨‍💻**
+

@@ -1,0 +1,149 @@
+---
+title: LeetCode Challenge Day 85 — 3583. Count Special Triplets  
+summary: Day 85 of my LeetCode challenge! Today's problem is "Count Special Triplets" — a medium problem that focuses on counting index-based triplets efficiently using frequency counting and prefix logic.  
+solution: https://leetcode.com/problems/count-special-triplets/solutions/7402925/3583-count-special-triplets-by-nitinahir-i25j 
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-09  
+tags: ["LeetCode Challenge", "Day 85", "Arrays", "Frequency Counting", "Prefix Technique", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 85** of my LeetCode streak 🚀  
+Today's problem is **3583. Count Special Triplets** — a **medium** problem that rewards careful observation and an efficient counting strategy.
+
+---
+
+## 📌 Problem Statement  
+You are given an integer array `nums`.
+
+A **special triplet** `(i, j, k)` must satisfy:
+
+- `0 ≤ i < j < k < n`
+- `nums[i] = nums[j] * 2`
+- `nums[k] = nums[j] * 2`
+
+Return the **total number of special triplets**, modulo `10⁹ + 7`.
+
+**Example:**  
+```text
+Input: nums = [8,4,2,8,4]
+Output: 2
+Explanation:
+(0, 1, 3) → 8, 4, 8
+(1, 2, 4) → 4, 2, 4
+```
+## 💡 Intuition
+
+For every valid triplet, the middle element `nums[j]` determines the value of both `nums[i]` and `nums[k]`.
+
+So instead of brute-forcing all `(i, j, k)` combinations, we can:
+
+- Fix the **middle index `j`**
+    
+- Count how many times `nums[j] * 2` appears **before** `j`
+    
+- Count how many times `nums[j] * 2` appears **after** `j`
+    
+
+The number of valid triplets for that `j` is simply the product of these two counts.
+
+---
+
+## 🔑 Approach
+
+1. Maintain two frequency arrays:
+    
+    - `left[x]` → count of value `x` appearing **before** index `j`
+        
+    - `right[x]` → count of value `x` appearing **after** index `j`
+        
+2. Initialize `right` with the frequency of all elements.
+    
+3. Traverse the array from left to right, treating each index as `j`:
+    
+    - Remove `nums[j]` from `right`
+        
+    - Compute `target = nums[j] * 2`
+        
+    - Add `left[target] * right[target]` to the answer
+        
+    - Add `nums[j]` to `left`
+        
+4. Apply modulo `10⁹ + 7` throughout to prevent overflow.
+    
+
+This ensures each valid triplet is counted **once**, efficiently.
+
+## ⏱️ Complexity Analysis
+
+- **Time Complexity:**  
+  `O(n)` — We traverse the array once while doing constant-time operations.
+
+- **Space Complexity:**  
+  `O(U)` — Extra space is used for frequency arrays, where  
+  `U = 10^5` (maximum possible value in `nums`).
+
+## 🧑‍💻 Code (JavaScript)
+
+```
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var specialTriplets = function(nums) {
+    const MOD = 1_000_000_007;
+    const n = nums.length;
+    if (n < 3) return 0;
+
+    const MAX = 100000;
+
+    // right[x] = count of value x for indices > j
+    const right = new Array(MAX + 1).fill(0);
+    for (const v of nums) {
+        right[v]++;
+    }
+
+    // left[x] = count of value x for indices < j
+    const left = new Array(MAX + 1).fill(0);
+
+    let ans = 0;
+
+    for (let j = 0; j < n; j++) {
+        const v = nums[j];
+
+        // current element can no longer serve as k
+        right[v]--;
+
+        const target = v * 2;
+
+        if (target <= MAX) {
+            ans = (ans + (left[target] * right[target]) % MOD) % MOD;
+        }
+
+        // current element becomes available as i
+        left[v]++;
+    }
+
+    return ans;
+};
+
+```
+
+---
+
+## 🎯 Reflection
+
+This problem highlights how:
+
+- Fixing one index can dramatically simplify a multi-index problem
+    
+- Frequency counting + prefix/suffix thinking avoids brute force
+    
+- Index order constraints (`i < j < k`) matter just as much as values
+    
+
+That’s it for **Day 85** of my LeetCode challenge 💪  
+Streak continues 🔥
+
+**Happy Coding 👨‍💻**

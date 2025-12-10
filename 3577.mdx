@@ -1,0 +1,124 @@
+---
+title: LeetCode Challenge Day 86 — 3577. Count the Number of Computer Unlocking Permutations  
+summary: Day 86 of my LeetCode challenge! Today's problem is "Count the Number of Computer Unlocking Permutations" — a medium problem that boils down to a key observation about minimum values and factorial counting.  
+solution: https://leetcode.com/problems/count-the-number-of-computer-unlocking-permutations/solutions/7405154/3577-count-the-number-of-computer-unlock-sv0j
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-10  
+tags: ["LeetCode Challenge", "Day 86", "Math", "Permutations", "Greedy", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 86** of my LeetCode streak 🚀  
+Today's problem is **3577. Count the Number of Computer Unlocking Permutations** — a **medium** problem that rewards spotting a crucial constraint early.
+
+---
+
+## 📌 Problem Statement  
+
+You are given an array `complexity` of length `n`.
+
+There are `n` locked computers labeled from `0` to `n - 1`.  
+Computer `0` is already unlocked and acts as the **root**.
+
+A computer `i` can be unlocked using a previously unlocked computer `j` if:
+- `j < i`
+- `complexity[j] < complexity[i]`
+
+Your task is to count how many permutations of `[0, 1, 2, ..., n - 1]` represent a **valid unlocking order**.
+
+Return the result modulo `10⁹ + 7`.
+
+---
+
+## 💡 Intuition  
+
+The most important computer is the root: `0`.
+
+For **every other computer `i > 0`**, there must exist *some* computer before it with:
+- a smaller index
+- lower complexity
+- already unlocked
+
+If computer `0` is **not strictly smaller** than all other complexities, then at least one computer will never find a valid parent — making the answer **0**.
+
+But if `complexity[0]` is the **unique global minimum**, then:
+- Computer `0` can unlock *any* other computer directly
+- The remaining computers can be unlocked in **any order**
+
+That’s the key insight.
+
+---
+
+## 🔑 Approach  
+
+1. Check whether `complexity[0]` is the **strict smallest** element in the array.
+   - If any `complexity[i] ≤ complexity[0]` for `i > 0`, return `0`.
+
+2. If the condition holds:
+   - Computer `0` must be unlocked first
+   - The remaining `n - 1` computers can be unlocked in **any permutation**
+
+3. The total number of valid unlocking orders becomes:
+   - `(n - 1)!`
+
+4. Compute the factorial modulo `10⁹ + 7`.
+
+BigInt is used in JavaScript to safely handle large factorial values.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n)` — One pass for validation and one loop for factorial computation.
+
+- **Space Complexity:**  
+  `O(1)` — Constant extra space.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+```
+/**
+
+- @param {number[]} complexity
+    
+- @return {number}  
+    */  
+    var countPermutations = function(complexity) {  
+    const MOD = 1000000007n;  
+    const n = complexity.length;
+    
+    // Check that complexity[0] is the unique global minimum  
+    for (let i = 1; i < n; i++) {  
+    if (complexity[i] <= complexity[0]) {  
+    return 0;  
+    }  
+    }
+    
+    // Compute (n - 1)! % MOD using BigInt  
+    let res = 1n;  
+    for (let i = 2n; i <= BigInt(n - 1); i++) {  
+    res = (res * i) % MOD;  
+    }
+    
+    return Number(res);  
+    };
+```
+
+
+---
+
+## 🎯 Reflection  
+
+This problem is a great reminder that:
+- A **single constraint** can collapse a complex permutation problem into a simple formula
+- Validating impossibility early saves unnecessary computation
+- Sometimes, the entire problem hinges on **one special element**
+
+That’s it for **Day 86** of my LeetCode challenge 💪  
+Streak continues 🔥
+
+**Happy Coding 👨‍💻**
+

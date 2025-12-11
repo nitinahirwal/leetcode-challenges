@@ -1,0 +1,140 @@
+---
+title: LeetCode Challenge Day 87 — 3531. Count Covered Buildings  
+summary: Day 87 of my LeetCode challenge! Today's problem is "Count Covered Buildings" — a clean grid–geometry problem simplified by tracking row and column boundaries.  
+solution: https://leetcode.com/problems/count-covered-buildings/solutions/7407228/3531-count-covered-buildings-by-nitinahi-801u  
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-11  
+tags: ["LeetCode Challenge", "Day 87", "Geometry", "HashMap", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 87** of my LeetCode streak 🚀  
+Today's problem is **3531. Count Covered Buildings** — a deceptively simple geometry problem once you see the boundary pattern.
+
+---
+
+## 📌 Problem Statement  
+
+You're given:
+
+- A positive integer `n` (size of the city grid `n × n`)  
+- An array `buildings` where each entry `[x, y]` represents a unique building  
+
+A building at `(x, y)` is **covered** if there exists:
+
+- A building **left** of it  
+- A building **right** of it  
+- A building **above** it  
+- A building **below** it  
+
+Return the number of such *covered* buildings.
+
+---
+
+## 💡 Intuition  
+
+You don't need to simulate the grid.
+
+A building `(x, y)` is covered if:
+
+### In its row:
+- There is a building with `y' < y`  → left  
+- There is a building with `y' > y`  → right  
+
+### In its column:
+- There is a building with `x' < x`  → above  
+- There is a building with `x' > x`  → below  
+
+This becomes a **range boundary** problem:
+- Track `minY` and `maxY` for each row  
+- Track `minX` and `maxX` for each column  
+
+A building is covered iff:
+```
+rowMin[x] < y < rowMax[x]  
+colMin[y] < x < colMax[y]
+```
+
+
+That's the key insight.
+
+---
+
+## 🔑 Approach  
+
+1. Create four maps:
+   - `rowMin[x]`, `rowMax[x]`
+   - `colMin[y]`, `colMax[y]`
+
+2. Traverse all buildings once to fill these maps.
+
+3. For each building:
+   - Check if it lies **strictly between** the min/max of its row and column.
+
+4. Count it if all four directional requirements are met.
+
+Efficient and elegant.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(m)` where `m = buildings.length`  
+
+- **Space Complexity:**  
+  `O(m)` for storing row and column boundaries  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number} n
+ * @param {number[][]} buildings
+ * @return {number}
+ */
+var countCoveredBuildings = function(n, buildings) {
+    const rowMin = new Map(); // row x -> min y
+    const rowMax = new Map(); // row x -> max y
+    const colMin = new Map(); // col y -> min x
+    const colMax = new Map(); // col y -> max x
+
+    for (const [x, y] of buildings) {
+        if (!rowMin.has(x) || y < rowMin.get(x)) rowMin.set(x, y);
+        if (!rowMax.has(x) || y > rowMax.get(x)) rowMax.set(x, y);
+        if (!colMin.has(y) || x < colMin.get(y)) colMin.set(y, x);
+        if (!colMax.has(y) || x > colMax.get(y)) colMax.set(y, x);
+    }
+
+    let count = 0;
+    for (const [x, y] of buildings) {
+        const leftExists = rowMin.get(x) < y;
+        const rightExists = rowMax.get(x) > y;
+        const aboveExists = colMin.get(y) < x;
+        const belowExists = colMax.get(y) > x;
+
+        if (leftExists && rightExists && aboveExists && belowExists) {
+            count++;
+        }
+    }
+    return count;
+};
+```
+## 🎯 Reflection
+
+This problem highlights how:
+
+- Avoiding 2D grid simulation can save massive time
+    
+- Tracking **min/max boundaries** turns spatial reasoning into simple comparisons
+    
+- Clean preprocessing leads to clean logic
+    
+
+That's it for **Day 87** of my LeetCode challenge!  
+Streak going strong 🔥
+
+**Happy Coding 👨‍💻**

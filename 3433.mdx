@@ -1,0 +1,156 @@
+---
+title: LeetCode Challenge Day 88 — 3433. Count Mentions Per User  
+summary: Day 88 of my LeetCode challenge! Today's problem is "Count Mentions Per User" — a simulation problem involving user online/offline states and message parsing.  
+solution: https://leetcode.com/problems/count-mentions-per-user/solutions/7409077/3433-count-mentions-per-user-by-nitinahi-46qj
+image:  
+author: Nitin Ahirwal  
+publishedAt: 2025-12-12  
+tags: ["LeetCode Challenge", "Day 88", "Simulation", "String Parsing", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 88** of my LeetCode streak 🚀  
+Today's problem is **3433. Count Mentions Per User** — a clean simulation challenge that tests ordering of events and status tracking.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+
+- `numberOfUsers`
+- A list of `events`, each being either:
+  - **MESSAGE timestamp tokens**
+  - **OFFLINE timestamp userId**
+
+Rules:
+
+- `"ALL"` → mentions *all* users (even offline)  
+- `"HERE"` → mentions *only online users*  
+- `"idX"` → mentions user X explicitly  
+- OFFLINE lasts **60 time units**  
+- All users start online  
+- If an OFFLINE and MESSAGE occur at the same time → **OFFLINE is processed first**
+
+Goal:  
+Return an array `mentions[]` where `mentions[i]` is the total number of mentions for user *i*.
+
+---
+
+## 💡 Intuition  
+
+This is a **time-based simulation**.
+
+We must:
+
+1. Process events **in chronological order**
+2. Apply **OFFLINE before MESSAGE** at the same timestamp
+3. Track each user’s online state using:
+`offlineUntil[user] = time when user becomes online`
+4. For each message, interpret tokens:
+- `ALL`: everyone gets a mention
+- `HERE`: only users currently online get a mention
+- `idX`: explicit mention regardless of status
+
+Once we get the ordering and user state tracking right, the simulation becomes straightforward.
+
+---
+
+## 🔑 Approach  
+
+1. **Parse and sort events**  
+Sort by:
+- timestamp ascending  
+- OFFLINE before MESSAGE  
+
+2. Maintain:
+`offlineUntil[user] = time`
+
+3. For each event:
+- **OFFLINE** → mark user offline for 60 time units  
+- **MESSAGE** → parse tokens and increment mention counts  
+
+4. Return the `mentions[]` array.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+`O(n * users)` — worst case: each message iterates through all users
+
+- **Space Complexity:**  
+`O(users)` — for tracking offline state and mentions
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+* @param {number} numberOfUsers
+* @param {string[][]} events
+* @return {number[]}
+*/
+var countMentions = function(numberOfUsers, events) {
+ // parse events into objects with numeric timestamp
+ const parsed = events.map(e => ({
+     type: e[0],
+     timestamp: parseInt(e[1], 10),
+     data: e[2]
+ }));
+
+ // sort by timestamp asc; for same timestamp, OFFLINE before MESSAGE
+ parsed.sort((a, b) => {
+     if (a.timestamp !== b.timestamp) return a.timestamp - b.timestamp;
+     if (a.type === b.type) return 0;
+     return (a.type === "OFFLINE") ? -1 : 1;
+ });
+
+ const mentions = new Array(numberOfUsers).fill(0);
+ const offlineUntil = new Array(numberOfUsers).fill(0);
+
+ for (const ev of parsed) {
+     const t = ev.timestamp;
+
+     if (ev.type === "OFFLINE") {
+         const id = parseInt(ev.data, 10);
+         offlineUntil[id] = t + 60;
+     } else { // MESSAGE
+         const tokens = ev.data.trim().split(/\s+/);
+         for (const token of tokens) {
+             if (token === "ALL") {
+                 for (let i = 0; i < numberOfUsers; i++) mentions[i]++;
+             } else if (token === "HERE") {
+                 for (let i = 0; i < numberOfUsers; i++) {
+                     if (offlineUntil[i] <= t) mentions[i]++;
+                 }
+             } else if (token.startsWith("id")) {
+                 const idNum = parseInt(token.slice(2), 10);
+                 if (!Number.isNaN(idNum) && idNum >= 0 && idNum < numberOfUsers) {
+                     mentions[idNum]++;
+                 }
+             }
+         }
+     }
+ }
+
+ return mentions;
+};
+```
+
+## 🎯 Reflection
+
+This problem is a great reminder that:
+
+- **Correct event ordering** matters
+    
+- **State tracking** can be simple but must be precise
+    
+- Small simulation problems become trivial with the right structure
+    
+
+That wraps up **Day 88** of my LeetCode challenge!  
+Onwards to Day 89 🔥
+
+**Happy Coding 👨‍💻**

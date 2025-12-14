@@ -1,0 +1,131 @@
+---
+title: LeetCode Challenge Day 90 — 2147. Number of Ways to Divide a Long Corridor  
+summary: Day 90 of my LeetCode challenge! Today's problem is "Number of Ways to Divide a Long Corridor" — a combinatorics + greedy counting problem focused on grouping seats correctly.  
+solution: https://leetcode.com/problems/number-of-ways-to-divide-a-long-corridor/solutions/7413356/2147-number-of-ways-to-divide-a-long-cor-fw8t
+author: Nitin Ahirwal  
+publishedAt: 2025-12-14  
+tags: ["LeetCode Challenge", "Day 90", "Greedy", "Combinatorics", "Counting", "JavaScript", "Hard"]  
+---
+
+## Hey folks 👋  
+This is **Day 90** of my LeetCode streak 🚀  
+Today's problem is **2147. Number of Ways to Divide a Long Corridor** — a deceptively tricky counting problem that becomes elegant once you spot the pattern.
+
+---
+
+## 📌 Problem Statement  
+
+You are given a corridor represented as a string consisting of:
+
+- `'S'` → Seat  
+- `'P'` → Plant  
+
+Rules:
+
+- The corridor already has dividers at both ends
+- You may add dividers between positions
+- Each section **must contain exactly two seats**
+- Plants can be present in any quantity
+- Two divisions are different if divider positions differ
+
+Goal:  
+Return the **number of valid ways** to divide the corridor modulo **10⁹ + 7**.
+
+---
+
+## 💡 Intuition  
+
+The key observation is:
+
+> **Every valid section must contain exactly two seats.**
+
+So the problem reduces to grouping seats into **pairs**.
+
+- If the total number of seats is **odd or zero**, the answer is immediately `0`.
+- Once seats are paired, the **only freedom** we have is deciding where to place dividers **between consecutive seat-pairs**.
+- That freedom comes from the number of **plants between two seat-pairs**.
+
+If there are `k` plants between the end of one section and the start of the next, we have:
+`'S'`
+
+to place a divider.
+
+The final answer is simply the **product of these choices**.
+
+---
+
+## 🔑 Approach  
+
+1. Traverse the corridor from left to right.
+2. Count the number of seats encountered.
+3. Every time a section of **two seats** is completed:
+   - Start counting plants until the next seat appears.
+4. When the next section begins:
+   - Multiply the answer by `(plantsBetween + 1)`
+   - Reset the plant counter
+5. At the end:
+   - If total seats are odd or zero → return `0`
+   - Otherwise return the accumulated result modulo `10⁹ + 7`
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n)` — single pass through the corridor
+
+- **Space Complexity:**  
+  `O(1)` — constant extra space
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {string} corridor
+ * @return {number}
+ */
+var numberOfWays = function (corridor) {
+    const MOD = 1_000_000_007;
+    let seatCount = 0;
+    let ways = 1;
+    let plantsBetween = 0;
+
+    for (let ch of corridor) {
+        if (ch === 'S') {
+            seatCount++;
+
+            // first seat of a new section
+            if (seatCount > 2 && seatCount % 2 === 1) {
+                ways = (ways * (plantsBetween + 1)) % MOD;
+                plantsBetween = 0;
+            }
+        } else if (seatCount >= 2 && seatCount % 2 === 0) {
+            // count plants only after completing a section
+            plantsBetween++;
+        }
+    }
+
+    // invalid if no seats or odd number of seats
+    if (seatCount === 0 || seatCount % 2 !== 0) return 0;
+
+    return ways;
+};
+```
+
+## 🎯 Reflection
+
+This problem is a great example of how:
+
+- Hard problems often hide **simple counting logic**
+    
+- Focusing on **constraints** (exactly two seats) removes unnecessary complexity
+    
+- Greedy + math can outperform brute force by a mile
+    
+
+That wraps up **Day 90** of my LeetCode challenge 🔥  
+Onwards and upwards 🚀
+
+**Happy Coding 👨‍💻**

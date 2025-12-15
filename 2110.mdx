@@ -1,0 +1,108 @@
+---
+title: LeetCode Challenge Day 91 — 2110. Number of Smooth Descent Periods of a Stock  
+summary: Day 91 of my LeetCode challenge! Today's problem is "Number of Smooth Descent Periods of a Stock" — a simple yet elegant counting problem based on recognizing consecutive patterns in arrays.  
+solution: https://leetcode.com/problems/number-of-smooth-descent-periods-of-a-stock/solutions/7416036/2110-number-of-smooth-descent-periods-of-jqa6
+author: Nitin Ahirwal  
+publishedAt: 2025-12-15  
+tags: ["LeetCode Challenge", "Day 91", "Arrays", "Counting", "Simulation", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 91** of my LeetCode streak 🚀  
+Today's problem is **2110. Number of Smooth Descent Periods of a Stock** — a clean problem where consistency in thinking beats brute force.
+
+---
+
+## 📌 Problem Statement  
+
+You are given an integer array `prices`, where `prices[i]` represents the stock price on the `i`-th day.
+
+A **smooth descent period**:
+- Consists of one or more **contiguous days**
+- Each day's price is **exactly 1 less** than the previous day
+- A single day always counts as a valid period
+
+**Goal:**  
+Return the total number of smooth descent periods.
+
+---
+
+## 💡 Intuition  
+
+Every individual day forms a valid smooth descent period.
+
+The important observation is:
+> A smooth descent only continues when the price drops by **exactly 1**.
+
+So instead of checking all possible subarrays, we track:
+- The length of the **current descending streak**
+- How many valid periods **end at each day**
+
+If a streak has length `k`, it contributes `k` smooth descent periods ending at that position.
+
+---
+
+## 🔑 Approach  
+
+1. Initialize:
+   - `curr = 1` → current descent streak length
+   - `ans = 1` → the first day itself
+2. Traverse the array from index `1`:
+   - If `prices[i - 1] - prices[i] === 1`, increment `curr`
+   - Otherwise, reset `curr` to `1`
+3. Add `curr` to `ans` at each step
+4. Return `ans` after completing the traversal
+
+This ensures all valid periods are counted efficiently in one pass.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n)` — single pass through the array
+
+- **Space Complexity:**  
+  `O(1)` — constant extra space
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} prices
+ * @return {number}
+ */
+var getDescentPeriods = function(prices) {
+    let ans = 1;       // first day itself
+    let curr = 1;      // current descent length
+
+    for (let i = 1; i < prices.length; i++) {
+        if (prices[i - 1] - prices[i] === 1) {
+            curr += 1;     // extend descent
+        } else {
+            curr = 1;      // reset
+        }
+        ans += curr;
+    }
+
+    return ans;
+};
+```
+
+## 🎯 Reflection
+
+This problem reinforces a core lesson:
+
+- Track what **ends at the current index**
+    
+- Let patterns accumulate naturally
+    
+- One-pass solutions are often hiding in plain sight
+    
+
+That wraps up **Day 91** of my LeetCode challenge 🔥  
+Staying consistent, one problem at a time 🚀
+
+**Happy Coding 👨‍💻**

@@ -1,0 +1,173 @@
+---
+title: LeetCode Challenge Day 93 — 3573. Best Time to Buy and Sell Stock V  
+summary: Day 93 of my LeetCode challenge! Today's problem is "Best Time to Buy and Sell Stock V" — a dynamic programming problem that extends classic stock trading by allowing both long and short transactions.  
+solution: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-v/solutions/7420097/3573-best-time-to-buy-and-sell-stock-v-b-itsl
+author: Nitin Ahirwal  
+publishedAt: 2025-12-17  
+tags: ["LeetCode Challenge", "Day 93", "Dynamic Programming", "Stocks", "Simulation", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 93** of my LeetCode streak 🚀  
+Today's problem is **3573. Best Time to Buy and Sell Stock V** — a solid DP problem that pushes you to think beyond the usual buy–sell pattern.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+- An integer array `prices`, where `prices[i]` is the stock price on day `i`
+- An integer `k`, the maximum number of transactions allowed
+
+Each transaction can be:
+- **Normal transaction**: buy on day `i`, sell on a later day `j`  
+  Profit = `prices[j] - prices[i]`
+- **Short selling transaction**: sell on day `i`, buy back on a later day `j`  
+  Profit = `prices[i] - prices[j]`
+
+### Rules:
+- You must complete one transaction before starting another
+- Buying and selling cannot happen on the same day
+- At most `k` transactions are allowed
+
+**Goal:**  
+Return the maximum total profit.
+
+---
+
+## 💡 Intuition  
+
+At first glance, short selling makes the problem look complicated.  
+But the key observation is simple:
+
+> Every transaction is just **opening a position and closing it later**, regardless of direction.
+
+So at any point in time, we can only be in one of three states:
+- No open position
+- Holding a **long** position (buy first)
+- Holding a **short** position (sell first)
+
+Once a position is closed, exactly **one transaction** is completed.
+
+This naturally leads to a **state-based dynamic programming** solution.
+
+---
+
+## 🔑 Approach  
+
+We define a DP state:
+
+`dp[t][state]`
+
+Where:
+- `t` → number of completed transactions (`0 … k`)
+- `state`:
+  - `0` → no open position
+  - `1` → holding a long position
+  - `2` → holding a short position
+
+For each day, we:
+1. Carry forward existing states (do nothing)
+2. Open a long or short position if no position is open
+3. Close an existing long or short position to complete a transaction
+
+We iterate day by day and keep only the current DP row, which optimizes space.
+
+The final answer is the maximum value of `dp[t][0]` for all `t ≤ k`, since profit is finalized only when no position is open.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n × k)` — each day updates all transaction states
+
+- **Space Complexity:**  
+  `O(k)` — only current and next DP states are stored
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} prices
+ * @param {number} k
+ * @return {number}
+ */
+var maximumProfit = function (prices, k) {
+    const NEG = -1e18;
+
+    // dp[t][state]
+    // state: 0 = no position, 1 = long, 2 = short
+    let dp = Array.from({ length: k + 1 }, () => [NEG, NEG, NEG]);
+    dp[0][0] = 0;
+
+    for (let price of prices) {
+        let next = Array.from({ length: k + 1 }, () => [NEG, NEG, NEG]);
+
+        for (let t = 0; t <= k; t++) {
+            // stay idle
+            next[t][0] = Math.max(next[t][0], dp[t][0]);
+
+            // hold long
+            next[t][1] = Math.max(next[t][1], dp[t][1]);
+
+            // hold short
+            next[t][2] = Math.max(next[t][2], dp[t][2]);
+
+            // open long
+            if (dp[t][0] !== NEG) {
+                next[t][1] = Math.max(next[t][1], dp[t][0] - price);
+            }
+
+            // open short
+            if (dp[t][0] !== NEG) {
+                next[t][2] = Math.max(next[t][2], dp[t][0] + price);
+            }
+
+            if (t < k) {
+                // close long
+                if (dp[t][1] !== NEG) {
+                    next[t + 1][0] = Math.max(
+                        next[t + 1][0],
+                        dp[t][1] + price
+                    );
+                }
+
+                // close short
+                if (dp[t][2] !== NEG) {
+                    next[t + 1][0] = Math.max(
+                        next[t + 1][0],
+                        dp[t][2] - price
+                    );
+                }
+            }
+        }
+
+        dp = next;
+    }
+
+    let ans = 0;
+    for (let t = 0; t <= k; t++) {
+        ans = Math.max(ans, dp[t][0]);
+    }
+    return ans;
+};
+```
+
+## 🎯 Reflection
+
+This problem reinforces an important lesson:
+
+- Complex rules become manageable with clean state modeling
+    
+- Short selling is just another state, not a special case
+    
+- DP shines when constraints force careful sequencing
+    
+
+That wraps up **Day 93** of my LeetCode challenge 🔥  
+Consistency > motivation — see you on Day 94 🚀
+
+**Happy Coding 👨‍💻**

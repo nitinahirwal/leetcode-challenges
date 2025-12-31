@@ -1,0 +1,166 @@
+---
+title: LeetCode Challenge Day 107 — 1970. Last Day Where You Can Still Cross  
+summary: Day 107 of my LeetCode challenge! Today's problem is "Last Day Where You Can Still Cross" — a classic hard problem that combines binary search with BFS on a grid to find the last feasible day to traverse from top to bottom.  
+solution: https://leetcode.com/problems/last-day-where-you-can-still-cross/solutions/7453702/1970-last-day-where-you-can-still-cross-9ij9e
+author: Nitin Ahirwal  
+publishedAt: 2025-12-31  
+tags: ["LeetCode Challenge", "Day 107", "Binary Search", "BFS", "Graph Traversal", "JavaScript", "Hard"]  
+---
+
+## Hey folks 👋  
+This is **Day 107** of my LeetCode streak 🚀  
+Today's problem is **1970. Last Day Where You Can Still Cross** — a deceptively tricky grid problem that rewards recognizing **monotonic behavior**.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+- Two integers `row` and `col`
+- A list `cells`, where `cells[i] = [r, c]` represents a cell that becomes flooded on day `i`
+
+Rules:
+- On **day 0**, the entire grid is land
+- Each day, exactly one land cell turns into water
+- You can move **up, down, left, right**
+- You may start from **any cell in the top row**
+- You must reach **any cell in the bottom row**
+
+**Goal:**  
+Return the **last day** on which it is still possible to walk from the top to the bottom using only land cells.
+
+---
+
+## 💡 Intuition  
+
+As days progress, land cells keep turning into water — and never revert back.
+
+This gives us a crucial observation:
+
+> If crossing is possible on day `d`, it must be possible on all days `< d`.  
+> If crossing is impossible on day `d`, it will remain impossible for all days `> d`.
+
+This **monotonic property** immediately suggests using **binary search** on the answer.
+
+The only remaining question is:
+> How do we efficiently check if crossing is possible on a given day?
+
+That’s where **BFS on a grid** comes in.
+
+---
+
+## 🔑 Approach  
+
+1. **Binary search** the day range `[1, row × col]`
+2. For a given day `mid`:
+   - Build the grid
+   - Flood the first `mid` cells
+3. Run **BFS**:
+   - Start from all land cells in the **top row**
+   - Traverse only through land cells
+   - If any path reaches the **bottom row**, crossing is possible
+4. If crossing is possible:
+   - Save `mid` as a valid answer
+   - Try a later day
+5. Otherwise:
+   - Search earlier days
+6. The maximum valid day found is the final answer
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O((row × col) log(row × col))`  
+  Binary search over days, with BFS traversal for each check.
+
+- **Space Complexity:**  
+  `O(row × col)`  
+  Grid representation, visited array, and BFS queue.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number} row
+ * @param {number} col
+ * @param {number[][]} cells
+ * @return {number}
+ */
+var latestDayToCross = function(row, col, cells) {
+    const dirs = [[1,0], [-1,0], [0,1], [0,-1]];
+
+    function canCross(day) {
+        const grid = Array.from({ length: row }, () => Array(col).fill(0));
+
+        for (let i = 0; i < day; i++) {
+            const [r, c] = cells[i];
+            grid[r - 1][c - 1] = 1;
+        }
+
+        const queue = [];
+        const visited = Array.from({ length: row }, () => Array(col).fill(false));
+
+        for (let j = 0; j < col; j++) {
+            if (grid[0][j] === 0) {
+                queue.push([0, j]);
+                visited[0][j] = true;
+            }
+        }
+
+        while (queue.length) {
+            const [r, c] = queue.shift();
+            if (r === row - 1) return true;
+
+            for (const [dr, dc] of dirs) {
+                const nr = r + dr, nc = c + dc;
+                if (
+                    nr >= 0 && nr < row &&
+                    nc >= 0 && nc < col &&
+                    !visited[nr][nc] &&
+                    grid[nr][nc] === 0
+                ) {
+                    visited[nr][nc] = true;
+                    queue.push([nr, nc]);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    let left = 1, right = row * col, ans = 0;
+
+    while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        if (canCross(mid)) {
+            ans = mid;
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return ans;
+};
+```
+
+## 🎯 Reflection
+
+This problem highlights a powerful pattern:
+
+- **Monotonic feasibility → Binary Search**
+    
+- **Reachability → BFS / DFS**
+    
+- Hard problems often become simple once the right pattern is spotted
+    
+
+A clean mix of algorithmic thinking and implementation discipline.
+
+That wraps up **Day 107** of my LeetCode challenge 🔥  
+On to Day 108 — one problem at a time 🚀
+
+**Happy Coding 👨‍💻**

@@ -1,0 +1,105 @@
+---
+title: LeetCode Challenge Day 108 — 66. Plus One  
+summary: Day 108 of my LeetCode challenge! Today's problem is "Plus One" — a simple yet fundamental array manipulation problem that reinforces carry handling and elementary arithmetic logic.  
+solution: https://leetcode.com/problems/plus-one/solutions/7456245/66-plus-one-by-nitinahirwal_in-1dz21
+author: Nitin Ahirwal  
+publishedAt: 2026-01-01  
+tags: ["LeetCode Challenge", "Day 108", "Arrays", "Math", "JavaScript", "Easy"]  
+---
+
+## Hey folks 👋  
+This is **Day 108** of my LeetCode streak 🚀  
+Today's problem is **66. Plus One** — an easy problem on paper, but a great test of clean thinking and edge-case handling.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+- An array `digits` representing a **non-negative integer**
+- Each element is a single digit (`0–9`)
+- Digits are ordered from **most significant to least significant**
+- No leading zeroes
+
+**Goal:**  
+Increment the number by **one** and return the resulting digits array.
+
+---
+
+## 💡 Intuition  
+
+This problem is just **elementary addition**, applied to an array.
+
+Key observations:
+- Addition starts from the **last digit**
+- If a digit is less than `9`, increment it and stop
+- If a digit is `9`, it becomes `0` and generates a **carry**
+- If all digits are `9`, the carry propagates through the entire array and creates a new leading `1`
+
+So the entire problem boils down to **handling carry correctly**.
+
+---
+
+## 🔑 Approach  
+
+1. Traverse the array from **right to left**
+2. For each digit:
+   - If it’s less than `9`, increment it and return immediately
+   - Otherwise, set it to `0` and continue
+3. If the loop completes, all digits were `9`
+   - Insert `1` at the beginning of the array
+4. Return the updated array
+
+This avoids converting the array into a number and works efficiently for large inputs.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n)` — single pass through the digits
+
+- **Space Complexity:**  
+  `O(1)` — in-place modification (excluding output)
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} digits
+ * @return {number[]}
+ */
+var plusOne = function(digits) {
+    for (let i = digits.length - 1; i >= 0; i--) {
+        if (digits[i] < 9) {
+            digits[i]++;
+            return digits;
+        }
+        digits[i] = 0;
+    }
+    
+    // If all digits were 9
+    digits.unshift(1);
+    return digits;
+};
+```
+
+---
+
+## 🎯 Reflection
+
+This problem reinforces an important lesson:
+
+- Simple problems test **discipline**, not difficulty
+    
+- Carry handling is a recurring pattern in many harder problems
+    
+- Clean early returns keep the code readable
+    
+
+That wraps up **Day 108** of my LeetCode challenge 🔥  
+On to Day 109 — consistency beats intensity 🚀
+
+**Happy Coding 👨‍💻**

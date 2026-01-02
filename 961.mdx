@@ -1,0 +1,99 @@
+---
+title: LeetCode Challenge Day 109 — 961. N-Repeated Element in Size 2N Array  
+summary: Day 109 of my LeetCode challenge! Today's problem focuses on observation and constraints — identifying an element repeated N times in a size 2N array without extra space.  
+solution: https://leetcode.com/problems/n-repeated-element-in-size-2n-array/solutions/7459646/961-n-repeated-element-in-size-2n-array-484h4
+author: Nitin Ahirwal  
+publishedAt: 2026-01-02  
+tags: ["LeetCode Challenge", "Day 109", "Arrays", "Observation", "JavaScript", "Easy"]  
+---
+
+## Hey folks 👋  
+This is **Day 109** of my LeetCode streak 🚀  
+Today's problem is **961. N-Repeated Element in Size 2N Array** — a deceptively simple problem that rewards logical observation over brute force.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+- An integer array `nums` of length `2n`
+- Exactly `n + 1` unique elements
+- **One element is repeated exactly `n` times**
+
+**Goal:**  
+Return the element that is repeated `n` times.
+
+---
+
+## 💡 Intuition  
+
+Since the array has length `2n` and one element appears `n` times, that element is **everywhere** in the array.
+
+This means:
+- The repeated element cannot be spaced far apart everywhere
+- In any small window of consecutive elements, the repeated element must appear at least twice
+
+So instead of counting frequencies, we can detect repetition by simply comparing **nearby elements**.
+
+---
+
+## 🔑 Approach  
+
+1. Traverse the array from left to right
+2. For each index `i`, compare `nums[i]` with:
+   - `nums[i + 1]`
+   - `nums[i + 2]`
+   - `nums[i + 3]`
+3. If any match is found, return `nums[i]`
+
+Why this works:
+- With one element repeated `n` times in a `2n` array, at least two occurrences must fall within any window of size `4`
+- This guarantees an early detection without extra space
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n)` — single traversal of the array
+
+- **Space Complexity:**  
+  `O(1)` — no additional data structures used
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var repeatedNTimes = function(nums) {
+    for (let i = 0; i < nums.length - 1; i++) {
+        if (
+            nums[i] === nums[i + 1] ||
+            nums[i] === nums[i + 2] ||
+            nums[i] === nums[i + 3]
+        ) {
+            return nums[i];
+        }
+    }
+};
+```
+
+## 🎯 Reflection
+
+This problem is a great reminder that:
+
+- Constraints often hide the **real solution**
+    
+- Not every problem needs a hash map
+    
+- Observation can reduce both **time and space complexity**
+    
+
+That wraps up **Day 109** of my LeetCode challenge 🔥  
+Onward to **Day 110** — showing up daily beats solving everything at once 🚀
+
+**Happy Coding 👨‍💻**

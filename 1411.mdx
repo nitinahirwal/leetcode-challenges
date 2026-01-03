@@ -1,0 +1,125 @@
+---
+title: LeetCode Challenge Day 110 — 1411. Number of Ways to Paint N × 3 Grid  
+summary: Day 110 of my LeetCode challenge! Today's problem dives into dynamic programming with pattern observation — counting valid colorings of an N × 3 grid using state compression.  
+solution: https://leetcode.com/problems/number-of-ways-to-paint-n-3-grid/solutions/7462292/1411-number-of-ways-to-paint-n-x-3-grid-xdelv
+author: Nitin Ahirwal  
+publishedAt: 2026-01-03  
+tags: ["LeetCode Challenge", "Day 110", "Dynamic Programming", "State Compression", "JavaScript", "Hard"]  
+---
+
+## Hey folks 👋  
+This is **Day 110** of my LeetCode streak 🚀  
+Today's problem is **1411. Number of Ways to Paint N × 3 Grid** — a classic dynamic programming problem where observation simplifies a seemingly complex grid-coloring task.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+- A grid of size `n × 3`
+- Three colors: **Red, Yellow, Green**
+- No two adjacent cells (horizontal or vertical) can have the same color  
+
+**Goal:**  
+Return the total number of valid ways to paint the grid.  
+Since the number can be large, return it modulo **10⁹ + 7**.
+
+---
+
+## 💡 Intuition  
+
+Instead of coloring the entire grid at once, focus on **one row at a time**.
+
+For a single row of 3 cells, valid colorings fall into only **two patterns**:
+
+- **ABA pattern**  
+  - First and third cells have the same color  
+  - Middle cell is different  
+  - Example: `R G R`
+
+- **ABC pattern**  
+  - All three cells have different colors  
+  - Example: `R Y G`
+
+Each pattern has **6 possible colorings**, so for `n = 1`, total ways = `12`.
+
+The key realization:
+> The coloring of the current row depends **only on the pattern of the previous row**, not the exact colors.
+
+This allows us to track just **two states** instead of all combinations.
+
+---
+
+## 🔑 Approach  
+
+1. Use **dynamic programming with state compression**
+2. Maintain two variables:
+   - `same` → number of ways where the row follows the **ABA** pattern
+   - `diff` → number of ways where the row follows the **ABC** pattern
+3. Initialize for the first row:
+   - `same = 6`
+   - `diff = 6`
+4. For each new row:
+   - New `same` can be formed from:
+     - previous `same` rows in `3` ways
+     - previous `diff` rows in `2` ways
+   - New `diff` can be formed from:
+     - previous `same` rows in `2` ways
+     - previous `diff` rows in `2` ways
+5. Apply modulo at every step
+
+Finally, return `same + diff`.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n)` — one pass through the rows  
+
+- **Space Complexity:**  
+  `O(1)` — constant space using only two variables  
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var numOfWays = function(n) {
+    const MOD = 1e9 + 7;
+
+    // Base case for first row
+    let same = 6; // ABA patterns
+    let diff = 6; // ABC patterns
+
+    for (let i = 2; i <= n; i++) {
+        const newSame = (same * 3 + diff * 2) % MOD;
+        const newDiff = (same * 2 + diff * 2) % MOD;
+
+        same = newSame;
+        diff = newDiff;
+    }
+
+    return (same + diff) % MOD;
+};
+```
+
+## 🎯 Reflection
+
+This problem is a perfect example of how:
+
+- Pattern recognition simplifies complex grids
+    
+- State compression turns exponential problems into linear ones
+    
+- Clean thinking beats brute force every time
+    
+
+That wraps up **Day 110** of my LeetCode challenge 🔥  
+Consistency > intensity — see you on **Day 111** 🚀
+
+**Happy Coding 👨‍💻**

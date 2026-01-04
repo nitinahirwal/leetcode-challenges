@@ -1,0 +1,116 @@
+---
+title: LeetCode Challenge Day 111 — 1390. Four Divisors  
+summary: Day 111 of my LeetCode challenge! Today's problem focuses on divisor counting with early stopping — combining number theory with efficient iteration to avoid unnecessary computation.  
+solution: https://leetcode.com/problems/four-divisors/solutions/7466284/1390-four-divisors-by-nitinahirwal_in-w77w
+author: Nitin Ahirwal  
+publishedAt: 2026-01-04  
+tags: ["LeetCode Challenge", "Day 111", "Number Theory", "Math", "Optimization", "JavaScript", "Medium"]  
+---
+
+## Hey folks 👋  
+This is **Day 111** of my LeetCode streak 🚀  
+Today's problem is **1390. Four Divisors** — a neat number theory problem where recognizing divisor patterns helps avoid brute force.
+
+---
+
+## 📌 Problem Statement  
+
+You are given:
+- An integer array `nums`
+
+**Goal:**  
+For every number in the array that has **exactly four divisors**, return the **sum of its divisors**.  
+If no such number exists, return `0`.
+
+---
+
+## 💡 Intuition  
+
+Divisors always come in **pairs**.
+
+For a number `n`, if `i` is a divisor, then `n / i` is also a divisor.  
+This means we only need to iterate up to **√n**.
+
+The key idea:
+> As soon as a number has **more than four divisors**, it becomes irrelevant and we can stop checking it further.
+
+This early stopping keeps the solution efficient even for larger numbers.
+
+---
+
+## 🔑 Approach  
+
+1. Initialize `totalSum` to store the final answer.
+2. For each number `n` in `nums`:
+   - Start with two guaranteed divisors: `1` and `n`.
+   - Iterate from `2` to `√n`.
+   - If `i` divides `n`, add both `i` and `n / i` to the divisor list.
+   - If the divisor count exceeds `4`, break early.
+3. If the number ends up with **exactly four divisors**, add their sum to `totalSum`.
+4. Return `totalSum`.
+
+This approach balances **clarity and performance** without over-engineering.
+
+---
+
+## ⏱️ Complexity Analysis  
+
+- **Time Complexity:**  
+  `O(n × √m)`  
+  where `n` is the length of the array and `m` is the maximum value in `nums`.
+
+- **Space Complexity:**  
+  `O(1)`  
+  Only a small list of at most four divisors is maintained.
+
+---
+
+## 🧑‍💻 Code (JavaScript)
+
+```javascript
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var sumFourDivisors = function(nums) {
+    let totalSum = 0;
+
+    for (let n of nums) {
+        let divisors = [1, n];
+
+        for (let i = 2; i * i <= n; i++) {
+            if (n % i === 0) {
+                divisors.push(i);
+
+                if (i !== n / i) {
+                    divisors.push(n / i);
+                }
+
+                if (divisors.length > 4) break;
+            }
+        }
+
+        if (divisors.length === 4) {
+            totalSum += divisors.reduce((a, b) => a + b, 0);
+        }
+    }
+
+    return totalSum;
+};
+```
+
+## 🎯 Reflection
+
+This problem reinforces an important lesson:
+
+- Not every problem needs complex math — **early pruning** goes a long way
+    
+- Understanding divisor behavior can drastically reduce work
+    
+- Clean loops + logical breaks = efficient solutions
+    
+
+That wraps up **Day 111** of my LeetCode challenge 🔥  
+Onward to **Day 112** — consistency wins 🚀
+
+**Happy Coding 👨‍💻**
